@@ -1,26 +1,16 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { SignIn } from "./components/Auth/SignIn";
 
-function App() {
+const App = () => {
+  const handleSignIn = (email: string, role: string) => {
+    console.log("User signed in:", { email, role });
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <SignIn onSignIn={handleSignIn} />
     </div>
   );
-}
+};
 
 export default App;

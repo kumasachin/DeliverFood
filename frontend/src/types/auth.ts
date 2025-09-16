@@ -1,6 +1,8 @@
+export type Role = "customer" | "owner" | "admin";
+
 export interface User {
   email: string;
-  role: "customer" | "owner" | "admin";
+  role: Role;
   uuid?: string;
 }
 
@@ -17,5 +19,5 @@ export interface AuthResponse {
 export interface SignupData {
   email: string;
   password: string;
-  role: "customer" | "owner" | "admin";
+  role: Role;
 }

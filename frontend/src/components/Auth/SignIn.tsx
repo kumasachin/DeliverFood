@@ -1,12 +1,45 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Paper } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Alert,
+} from "@mui/material";
+import { Role } from "../../types/auth";
 
-export function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+type SignInProps = {
+  onSignIn?: (email: string, role: Role) => void;
+};
 
-  const handleLogin = (e: any) => {
+export const SignIn = ({ onSignIn }: SignInProps) => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const detectRole = (email: string): Role => {
+    if (email.includes("admin")) return "admin";
+    if (email.includes("owner")) return "owner";
+    return "customer";
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      if (email && password) {
+        const role = detectRole(email);
+        onSignIn?.(email, role);
+      }
+    } catch (err) {
+      setError("Login failed. Check your email/password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -17,6 +50,14 @@ export function SignIn() {
       minHeight="100vh"
     >
       <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: "100%" }}>
+        <Typography variant="h4" component="h1" gutterBottom align="center">
+          Sign In
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
         <form onSubmit={handleLogin}>
           <TextField
             label="Email"
@@ -27,7 +68,6 @@ export function SignIn() {
             margin="normal"
             required
           />
-
           <TextField
             label="Password"
             type="password"
@@ -37,17 +77,17 @@ export function SignIn() {
             margin="normal"
             required
           />
-
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            disabled={loading}
           >
-            Sign In{" "}
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
       </Paper>
     </Box>
   );
-}
+};
