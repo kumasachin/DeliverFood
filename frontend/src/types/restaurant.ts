@@ -1,13 +1,16 @@
 export interface Restaurant {
-  uuid: string;
+  id: string;
+  uuid?: string;
   name: string;
   description?: string;
   cuisine?: string;
+  category?: string;
   address?: string;
   phone?: string;
   email?: string;
   image?: string;
   rating?: number;
+  deliveryTime?: string;
   ownerUuid?: string;
 }
 
