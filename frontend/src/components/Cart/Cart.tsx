@@ -10,7 +10,13 @@ import {
   Divider,
   Alert,
 } from "@mui/material";
-import { Add, Remove, Delete, ShoppingCartOutlined, ShoppingCart } from "@mui/icons-material";
+import {
+  Add,
+  Remove,
+  Delete,
+  ShoppingCartOutlined,
+  ShoppingCart,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";

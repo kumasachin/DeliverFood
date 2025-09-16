@@ -110,9 +110,7 @@ export const Checkout = () => {
             <CardContent>
               <Box display="flex" alignItems="center" sx={{ mb: 2 }}>
                 <ShoppingBag sx={{ mr: 1 }} />
-                <Typography variant="h6">
-                  Order Summary
-                </Typography>
+                <Typography variant="h6">Order Summary</Typography>
               </Box>
               <List dense>
                 {cartState.items.map((item) => (
@@ -156,9 +154,7 @@ export const Checkout = () => {
             <CardContent>
               <Box display="flex" alignItems="center" sx={{ mb: 2 }}>
                 <LocalShipping sx={{ mr: 1 }} />
-                <Typography variant="h6">
-                  Delivery Details
-                </Typography>
+                <Typography variant="h6">Delivery Details</Typography>
               </Box>
 
               <TextField

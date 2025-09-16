@@ -43,7 +43,12 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
       minHeight="100vh"
     >
       <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: "100%" }}>
-        <Box display="flex" alignItems="center" justifyContent="center" sx={{ mb: 3 }}>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          sx={{ mb: 3 }}
+        >
           <Login sx={{ mr: 2, fontSize: 32 }} />
           <Typography variant="h4" component="h1">
             Sign In

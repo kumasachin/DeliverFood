@@ -16,6 +16,7 @@ import {
   PersonAdd,
   ShoppingCart,
   Logout,
+  Receipt,
 } from "@mui/icons-material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
@@ -38,6 +39,7 @@ export const Navigation = () => {
   const authenticatedNavItems = [
     { path: "/restaurants", label: "Restaurants", icon: <Restaurant /> },
     { path: "/meals", label: "Meals", icon: <Storefront /> },
+    { path: "/orders", label: "Orders", icon: <Receipt /> },
   ];
 
   const navItems = authState.isAuthenticated

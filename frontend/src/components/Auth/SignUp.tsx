@@ -37,9 +37,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
     try {
       await signUp(values.email, values.password, values.name, values.role);
       navigate("/restaurants");
-    } catch (err) {
-      // Error is handled by AuthContext
-    }
+    } catch (err) {}
   };
 
   return (
@@ -50,7 +48,12 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
       minHeight="100vh"
     >
       <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: "100%" }}>
-        <Box display="flex" alignItems="center" justifyContent="center" sx={{ mb: 3 }}>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          sx={{ mb: 3 }}
+        >
           <PersonAdd sx={{ mr: 2, fontSize: 32 }} />
           <Typography variant="h4" component="h1">
             Sign Up
