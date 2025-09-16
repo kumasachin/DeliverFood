@@ -12,6 +12,7 @@ import { SignIn } from "./components/Auth/SignIn";
 import { SignUp } from "./components/Auth/SignUp";
 import { RestaurantList } from "./components/Restaurant/RestaurantList";
 import { MealList } from "./components/Meal/MealList";
+import { Cart } from "./components/Cart/Cart";
 import { Navigation } from "./components/Navigation/Navigation";
 import { AuthProvider, CartProvider } from "./contexts";
 import { Restaurant } from "./types/restaurant";
@@ -56,6 +57,7 @@ const AppContent = () => {
               <RestaurantList onSelectRestaurant={handleSelectRestaurant} />
             }
           />
+          <Route path="/cart" element={<Cart />} />
           <Route
             path="/meals"
             element={
