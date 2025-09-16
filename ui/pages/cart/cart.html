@@ -1,147 +1,299 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+  <head>
+    <title>Cart</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-  <title>Cart</title>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link
+      href="https://cdn.muicss.com/mui-0.10.3/css/mui.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.muicss.com/mui-0.10.3/js/mui.min.js"></script>
 
-  <link href="https://cdn.muicss.com/mui-0.10.3/css/mui.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.muicss.com/mui-0.10.3/js/mui.min.js"></script>
+    <link rel="stylesheet" href="../../styles/global.css" />
+    <link rel="stylesheet" href="cart.css" />
+    <script src="../../js/app.js"></script>
+  </head>
 
-  <link rel="stylesheet" href="../../styles/global.css">
-  <link rel="stylesheet" href="cart.css" />
-</head>
-
-<body>
-  <div class="page-layout-container">
-    <header>
-      <div class="mui-appbar mui--appbar-line-height">
-        <div class="mui-container-fluid d-flex align-item-center">
-
-          <div class="app-bar-leading mui-col-md-4">
-            <div class="app-name">
-              🍔 Food Delivery
+  <body>
+    <div class="page-layout-container">
+      <header>
+        <div class="mui-appbar mui--appbar-line-height">
+          <div class="mui-container-fluid d-flex align-item-center">
+            <div class="app-bar-leading mui-col-md-4">
+              <div class="app-name">🍔 Food Delivery</div>
+            </div>
+            <div class="app-bar-center mui-col-md-4">
+              <div class="user-name text-center" id="userWelcome">Welcome!</div>
+            </div>
+            <div class="app-bar-trailing mui-col-md-4">
+              <a href="../../pages/browse-restaurants/browse-restaurants.html"
+                >Browse Restaurants
+              </a>
+              <a href="../../pages/view-orders/customer.html">Orders History</a>
+              <a href="#" onclick="Auth.logout()">Sign Out</a>
             </div>
           </div>
-          <div class="app-bar-center mui-col-md-4">
-            <div class="user-name text-center">
-              Welcome, [Regular User's Name]!
+        </div>
+      </header>
+
+      <main>
+        <div class="main">
+          <div class="cart">
+            <h3>Your Cart</h3>
+            <ul class="cart-items" id="cartItems">
+              <!-- Cart items will be dynamically loaded here -->
+            </ul>
+          </div>
+          <div class="checkout-info" id="checkoutInfo">
+            <div class="coupon-section">
+              <label for="coupon-code">Enter Coupon Code:</label>
+              <input
+                type="text"
+                id="coupon-code"
+                placeholder="e.g., DISCOUNT10"
+              />
+              <button class="mui-btn mui-btn--small" onclick="applyCoupon()">
+                Apply
+              </button>
             </div>
-          </div>
-          <div class="app-bar-trailing mui-col-md-4">
-            <a href="../../pages/browse-restaurants/browse-restaurants.html">Browse Restaurants </a>
-            <a href="../../pages/view-orders/customer.html">Orders History</a>
-            <a href="/index.html">Sign Out</a>
+            <div class="tip-section">
+              <label for="tip-amount">Tip Amount ($):</label>
+              <input
+                type="number"
+                id="tip-amount"
+                placeholder="0"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div
+              class="discount-section"
+              id="discountSection"
+              style="display: none"
+            >
+              <p class="discount-text" id="discountText"></p>
+            </div>
+            <div
+              class="price-before-discount"
+              id="originalPriceSection"
+              style="display: none"
+            >
+              <p class="price-before-discount-text">
+                Original Price:
+                <span class="original-price" id="originalPrice"></span>
+              </p>
+            </div>
+            <div class="total-price">
+              <h4>Total Price:</h4>
+              <span id="totalPrice">$0.00</span>
+            </div>
+            <button
+              class="checkout-btn mui-btn mui-btn--primary"
+              onclick="checkout()"
+            >
+              Checkout
+            </button>
           </div>
         </div>
-      </div>
-    </header>
+      </main>
 
-    <main>
-      <div class="main">
-        <div class="cart">
-          <h3>Your Cart</h3>
-          <ul class="cart-items">
-            <li class="cart-item">
-              <img src="../../assets/meals/fried-rice.png" alt="Item 1">
-              <div class="item-details">
-                <h4>Item 1</h4>
-                <p>Price: $10</p>
-                <div class="item-quantity">
-                  <button class="quantity-btn">-</button>
-                  <span class="quantity">1</span>
-                  <button class="quantity-btn">+</button>
-                </div>
-                <button class="remove-btn">Remove</button>
-              </div>
-            </li>
-            <li class="cart-item">
-              <img src="../../assets/meals/lunch-box.png" alt="Item 2">
-              <div class="item-details">
-                <h4>Item 2</h4>
-                <p>Price: $15</p>
-                <div class="item-quantity">
-                  <button class="quantity-btn">-</button>
-                  <span class="quantity">2</span>
-                  <button class="quantity-btn">+</button>
-                </div>
-                <button class="remove-btn">Remove</button>
-              </div>
-            </li>
-            <li class="cart-item">
-              <img src="../../assets/meals/meal.png" alt="Item 3">
-              <div class="item-details">
-                <h4>Item 3</h4>
-                <p>Price: $30</p>
-                <div class="item-quantity">
-                  <button class="quantity-btn">-</button>
-                  <span class="quantity">3</span>
-                  <button class="quantity-btn">+</button>
-                </div>
-                <button class="remove-btn">Remove</button>
-              </div>
-            </li>
-            <li class="cart-item">
-              <img src="../../assets/meals/burger.png" alt="Item 2">
-              <div class="item-details">
-                <h4>Item 4</h4>
-                <p>Price: $5</p>
-                <div class="item-quantity">
-                  <button class="quantity-btn">-</button>
-                  <span class="quantity">1</span>
-                  <button class="quantity-btn">+</button>
-                </div>
-                <button class="remove-btn">Remove</button>
-              </div>
-            </li>
-            <li class="cart-item">
-              <img src="../../assets/meals/taiyaki.png" alt="Item 2">
-              <div class="item-details">
-                <h4>Item 5</h4>
-                <p>Price: $15</p>
-                <div class="item-quantity">
-                  <button class="quantity-btn">-</button>
-                  <span class="quantity">1</span>
-                  <button class="quantity-btn">+</button>
-                </div>
-                <button class="remove-btn">Remove</button>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div class="checkout-info">
-          <div class="coupon-section">
-            <label for="coupon-code">Enter Coupon Code:</label>
-            <input type="text" id="coupon-code" placeholder="e.g., DISCOUNT10">
-          </div>
-          <div class="tip-section">
-            <label for="tip-amount">Tip Amount ($):</label>
-            <input type="text" id="tip-amount" placeholder="Enter tip amount">
-          </div>
-          <div class="discount-section">
-            <p class="discount-text">You're eligible for a 10% discount on your order!</p>
-          </div>
-          <div class="price-before-discount">
-            <p class="price-before-discount-text">Original Price: <span class="original-price">$75</span></p>
-          </div>
-          <div class="total-price">
-            <h4>Total Price:</h4>
-            <span>$67.5</span>
-          </div>
-          <button class="checkout-btn">Checkout</button>
-        </div>
-      </div>
-    </main>
+      <footer>
+        <div class="text-center">Toptal Food Delivery</div>
+      </footer>
+    </div>
 
+    <script>
+      let appliedCoupon = null;
 
-    <footer>
-      <div class="text-center">
-        Toptal Food Delivery
-      </div>
-    </footer>
-  </div>
-</body>
+      // Initialize page
+      document.addEventListener("DOMContentLoaded", () => {
+        // Check authentication
+        if (!Auth.requireAuth()) return;
 
+        // Update user welcome message
+        const user = Auth.getCurrentUser();
+        if (user && user.email) {
+          document.getElementById(
+            "userWelcome"
+          ).textContent = `Welcome, ${user.email}!`;
+        }
+
+        // Load cart
+        loadCart();
+
+        // Setup tip amount change listener
+        document
+          .getElementById("tip-amount")
+          .addEventListener("input", calculateTotal);
+      });
+
+      function loadCart() {
+        const cart = Cart.getCart();
+        const cartItemsContainer = document.getElementById("cartItems");
+        const checkoutInfo = document.getElementById("checkoutInfo");
+
+        if (cart.items.length === 0) {
+          cartItemsContainer.innerHTML = `
+          <li class="text-center" style="list-style: none; padding: 2rem;">
+            <h4>Your cart is empty</h4>
+            <p>Add some delicious meals to get started!</p>
+            <a href="../browse-restaurants/browse-restaurants.html" class="mui-btn mui-btn--primary">
+              Browse Restaurants
+            </a>
+          </li>
+        `;
+          checkoutInfo.style.display = "none";
+          return;
+        }
+
+        checkoutInfo.style.display = "block";
+        cartItemsContainer.innerHTML = cart.items
+          .map(
+            (item) => `
+        <li class="cart-item">
+          <img src="../../assets/meals/meal.png" alt="${escapeHtml(item.name)}" 
+               onerror="this.src='../../assets/burger.png'">
+          <div class="item-details">
+            <h4>${escapeHtml(item.name)}</h4>
+            <p>Price: ${Utils.formatCurrency(item.price)}</p>
+            <div class="item-quantity">
+              <button class="quantity-btn" onclick="updateItemQuantity('${
+                item.uuid
+              }', ${item.quantity - 1})">-</button>
+              <span class="quantity">${item.quantity}</span>
+              <button class="quantity-btn" onclick="updateItemQuantity('${
+                item.uuid
+              }', ${item.quantity + 1})">+</button>
+            </div>
+            <button class="remove-btn mui-btn mui-btn--small mui-btn--danger" 
+                    onclick="removeItem('${item.uuid}')">Remove</button>
+          </div>
+        </li>
+      `
+          )
+          .join("");
+
+        calculateTotal();
+      }
+
+      function updateItemQuantity(mealUuid, newQuantity) {
+        if (newQuantity <= 0) {
+          removeItem(mealUuid);
+        } else {
+          Cart.updateQuantity(mealUuid, newQuantity);
+          loadCart();
+        }
+      }
+
+      function removeItem(mealUuid) {
+        Cart.removeItem(mealUuid);
+        loadCart();
+      }
+
+      function calculateTotal() {
+        const cart = Cart.getCart();
+        const tipAmount =
+          parseFloat(document.getElementById("tip-amount").value) || 0;
+
+        let subtotal = Cart.getTotal();
+        let discount = 0;
+
+        if (appliedCoupon) {
+          discount = (subtotal * appliedCoupon.percentage) / 100;
+          document.getElementById("discountSection").style.display = "block";
+          document.getElementById(
+            "discountText"
+          ).textContent = `You're eligible for a ${appliedCoupon.percentage}% discount with code ${appliedCoupon.coupon_code}!`;
+          document.getElementById("originalPriceSection").style.display =
+            "block";
+          document.getElementById("originalPrice").textContent =
+            Utils.formatCurrency(subtotal);
+        } else {
+          document.getElementById("discountSection").style.display = "none";
+          document.getElementById("originalPriceSection").style.display =
+            "none";
+        }
+
+        const total = subtotal - discount + tipAmount * 100; // Convert tip to cents
+        document.getElementById("totalPrice").textContent =
+          Utils.formatCurrency(total);
+      }
+
+      async function applyCoupon() {
+        const couponCode = document.getElementById("coupon-code").value.trim();
+        if (!couponCode) {
+          Utils.showError("Please enter a coupon code");
+          return;
+        }
+
+        const cart = Cart.getCart();
+        if (!cart.restaurantUuid) {
+          Utils.showError("No items in cart");
+          return;
+        }
+
+        try {
+          const coupons = await API.getRestaurantCoupons(cart.restaurantUuid);
+          const validCoupons = coupons.items || coupons;
+          const coupon = validCoupons.find(
+            (c) =>
+              c.coupon_code.toLowerCase() === couponCode.toLowerCase() &&
+              c.status === "active"
+          );
+
+          if (coupon) {
+            appliedCoupon = coupon;
+            calculateTotal();
+            Utils.showSuccess(`Coupon applied! ${coupon.percentage}% discount`);
+          } else {
+            Utils.showError("Invalid or expired coupon code");
+          }
+        } catch (error) {
+          console.error("Failed to apply coupon:", error);
+          Utils.showError("Failed to apply coupon. Please try again.");
+        }
+      }
+
+      async function checkout() {
+        const cart = Cart.getCart();
+        if (cart.items.length === 0) {
+          Utils.showError("Your cart is empty");
+          return;
+        }
+
+        const tipAmount =
+          parseFloat(document.getElementById("tip-amount").value) || 0;
+
+        const orderData = {
+          order_items: cart.items.map((item) => ({
+            meal_uuid: item.uuid,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          tip_amount: Math.round(tipAmount * 100), // Convert to cents
+          ...(appliedCoupon && { coupon_code: appliedCoupon.coupon_code }),
+        };
+
+        try {
+          const order = await API.createOrder(orderData);
+          Cart.clear();
+          Utils.showSuccess("Order placed successfully!");
+          window.location.href = `../view-single-order/customer.html?order=${order.uuid}`;
+        } catch (error) {
+          console.error("Failed to place order:", error);
+          Utils.showError("Failed to place order. Please try again.");
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+    </script>
+  </body>
 </html>

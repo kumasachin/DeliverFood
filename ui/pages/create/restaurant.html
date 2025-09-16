@@ -12,6 +12,7 @@
 
     <link rel="stylesheet" href="../../styles/global.css">
     <link rel="stylesheet" href="create.css" />
+    <script src="../../js/app.js"></script>
 
 </head>
 
@@ -27,15 +28,15 @@
                         </div>
                     </div>
                     <div class="app-bar-center mui-col-md-4">
-                        <div class="user-name text-center">
-                            Welcome, [Restaurant Owner's Name]!
+                        <div class="user-name text-center" id="userWelcome">
+                            Welcome!
                         </div>
                     </div>
                     <div class="app-bar-trailing mui-col-md-4">
-                        <a href="../../pages/browse-meals/browse-meals.html">Browse Meals</a>
                         <a href="../../pages/view-orders/owner.html">View Orders</a>
                         <a href="../../pages/create/meal.html">Create Meal</a>
-                        <a href="/index.html">Sign Out</a>
+                        <a href="../../pages/create/coupon.html">Create Coupon</a>
+                        <a href="#" onclick="Auth.logout()">Sign Out</a>
                     </div>
                 </div>
             </div>
@@ -47,38 +48,44 @@
 
                 <div class="mui-panel">
                     <div>
-                        <form class="mui-form" onsubmit="addItem()">
+                        <form class="mui-form" id="restaurantForm">
                             <legend>Add New Restaurant</legend>
                             <div class="mui-textfield mui-textfield--float-label">
-                                <input type="text" name="restaurant-title" required />
+                                <input type="text" id="restaurant-title" name="restaurant-title" required />
                                 <label>Restaurant Title</label>
                             </div>
                             <div class="mui-textfield mui-textfield--float-label">
-                                <textarea name="restaurant" required></textarea>
+                                <textarea id="restaurant-description" name="restaurant-description" required></textarea>
                                 <label>Restaurant Description</label>
                             </div>
                             <div class="mui-select">
-                                <select name="restaurant" id="restaurant" required>
+                                <select id="restaurant-cuisine" name="restaurant-cuisine" required>
                                     <option value="" disabled selected>Cuisine</option>
                                     <option value="italian">Italian</option>
                                     <option value="french">French</option>
-                                    <option value="chinese">Chinise</option>
-                                    <option value="japanese">Japanses</option>
+                                    <option value="chinese">Chinese</option>
+                                    <option value="japanese">Japanese</option>
+                                    <option value="indian">Indian</option>
                                     <option value="mexican">Mexican</option>
+                                    <option value="greek">Greek</option>
                                 </select>
                                 <label>Cuisine</label>
                             </div>
                             <div class="mui-textfield mui-textfield--float-label">
-                                <input type="number" step="any" name="restaurant-longtiude" required />
+                                <input type="number" step="any" id="restaurant-longitude" name="restaurant-longitude" required />
                                 <label>Longitude</label>
                             </div>
                             <div class="mui-textfield mui-textfield--float-label">
-                                <input type="number" step="any" name="restaurant-latitude" required />
+                                <input type="number" step="any" id="restaurant-latitude" name="restaurant-latitude" required />
                                 <label>Latitude</label>
                             </div>
                             <div style="display: flex; align-items: center;">
-                                <button type="submit" class="mui-btn mui-btn--raised" style="margin-left: auto;">Create
-                                    Restaurant</button>
+                                <button type="submit" class="mui-btn mui-btn--raised" style="margin-left: auto;" id="submitBtn">
+                                    Create Restaurant
+                                </button>
+                                <button type="button" class="mui-btn mui-btn--flat" onclick="cancelEdit()" id="cancelBtn" style="display: none; margin-left: 10px;">
+                                    Cancel
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -90,33 +97,15 @@
                                     <th>Restaurant Title</th>
                                     <th>Description</th>
                                     <th>Cuisine</th>
-                                    <th>Longitude</th>
-                                    <th>Latitude</th>
-                                    <th></th>
-                                    <th></th>
+                                    <th>Coordinates</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="text-align: center;">
-                                        <img class="card-image" src="../../assets/restaurant.png" />
-                                    </td>
-                                    <td>Restaurant 1</td>
-                                    <td>This is the description</td>
-                                    <td>French</td>
-                                    <td>10</td>
-                                    <td>-10</td>
-                                    <td>
-                                        <button class="edit-button" onclick="activateModal()">Edit</button>
-                                    </td>
-                                    <td>
-                                        <button class="remove-button">Remove</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center;">
-                                        <img class="card-image" src="../../assets/restaurant.png" />
-                                    </td>
+                            <tbody id="restaurantsTableBody">
+                                <!-- Restaurants will be dynamically loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                                     <td>Restaurant 2</td>
                                     <td>This is the description</td>
                                     <td>Italian</td>
@@ -204,21 +193,166 @@
             </div>
 
             <script>
-                function addItem() { }
+                let editingRestaurant = null;
+                let restaurants = [];
 
-                function activateModal() {
-                    event.preventDefault()
-                    const modalEl = document.getElementById("edit-modal")
-                    modalEl.style.display = "block"
+                // Initialize page
+                document.addEventListener('DOMContentLoaded', async () => {
+                    // Check authentication and role
+                    if (!Auth.requireAuth()) return;
+                    
+                    const user = Auth.getCurrentUser();
+                    if (!Auth.hasRole('owner')) {
+                        Utils.showError('You must be a restaurant owner to access this page');
+                        window.location.href = '../browse-restaurants/browse-restaurants.html';
+                        return;
+                    }
+
+                    // Update user welcome message
+                    if (user && user.email) {
+                        document.getElementById('userWelcome').textContent = `Welcome, ${user.email}!`;
+                    }
+
+                    // Load restaurants
+                    await loadRestaurants();
+
+                    // Setup form submission
+                    document.getElementById('restaurantForm').addEventListener('submit', handleFormSubmit);
+                });
+
+                async function loadRestaurants() {
+                    try {
+                        const response = await API.getRestaurants();
+                        restaurants = response.items || response;
+                        renderRestaurants(restaurants);
+                    } catch (error) {
+                        console.error('Failed to load restaurants:', error);
+                        Utils.showError('Failed to load restaurants. Please try again.');
+                    }
                 }
 
-                function editItem() {
-                    const modalEl = document.getElementById("edit-modal")
-                    modalEl.style.display = "none"
+                function renderRestaurants(restaurantList) {
+                    const tbody = document.getElementById('restaurantsTableBody');
+                    
+                    if (restaurantList.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    <p>No restaurants found. Create your first restaurant above!</p>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = restaurantList.map(restaurant => `
+                        <tr>
+                            <td style="text-align: center;">
+                                <img class="card-image" src="../../assets/restaurant.png" />
+                            </td>
+                            <td>${escapeHtml(restaurant.title)}</td>
+                            <td>${escapeHtml(restaurant.description)}</td>
+                            <td>${escapeHtml(restaurant.cuisine)}</td>
+                            <td>${restaurant.coordinates ? `${restaurant.coordinates.lat}, ${restaurant.coordinates.lng}` : 'N/A'}</td>
+                            <td>
+                                <button class="mui-btn mui-btn--small mui-btn--primary" onclick="editRestaurant('${restaurant.uuid}')">
+                                    Edit
+                                </button>
+                                <button class="mui-btn mui-btn--small mui-btn--danger" onclick="deleteRestaurant('${restaurant.uuid}')">
+                                    Delete
+                                </button>
+                                <a href="../create/meal.html?restaurant=${restaurant.uuid}" class="mui-btn mui-btn--small mui-btn--flat">
+                                    Manage Meals
+                                </a>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                async function handleFormSubmit(e) {
+                    e.preventDefault();
+                    
+                    const formData = {
+                        title: document.getElementById('restaurant-title').value,
+                        description: document.getElementById('restaurant-description').value,
+                        cuisine: document.getElementById('restaurant-cuisine').value,
+                        coordinates: {
+                            lat: document.getElementById('restaurant-latitude').value,
+                            lng: document.getElementById('restaurant-longitude').value
+                        }
+                    };
+
+                    try {
+                        if (editingRestaurant) {
+                            await API.updateRestaurant(editingRestaurant.uuid, formData);
+                            Utils.showSuccess('Restaurant updated successfully!');
+                        } else {
+                            await API.createRestaurant(formData);
+                            Utils.showSuccess('Restaurant created successfully!');
+                        }
+                        
+                        resetForm();
+                        await loadRestaurants();
+                    } catch (error) {
+                        console.error('Failed to save restaurant:', error);
+                        Utils.showError('Failed to save restaurant. Please try again.');
+                    }
+                }
+
+                function editRestaurant(uuid) {
+                    const restaurant = restaurants.find(r => r.uuid === uuid);
+                    if (!restaurant) return;
+
+                    editingRestaurant = restaurant;
+                    
+                    // Populate form
+                    document.getElementById('restaurant-title').value = restaurant.title;
+                    document.getElementById('restaurant-description').value = restaurant.description;
+                    document.getElementById('restaurant-cuisine').value = restaurant.cuisine;
+                    document.getElementById('restaurant-latitude').value = restaurant.coordinates?.lat || '';
+                    document.getElementById('restaurant-longitude').value = restaurant.coordinates?.lng || '';
+                    
+                    // Update UI
+                    document.getElementById('submitBtn').textContent = 'Update Restaurant';
+                    document.getElementById('cancelBtn').style.display = 'inline-block';
+                    document.querySelector('legend').textContent = 'Edit Restaurant';
+                }
+
+                function cancelEdit() {
+                    resetForm();
+                }
+
+                function resetForm() {
+                    editingRestaurant = null;
+                    document.getElementById('restaurantForm').reset();
+                    document.getElementById('submitBtn').textContent = 'Create Restaurant';
+                    document.getElementById('cancelBtn').style.display = 'none';
+                    document.querySelector('legend').textContent = 'Add New Restaurant';
+                }
+
+                async function deleteRestaurant(uuid) {
+                    if (!confirm('Are you sure you want to delete this restaurant? This action cannot be undone.')) {
+                        return;
+                    }
+
+                    try {
+                        await API.deleteRestaurant(uuid);
+                        Utils.showSuccess('Restaurant deleted successfully!');
+                        await loadRestaurants();
+                    } catch (error) {
+                        console.error('Failed to delete restaurant:', error);
+                        Utils.showError('Failed to delete restaurant. Please try again.');
+                    }
+                }
+
+                function escapeHtml(text) {
+                    if (!text) return '';
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
                 }
             </script>
         </main>
-
 
         <footer>
             <div class="text-center">

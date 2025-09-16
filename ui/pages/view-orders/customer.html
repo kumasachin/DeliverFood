@@ -15,6 +15,7 @@
 
 	<link rel="stylesheet" href="../../styles/global.css">
 	<link rel="stylesheet" href="orders.css" />
+	<script src="../../js/app.js"></script>
 </head>
 
 <body>
@@ -29,14 +30,14 @@
 						</div>
 					</div>
 					<div class="app-bar-center mui-col-md-4">
-						<div class="user-name text-center">
-							Welcome, [Regular User's Name]!
+						<div class="user-name text-center" id="userWelcome">
+							Welcome!
 						</div>
 					</div>
 					<div class="app-bar-trailing mui-col-md-4">
-						<a href="../../pages/browse-meals/browse-meals.html">Browse Meals</a>
+						<a href="../../pages/browse-restaurants/browse-restaurants.html">Browse Restaurants</a>
 						<a href="../../pages/cart/cart.html">Cart</a>
-						<a href="/index.html">Sign Out</a>
+						<a href="#" onclick="Auth.logout()">Sign Out</a>
 					</div>
 				</div>
 			</div>
@@ -60,32 +61,11 @@
 											<th>Items</th>
 											<th>Total</th>
 											<th>Status</th>
-											<th></th>
-											<th></th>
+											<th>Actions</th>
 										</tr>
 									</thead>
-									<tbody>
-										<tr>
-											<td><a href="/pages/view-single-order/customer.html">#123456</a></td>
-											<td>12-11-2023</td>
-											<td>Toptal's Pizzeria</td>
-											<td>Pizza, Pasta, Salad</td>
-											<td>50 USD</td>
-											<td>Delivered</td>
-											<td><button class="mark-received-btn">Mark Received</button></td>
-											<td><button class="reorder-btn">Reorder</button></td>
-										</tr>
-										<tr>
-											<td><a href="single-order.html">#789012</a></td>
-											<td>11-09-2023</td>
-											<td>Thai Cuisine</td>
-											<td>Pad Thai, Green Curry</td>
-											<td>30 USD</td>
-											<td>In Route</td>
-											<td><button class="cancel-order-btn">Cancel Order</button></td>
-											<td><button class="reorder-btn">Reorder</button></td>
-										</tr>
-
+									<tbody id="ordersTableBody">
+										<!-- Orders will be dynamically loaded here -->
 									</tbody>
 								</table>
 							</div>
@@ -99,6 +79,140 @@
 		</footer>
 
 	</div>
+
+	<script>
+		let orders = [];
+
+		// Initialize page
+		document.addEventListener('DOMContentLoaded', async () => {
+			// Check authentication
+			if (!Auth.requireAuth()) return;
+
+			// Update user welcome message
+			const user = Auth.getCurrentUser();
+			if (user && user.email) {
+				document.getElementById('userWelcome').textContent = `Welcome, ${user.email}!`;
+			}
+
+			// Load orders
+			await loadOrders();
+
+			// Setup auto-refresh for order status
+			setInterval(loadOrders, 30000); // Refresh every 30 seconds
+		});
+
+		async function loadOrders() {
+			try {
+				const response = await API.getOrders();
+				orders = response.items || response;
+				renderOrders(orders);
+			} catch (error) {
+				console.error('Failed to load orders:', error);
+				Utils.showError('Failed to load orders. Please try again.');
+			}
+		}
+
+		function renderOrders(orderList) {
+			const tbody = document.getElementById('ordersTableBody');
+			
+			if (orderList.length === 0) {
+				tbody.innerHTML = `
+					<tr>
+						<td colspan="7" class="text-center">
+							<p>No orders found</p>
+							<a href="../../pages/browse-restaurants/browse-restaurants.html" class="mui-btn mui-btn--primary">
+								Start Ordering
+							</a>
+						</td>
+					</tr>
+				`;
+				return;
+			}
+
+			tbody.innerHTML = orderList.map(order => {
+				const availableActions = OrderUtils.getAvailableStatusChanges(order.status);
+				const user = Auth.getCurrentUser();
+				const canChangeStatus = (action) => OrderUtils.canUserChangeStatus(order.status, action, user?.role || 'customer');
+				
+				// Get order items summary
+				const itemsSummary = order.order_items?.map(item => `${item.name} (${item.quantity})`).join(', ') || 'N/A';
+				
+				return `
+					<tr>
+						<td>
+							<a href="../view-single-order/customer.html?order=${order.uuid}">
+								#${order.uuid.substring(0, 8)}
+							</a>
+						</td>
+						<td>${Utils.formatDate(order.created_at)}</td>
+						<td>${escapeHtml(order.restaurant?.title || 'Unknown Restaurant')}</td>
+						<td>${escapeHtml(itemsSummary)}</td>
+						<td>${Utils.formatCurrency(order.total_price)}</td>
+						<td>
+							<span style="color: ${OrderUtils.getStatusColor(order.status)};">
+								${OrderUtils.getStatusDisplayName(order.status)}
+							</span>
+						</td>
+						<td>
+							${getOrderActionButtons(order, availableActions, canChangeStatus)}
+						</td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function getOrderActionButtons(order, availableActions, canChangeStatus) {
+			const buttons = [];
+			
+			// Mark as received button
+			if (availableActions.includes(ORDER_STATUS.RECEIVED) && canChangeStatus(ORDER_STATUS.RECEIVED)) {
+				buttons.push(`
+					<button class="mui-btn mui-btn--small mui-btn--primary" 
+							onclick="updateOrderStatus('${order.uuid}', '${ORDER_STATUS.RECEIVED}')">
+						Mark Received
+					</button>
+				`);
+			}
+			
+			// Cancel order button
+			if (availableActions.includes(ORDER_STATUS.CANCELLED) && canChangeStatus(ORDER_STATUS.CANCELLED)) {
+				buttons.push(`
+					<button class="mui-btn mui-btn--small mui-btn--danger" 
+							onclick="updateOrderStatus('${order.uuid}', '${ORDER_STATUS.CANCELLED}')">
+						Cancel Order
+					</button>
+				`);
+			}
+
+			// View details button
+			buttons.push(`
+				<a href="../view-single-order/customer.html?order=${order.uuid}" 
+				   class="mui-btn mui-btn--small mui-btn--flat">
+					View Details
+				</a>
+			`);
+
+			return buttons.join(' ');
+		}
+
+		async function updateOrderStatus(orderUuid, newStatus) {
+			try {
+				await API.updateOrderStatus(orderUuid, newStatus);
+				Utils.showSuccess(`Order status updated to ${OrderUtils.getStatusDisplayName(newStatus)}`);
+				await loadOrders(); // Refresh the list
+			} catch (error) {
+				console.error('Failed to update order status:', error);
+				Utils.showError('Failed to update order status. Please try again.');
+			}
+		}
+
+		function escapeHtml(text) {
+			if (!text) return '';
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+	</script>
 </body>
 
 </html>
