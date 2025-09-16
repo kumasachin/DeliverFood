@@ -8,7 +8,16 @@ export interface MealForm {
 }
 
 export interface MealList {
-  meals: MealForm[];
+  meals: {
+    uuid: string;
+    name: string;
+    description?: string;
+    price: number;
+    image?: string;
+    category?: string;
+    available?: boolean;
+    restaurantUuid: string;
+  }[];
   total: number;
   page: number;
   limit: number;
