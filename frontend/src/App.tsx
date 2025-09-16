@@ -13,6 +13,7 @@ import { SignUp } from "./components/Auth/SignUp";
 import { RestaurantList } from "./components/Restaurant/RestaurantList";
 import { MealList } from "./components/Meal/MealList";
 import { Cart } from "./components/Cart/Cart";
+import { Checkout } from "./components/Checkout/Checkout";
 import { Navigation } from "./components/Navigation/Navigation";
 import { AuthProvider, CartProvider } from "./contexts";
 import { Restaurant } from "./types/restaurant";
@@ -58,6 +59,7 @@ const AppContent = () => {
             }
           />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route
             path="/meals"
             element={

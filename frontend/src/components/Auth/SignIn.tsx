@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -8,7 +8,9 @@ import {
   Paper,
   Alert,
 } from "@mui/material";
+import { Login } from "@mui/icons-material";
 import { useAuth } from "../../contexts/AuthContext";
+import { useFormState } from "../../hooks";
 
 type SignInProps = {
   onSwitchToSignUp?: () => void;
@@ -17,14 +19,16 @@ type SignInProps = {
 export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
   const navigate = useNavigate();
   const { signIn, state } = useAuth();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const { values, handleChange } = useFormState({
+    email: "",
+    password: "",
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await signIn(email, password);
+      await signIn(values.email, values.password);
       navigate("/restaurants");
     } catch (err) {
       // Error is handled by AuthContext
@@ -39,9 +43,12 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
       minHeight="100vh"
     >
       <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: "100%" }}>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          Sign In
-        </Typography>
+        <Box display="flex" alignItems="center" justifyContent="center" sx={{ mb: 3 }}>
+          <Login sx={{ mr: 2, fontSize: 32 }} />
+          <Typography variant="h4" component="h1">
+            Sign In
+          </Typography>
+        </Box>
         {state.error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {state.error}
@@ -51,8 +58,8 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
           <TextField
             label="Email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={values.email}
+            onChange={(e) => handleChange("email", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -60,8 +67,8 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
           <TextField
             label="Password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={values.password}
+            onChange={(e) => handleChange("password", e.target.value)}
             fullWidth
             margin="normal"
             required

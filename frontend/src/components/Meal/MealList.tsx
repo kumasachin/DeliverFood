@@ -14,6 +14,7 @@ import {
 import styled from "styled-components";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Fastfood } from "@mui/icons-material";
 import { Meal } from "../../types/meal";
 import { Restaurant } from "../../types/restaurant";
 import { Loading } from "../Common/Loading";
@@ -148,6 +149,7 @@ export const MealList = ({
         >
           Back to Restaurants
         </Button>
+        <Fastfood sx={{ mr: 2 }} />
         <Typography variant="h4" component="h1">
           {restaurant.name} - Menu
         </Typography>

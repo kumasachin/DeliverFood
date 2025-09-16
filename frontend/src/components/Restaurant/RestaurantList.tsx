@@ -8,11 +8,13 @@ import {
   Typography,
   Container,
 } from "@mui/material";
+import { Restaurant as RestaurantIcon } from "@mui/icons-material";
 import styled from "styled-components";
 import { Restaurant } from "../../types/restaurant";
 import { Loading } from "../Common/Loading";
 import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
+import { useSearchFilter } from "../../hooks";
 
 type RestaurantListProps = {
   onSelectRestaurant?: (restaurant: Restaurant) => void;
@@ -71,7 +73,15 @@ const mockRestaurants: Restaurant[] = [
 export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    filteredItems: filteredRestaurants,
+  } = useSearchFilter({
+    items: mockRestaurants,
+    searchFields: ["name", "category"],
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -80,13 +90,6 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
 
     return () => clearTimeout(timer);
   }, []);
-
-  const filteredRestaurants = mockRestaurants.filter(
-    (restaurant) =>
-      restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (restaurant.category &&
-        restaurant.category.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
 
   const handleRestaurantClick = (restaurant: Restaurant) => {
     console.log("Selected restaurant:", restaurant);
@@ -100,9 +103,12 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        🍔 Browse Restaurants
-      </Typography>
+      <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+        <RestaurantIcon sx={{ mr: 2, fontSize: 32 }} />
+        <Typography variant="h4" component="h1">
+          Browse Restaurants
+        </Typography>
+      </Box>
 
       <SearchBar
         value={searchTerm}
@@ -143,7 +149,7 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
                   alignItems="center"
                 >
                   <Typography variant="body2" color="primary">
-                    ⭐ {restaurant.rating}
+                    {restaurant.rating}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {restaurant.deliveryTime}

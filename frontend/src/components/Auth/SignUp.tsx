@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -12,8 +12,10 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import { PersonAdd } from "@mui/icons-material";
 import { Role } from "../../types/auth";
 import { useAuth } from "../../contexts/AuthContext";
+import { useFormState } from "../../hooks";
 
 type SignUpProps = {
   onSwitchToSignIn?: () => void;
@@ -22,16 +24,18 @@ type SignUpProps = {
 export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
   const navigate = useNavigate();
   const { signUp, state } = useAuth();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [role, setRole] = useState<Role>("customer");
+  const { values, handleChange } = useFormState({
+    email: "",
+    password: "",
+    name: "",
+    role: "customer" as Role,
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      await signUp(email, password, name, role);
+      await signUp(values.email, values.password, values.name, values.role);
       navigate("/restaurants");
     } catch (err) {
       // Error is handled by AuthContext
@@ -46,9 +50,12 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
       minHeight="100vh"
     >
       <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: "100%" }}>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          Sign Up
-        </Typography>
+        <Box display="flex" alignItems="center" justifyContent="center" sx={{ mb: 3 }}>
+          <PersonAdd sx={{ mr: 2, fontSize: 32 }} />
+          <Typography variant="h4" component="h1">
+            Sign Up
+          </Typography>
+        </Box>
 
         {state.error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -60,8 +67,8 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
           <TextField
             label="Name"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={values.name}
+            onChange={(e) => handleChange("name", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -70,8 +77,8 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
           <TextField
             label="Email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={values.email}
+            onChange={(e) => handleChange("email", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -80,8 +87,8 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
           <TextField
             label="Password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={values.password}
+            onChange={(e) => handleChange("password", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -90,9 +97,9 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
           <FormControl fullWidth margin="normal">
             <InputLabel>Role</InputLabel>
             <Select
-              value={role}
+              value={values.role}
               label="Role"
-              onChange={(e) => setRole(e.target.value as Role)}
+              onChange={(e) => handleChange("role", e.target.value as Role)}
             >
               <MenuItem value="customer">Customer</MenuItem>
               <MenuItem value="owner">Restaurant Owner</MenuItem>

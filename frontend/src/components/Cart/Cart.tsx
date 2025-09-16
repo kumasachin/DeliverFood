@@ -10,7 +10,7 @@ import {
   Divider,
   Alert,
 } from "@mui/material";
-import { Add, Remove, Delete, ShoppingCartOutlined } from "@mui/icons-material";
+import { Add, Remove, Delete, ShoppingCartOutlined, ShoppingCart } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -69,9 +69,12 @@ export const Cart = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        🛒 Your Cart
-      </Typography>
+      <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
+        <ShoppingCart sx={{ mr: 2, fontSize: 32 }} />
+        <Typography variant="h4" component="h1">
+          Your Cart
+        </Typography>
+      </Box>
 
       <Box sx={{ mb: 3 }}>
         {cartState.items.map((item) => (
