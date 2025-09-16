@@ -1,10 +1,10 @@
 export enum OrderStatus {
   PLACED = "placed",
-  PROCESSING = "processing", 
+  PROCESSING = "processing",
   IN_ROUTE = "in route",
   DELIVERED = "delivered",
   RECEIVED = "received",
-  CANCELLED = "cancelled"
+  CANCELLED = "cancelled",
 }
 
 export interface OrderItem {
@@ -40,5 +40,5 @@ export const ORDER_FLOW: Record<OrderStatus, OrderStatus[]> = {
   [OrderStatus.IN_ROUTE]: [OrderStatus.DELIVERED, OrderStatus.CANCELLED],
   [OrderStatus.DELIVERED]: [OrderStatus.RECEIVED],
   [OrderStatus.RECEIVED]: [],
-  [OrderStatus.CANCELLED]: []
+  [OrderStatus.CANCELLED]: [],
 };
