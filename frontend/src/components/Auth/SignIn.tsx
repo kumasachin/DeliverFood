@@ -11,9 +11,10 @@ import { Role } from "../../types/auth";
 
 type SignInProps = {
   onSignIn?: (email: string, role: Role) => void;
+  onSwitchToSignUp?: () => void;
 };
 
-export const SignIn = ({ onSignIn }: SignInProps) => {
+export const SignIn = ({ onSignIn, onSwitchToSignUp }: SignInProps) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -87,6 +88,20 @@ export const SignIn = ({ onSignIn }: SignInProps) => {
             {loading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
+
+        <Typography align="center">
+          Don't have an account?{" "}
+          <span
+            style={{
+              color: "#1976d2",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+            onClick={onSwitchToSignUp}
+          >
+            Sign up
+          </span>
+        </Typography>
       </Paper>
     </Box>
   );
