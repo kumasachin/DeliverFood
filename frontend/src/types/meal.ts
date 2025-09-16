@@ -1,14 +1,14 @@
 export interface Meal {
-  id: string; // Changed from uuid to id for frontend convenience
-  uuid?: string; // Keep uuid for backend compatibility
+  id: string;
+  uuid?: string;
   name: string;
   description?: string;
   price: number;
   image?: string;
   category?: string;
   available?: boolean;
-  restaurantId: string; // Changed from restaurantUuid to restaurantId
-  restaurantUuid?: string; // Keep for backend compatibility
+  restaurantId: string;
+  restaurantUuid?: string;
 }
 
 export interface MealForm {

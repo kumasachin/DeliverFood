@@ -1,9 +1,12 @@
 export type Role = "customer" | "owner" | "admin";
 
 export interface User {
+  id: string;
   email: string;
+  name: string;
   role: Role;
   uuid?: string;
+  isActive: boolean;
 }
 
 export interface LoginData {

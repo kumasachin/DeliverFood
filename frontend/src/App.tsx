@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline, Container } from "@mui/material";
@@ -12,8 +13,8 @@ import { SignUp } from "./components/Auth/SignUp";
 import { RestaurantList } from "./components/Restaurant/RestaurantList";
 import { MealList } from "./components/Meal/MealList";
 import { Navigation } from "./components/Navigation/Navigation";
+import { AuthProvider, CartProvider } from "./contexts";
 import { Restaurant } from "./types/restaurant";
-import { Meal } from "./types/meal";
 
 const theme = createTheme({
   palette: {
@@ -23,24 +24,13 @@ const theme = createTheme({
   },
 });
 
-const App = () => {
+const AppContent = () => {
+  const navigate = useNavigate();
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
 
-  const handleSignIn = (email: string, role: string) => {
-    console.log("User signed in:", email, role);
-  };
-
-  const handleSignUp = (email: string, role: string) => {
-    console.log("User signed up:", email, role);
-  };
-
   const handleSelectRestaurant = (restaurant: Restaurant) => {
     setSelectedRestaurant(restaurant);
-  };
-
-  const handleAddToCart = (meal: Meal) => {
-    console.log("Added to cart:", meal);
   };
 
   const handleBackToRestaurants = () => {
@@ -48,48 +38,55 @@ const App = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Navigation />
-        <Container maxWidth="lg" sx={{ py: 2 }}>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <SignIn onSignIn={handleSignIn} onSwitchToSignUp={() => {}} />
-              }
-            />
-            <Route
-              path="/signup"
-              element={
-                <SignUp onSignUp={handleSignUp} onSwitchToSignIn={() => {}} />
-              }
-            />
-            <Route
-              path="/restaurants"
-              element={
-                <RestaurantList onSelectRestaurant={handleSelectRestaurant} />
-              }
-            />
-            <Route
-              path="/meals"
-              element={
-                selectedRestaurant ? (
-                  <MealList
-                    restaurant={selectedRestaurant}
-                    onAddToCart={handleAddToCart}
-                    onBackToRestaurants={handleBackToRestaurants}
-                  />
-                ) : (
-                  <Navigate to="/restaurants" replace />
-                )
-              }
-            />
-          </Routes>
-        </Container>
-      </Router>
-    </ThemeProvider>
+    <>
+      <Navigation />
+      <Container maxWidth="lg" sx={{ py: 2 }}>
+        <Routes>
+          <Route
+            path="/"
+            element={<SignIn onSwitchToSignUp={() => navigate("/signup")} />}
+          />
+          <Route
+            path="/signup"
+            element={<SignUp onSwitchToSignIn={() => navigate("/")} />}
+          />
+          <Route
+            path="/restaurants"
+            element={
+              <RestaurantList onSelectRestaurant={handleSelectRestaurant} />
+            }
+          />
+          <Route
+            path="/meals"
+            element={
+              selectedRestaurant ? (
+                <MealList
+                  restaurant={selectedRestaurant}
+                  onBackToRestaurants={handleBackToRestaurants}
+                />
+              ) : (
+                <Navigate to="/restaurants" replace />
+              )
+            }
+          />
+        </Routes>
+      </Container>
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Router>
+            <AppContent />
+          </Router>
+        </ThemeProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 };
 

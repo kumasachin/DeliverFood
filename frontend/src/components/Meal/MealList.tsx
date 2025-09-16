@@ -9,6 +9,7 @@ import {
   Button,
   Container,
   Chip,
+  Alert,
 } from "@mui/material";
 import styled from "styled-components";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
@@ -18,10 +19,10 @@ import { Restaurant } from "../../types/restaurant";
 import { Loading } from "../Common/Loading";
 import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
+import { useCart } from "../../contexts/CartContext";
 
 type MealListProps = {
   restaurant: Restaurant;
-  onAddToCart?: (meal: Meal) => void;
   onBackToRestaurants?: () => void;
 };
 
@@ -74,13 +75,14 @@ const getMockMeals = (restaurantId: string): Meal[] => [
 
 export const MealList = ({
   restaurant,
-  onAddToCart,
   onBackToRestaurants,
 }: MealListProps) => {
   const navigate = useNavigate();
+  const { addItem } = useCart();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [addToCartError, setAddToCartError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadMeals = () => {
@@ -101,9 +103,19 @@ export const MealList = ({
         meal.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleAddToCart = (meal: Meal) => {
-    console.log("Adding to cart:", meal);
-    onAddToCart?.(meal);
+  const handleAddToCart = async (meal: Meal) => {
+    try {
+      const success = await addItem(meal, meal.restaurantId, restaurant.name);
+      if (success) {
+        setAddToCartError(null);
+      } else {
+        setAddToCartError(
+          "Cannot add items from different restaurants to cart"
+        );
+      }
+    } catch (err) {
+      setAddToCartError("Failed to add item to cart");
+    }
   };
 
   const handleBackToRestaurants = () => {
@@ -117,6 +129,16 @@ export const MealList = ({
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      {addToCartError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          onClose={() => setAddToCartError(null)}
+        >
+          {addToCartError}
+        </Alert>
+      )}
+
       <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
         <Button
           variant="outlined"

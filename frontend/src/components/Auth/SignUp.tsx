@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   TextField,
@@ -12,34 +13,28 @@ import {
   MenuItem,
 } from "@mui/material";
 import { Role } from "../../types/auth";
+import { useAuth } from "../../contexts/AuthContext";
 
 type SignUpProps = {
-  onSignUp?: (email: string, role: Role) => void;
   onSwitchToSignIn?: () => void;
 };
 
-export const SignUp = ({ onSignUp, onSwitchToSignIn }: SignUpProps) => {
+export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
+  const navigate = useNavigate();
+  const { signUp, state } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const [role, setRole] = useState<Role>("customer");
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
     try {
-      console.log("Signup attempt:", { email, password, role });
-
-      if (email && password) {
-        onSignUp?.(email, role);
-      }
+      await signUp(email, password, name, role);
+      navigate("/restaurants");
     } catch (err) {
-      setError("Signup failed. Please try again.");
-    } finally {
-      setLoading(false);
+      // Error is handled by AuthContext
     }
   };
 
@@ -55,13 +50,23 @@ export const SignUp = ({ onSignUp, onSwitchToSignIn }: SignUpProps) => {
           Sign Up
         </Typography>
 
-        {error && (
+        {state.error && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+            {state.error}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit}>
+          <TextField
+            label="Name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+
           <TextField
             label="Email"
             type="email"
@@ -100,9 +105,9 @@ export const SignUp = ({ onSignUp, onSwitchToSignIn }: SignUpProps) => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            disabled={loading}
+            disabled={state.isLoading}
           >
-            {loading ? "Creating Account..." : "Sign Up"}
+            {state.isLoading ? "Creating Account..." : "Sign Up"}
           </Button>
         </form>
 

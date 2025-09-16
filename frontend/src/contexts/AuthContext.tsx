@@ -1,0 +1,199 @@
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  ReactNode,
+  useEffect,
+} from "react";
+import { User, Role } from "../types/auth";
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export type AuthAction =
+  | { type: "AUTH_START" }
+  | { type: "AUTH_SUCCESS"; payload: { user: User } }
+  | { type: "AUTH_ERROR"; payload: { error: string } }
+  | { type: "LOGOUT" }
+  | { type: "CLEAR_ERROR" };
+
+const initialState: AuthState = {
+  user: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+};
+
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+  switch (action.type) {
+    case "AUTH_START":
+      return {
+        ...state,
+        isLoading: true,
+        error: null,
+      };
+
+    case "AUTH_SUCCESS":
+      return {
+        ...state,
+        user: action.payload.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      };
+
+    case "AUTH_ERROR":
+      return {
+        ...state,
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: action.payload.error,
+      };
+
+    case "LOGOUT":
+      return {
+        ...state,
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      };
+
+    case "CLEAR_ERROR":
+      return {
+        ...state,
+        error: null,
+      };
+
+    default:
+      return state;
+  }
+};
+
+interface AuthContextType {
+  state: AuthState;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    name: string,
+    role?: Role
+  ) => Promise<void>;
+  logout: () => void;
+  clearError: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [state, dispatch] = useReducer(authReducer, initialState);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const userData = localStorage.getItem("userData");
+
+    if (token && userData) {
+      try {
+        const user = JSON.parse(userData);
+        dispatch({ type: "AUTH_SUCCESS", payload: { user } });
+      } catch (error) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userData");
+      }
+    }
+  }, []);
+
+  const signIn = async (email: string, password: string): Promise<void> => {
+    dispatch({ type: "AUTH_START" });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const mockUser: User = {
+        id: "1",
+        email,
+        name: email.split("@")[0],
+        role: "customer" as Role,
+        isActive: true,
+      };
+
+      localStorage.setItem("authToken", "mock-token-123");
+      localStorage.setItem("userData", JSON.stringify(mockUser));
+
+      dispatch({ type: "AUTH_SUCCESS", payload: { user: mockUser } });
+    } catch (error) {
+      dispatch({
+        type: "AUTH_ERROR",
+        payload: { error: "Invalid email or password" },
+      });
+    }
+  };
+
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string,
+    role: Role = "customer"
+  ): Promise<void> => {
+    dispatch({ type: "AUTH_START" });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const mockUser: User = {
+        id: Date.now().toString(),
+        email,
+        name,
+        role,
+        isActive: true,
+      };
+
+      localStorage.setItem("authToken", "mock-token-123");
+      localStorage.setItem("userData", JSON.stringify(mockUser));
+
+      dispatch({ type: "AUTH_SUCCESS", payload: { user: mockUser } });
+    } catch (error) {
+      dispatch({
+        type: "AUTH_ERROR",
+        payload: { error: "Failed to create account" },
+      });
+    }
+  };
+
+  const logout = (): void => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    dispatch({ type: "LOGOUT" });
+  };
+
+  const clearError = (): void => {
+    dispatch({ type: "CLEAR_ERROR" });
+  };
+
+  const value: AuthContextType = {
+    state,
+    signIn,
+    signUp,
+    logout,
+    clearError,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

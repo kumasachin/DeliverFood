@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   TextField,
@@ -7,39 +8,26 @@ import {
   Paper,
   Alert,
 } from "@mui/material";
-import { Role } from "../../types/auth";
+import { useAuth } from "../../contexts/AuthContext";
 
 type SignInProps = {
-  onSignIn?: (email: string, role: Role) => void;
   onSwitchToSignUp?: () => void;
 };
 
-export const SignIn = ({ onSignIn, onSwitchToSignUp }: SignInProps) => {
+export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
+  const navigate = useNavigate();
+  const { signIn, state } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const detectRole = (email: string): Role => {
-    if (email.includes("admin")) return "admin";
-    if (email.includes("owner")) return "owner";
-    return "customer";
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
     try {
-      if (email && password) {
-        const role = detectRole(email);
-        onSignIn?.(email, role);
-      }
+      await signIn(email, password);
+      navigate("/restaurants");
     } catch (err) {
-      setError("Login failed. Check your email/password.");
-    } finally {
-      setLoading(false);
+      // Error is handled by AuthContext
     }
   };
 
@@ -54,9 +42,9 @@ export const SignIn = ({ onSignIn, onSwitchToSignUp }: SignInProps) => {
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Sign In
         </Typography>
-        {error && (
+        {state.error && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+            {state.error}
           </Alert>
         )}
         <form onSubmit={handleLogin}>
@@ -83,9 +71,9 @@ export const SignIn = ({ onSignIn, onSwitchToSignUp }: SignInProps) => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            disabled={loading}
+            disabled={state.isLoading}
           >
-            {loading ? "Signing In..." : "Sign In"}
+            {state.isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
 
