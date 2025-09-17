@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Login } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
@@ -14,20 +14,32 @@ type SignInProps = {
 
 export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
   const navigate = useNavigate();
-  const { signIn, state } = useAuth();
+  const { signIn, state, clearError } = useAuth();
   const { values, handleChange } = useFormState({
     email: "",
     password: "",
   });
 
+  const handleInputChange = (field: "email" | "password", value: string) => {
+    if (state.error) {
+      clearError();
+    }
+    handleChange(field, value);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("SignIn: Starting login process with:", values.email);
 
-    try {
-      await signIn(values.email, values.password);
-      navigate("/restaurants");
-    } catch (err) {}
+    await signIn(values.email, values.password);
   };
+
+  useEffect(() => {
+    if (state.isAuthenticated && state.user && !state.error) {
+      console.log("SignIn: Navigating to restaurants after successful auth");
+      navigate("/restaurants");
+    }
+  }, [state.isAuthenticated, state.user, state.error, navigate]);
 
   return (
     <Box
@@ -48,6 +60,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             Sign In
           </DLSTypography>
         </Box>
+
         {state.error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {state.error}
@@ -58,7 +71,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             label="Email"
             type="email"
             value={values.email}
-            onChange={(e) => handleChange("email", e.target.value)}
+            onChange={(e) => handleInputChange("email", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -67,7 +80,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             label="Password"
             type="password"
             value={values.password}
-            onChange={(e) => handleChange("password", e.target.value)}
+            onChange={(e) => handleInputChange("password", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -82,7 +95,6 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             {state.isLoading ? "Signing In..." : "Sign In"}
           </DLSButton>
         </form>
-
         <DLSTypography align="center">
           Don't have an account?{" "}
           <span

@@ -1,11 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "contexts/AuthContext";
-import { 
-  Restaurant as RestaurantIcon, 
+import {
+  Restaurant as RestaurantIcon,
   Add as AddIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon 
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import styled from "styled-components";
 import { DLSCard } from "dls/molecules/Card";
@@ -36,13 +36,9 @@ const RestaurantActions = styled(Box)`
 export const ManageRestaurants = () => {
   const navigate = useNavigate();
   const { state } = useAuth();
-  
-  const { 
-    restaurants, 
-    loading, 
-    error 
-  } = useRestaurants({ 
-    owner_uuid: state.user?.id 
+
+  const { restaurants, loading, error } = useRestaurants({
+    owner_uuid: state.user?.id,
   });
 
   const handleCreateRestaurant = () => {
@@ -82,7 +78,12 @@ export const ManageRestaurants = () => {
 
   return (
     <StyledContainer maxWidth="lg">
-      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 3 }}
+      >
         <Box display="flex" alignItems="center">
           <RestaurantIcon sx={{ mr: 2, fontSize: 32 }} />
           <DLSTypography variant="h4" component="h1">
@@ -118,9 +119,9 @@ export const ManageRestaurants = () => {
                 <DLSTypography variant="h6" component="h2" gutterBottom>
                   {restaurant.title}
                 </DLSTypography>
-                <DLSTypography 
-                  variant="body2" 
-                  color="textSecondary" 
+                <DLSTypography
+                  variant="body2"
+                  color="textSecondary"
                   sx={{ mb: 2 }}
                 >
                   {restaurant.description}
@@ -129,9 +130,10 @@ export const ManageRestaurants = () => {
                   Cuisine: {restaurant.cuisine}
                 </DLSTypography>
                 <DLSTypography variant="caption" display="block" sx={{ mb: 2 }}>
-                  Created: {new Date(restaurant.created_at).toLocaleDateString()}
+                  Created:{" "}
+                  {new Date(restaurant.created_at).toLocaleDateString()}
                 </DLSTypography>
-                
+
                 <RestaurantActions>
                   <DLSButton
                     variant="outlined"

@@ -24,6 +24,7 @@ export interface AuthResponse {
 
 export interface LoginResponse {
   token: string;
+  role: "customer" | "owner";
 }
 
 export interface Restaurant {

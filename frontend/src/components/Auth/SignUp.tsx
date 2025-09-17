@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -23,7 +23,7 @@ type SignUpProps = {
 
 export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
   const navigate = useNavigate();
-  const { signUp, state } = useAuth();
+  const { signUp, state, clearError } = useAuth();
   const { values, handleChange } = useFormState({
     email: "",
     password: "",
@@ -31,13 +31,31 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
     role: "customer" as Role,
   });
 
+  const handleInputChange = (
+    field: "email" | "password" | "name" | "role",
+    value: string
+  ) => {
+    if (state.error) {
+      clearError();
+    }
+    handleChange(field, value);
+  };
+
+  // Clear errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]); // Include clearError in dependencies
+
+  // Navigate on successful authentication
+  useEffect(() => {
+    if (state.isAuthenticated && state.user) {
+      navigate("/restaurants");
+    }
+  }, [state.isAuthenticated, state.user, navigate]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    try {
-      await signUp(values.email, values.password, values.name, values.role);
-      navigate("/restaurants");
-    } catch (err) {}
+    await signUp(values.email, values.password, values.name, values.role);
   };
 
   return (
@@ -71,7 +89,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             label="Name"
             type="text"
             value={values.name}
-            onChange={(e) => handleChange("name", e.target.value)}
+            onChange={(e) => handleInputChange("name", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -81,7 +99,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             label="Email"
             type="email"
             value={values.email}
-            onChange={(e) => handleChange("email", e.target.value)}
+            onChange={(e) => handleInputChange("email", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -91,7 +109,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             label="Password"
             type="password"
             value={values.password}
-            onChange={(e) => handleChange("password", e.target.value)}
+            onChange={(e) => handleInputChange("password", e.target.value)}
             fullWidth
             margin="normal"
             required
@@ -102,7 +120,9 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             <Select
               value={values.role}
               label="Role"
-              onChange={(e) => handleChange("role", e.target.value as Role)}
+              onChange={(e) =>
+                handleInputChange("role", e.target.value as Role)
+              }
             >
               <MenuItem value="customer">Customer</MenuItem>
               <MenuItem value="owner">Restaurant Owner</MenuItem>

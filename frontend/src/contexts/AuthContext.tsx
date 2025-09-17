@@ -30,6 +30,8 @@ const initialState: AuthState = {
 };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+  console.log("AuthReducer: Action dispatched", action.type, action);
+
   switch (action.type) {
     case "AUTH_START":
       return {
@@ -48,13 +50,15 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       };
 
     case "AUTH_ERROR":
-      return {
+      const newState = {
         ...state,
         user: null,
         isAuthenticated: false,
         isLoading: false,
         error: action.payload.error,
       };
+      console.log("AuthReducer: New state after AUTH_ERROR", newState);
+      return newState;
 
     case "LOGOUT":
       return {
@@ -114,22 +118,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signIn = async (email: string, password: string): Promise<void> => {
+    console.log("AuthContext: signIn called with", email);
     dispatch({ type: "AUTH_START" });
 
     try {
-      // Call the real API login endpoint
+      console.log("AuthContext: Calling API login");
       const loginResponse = await apiService.login({ email, password });
+      console.log("AuthContext: Login successful", loginResponse);
 
-      // Store the token
       apiService.setAuthToken(loginResponse.token);
 
-      // For now, create user object from email since login endpoint only returns token
-      // In a real app, you might decode JWT or make a separate API call to get user info
       const user: User = {
-        id: email, // Using email as ID for now
+        id: email,
         email,
-        name: email.split("@")[0], // Extract name from email
-        role: email.includes("owner") ? "owner" : ("customer" as Role), // Simple role detection
+        name: email.split("@")[0],
+        role: loginResponse.role as Role,
         isActive: true,
       };
 
@@ -137,10 +140,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       dispatch({ type: "AUTH_SUCCESS", payload: { user } });
     } catch (error: any) {
+      console.log("AuthContext: Login error caught", error);
+      console.log("AuthContext: Error response", error.response?.data);
+
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Invalid email or password";
+
+      console.log("AuthContext: Dispatching error:", errorMessage);
+
       dispatch({
         type: "AUTH_ERROR",
         payload: {
-          error: error.response?.data?.message || "Invalid email or password",
+          error: errorMessage,
         },
       });
     }
@@ -181,7 +194,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       dispatch({
         type: "AUTH_ERROR",
         payload: {
-          error: error.response?.data?.message || "Failed to create account",
+          error:
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            "Failed to create account",
         },
       });
     }

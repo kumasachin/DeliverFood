@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "contexts/AuthContext";
-import { Restaurant as RestaurantIcon, Save, Cancel } from "@mui/icons-material";
+import {
+  Restaurant as RestaurantIcon,
+  Save,
+  Cancel,
+} from "@mui/icons-material";
 import styled from "styled-components";
 import { DLSCard } from "dls/molecules/Card";
 import { DLSTypography } from "dls/atoms/Typography";
@@ -66,28 +70,27 @@ export const CreateRestaurant = () => {
     navigate("/restaurants");
   });
 
-  const handleInputChange = (field: keyof RestaurantFormData) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (field === "coordinates") return;
-    
-    setFormData((prev) => ({
-      ...prev,
-      [field]: event.target.value,
-    }));
-  };
+  const handleInputChange =
+    (field: keyof RestaurantFormData) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (field === "coordinates") return;
 
-  const handleCoordinateChange = (coord: "lat" | "lng") => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      coordinates: {
-        ...prev.coordinates,
-        [coord]: event.target.value,
-      },
-    }));
-  };
+      setFormData((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
+    };
+
+  const handleCoordinateChange =
+    (coord: "lat" | "lng") => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        coordinates: {
+          ...prev.coordinates,
+          [coord]: event.target.value,
+        },
+      }));
+    };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

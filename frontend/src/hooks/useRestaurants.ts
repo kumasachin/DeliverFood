@@ -25,19 +25,22 @@ export const useRestaurants = (
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { page, limit, title, description, cuisine, owner_uuid } = options;
+
   const fetchRestaurants = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await apiService.getRestaurants(options);
+      const params = { page, limit, title, description, cuisine, owner_uuid };
+      const data = await apiService.getRestaurants(params);
       setRestaurants(data);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to fetch restaurants");
     } finally {
       setLoading(false);
     }
-  }, [options]);
+  }, [page, limit, title, description, cuisine, owner_uuid]);
 
   useEffect(() => {
     fetchRestaurants();
