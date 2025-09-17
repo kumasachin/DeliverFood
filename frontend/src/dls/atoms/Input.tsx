@@ -13,12 +13,12 @@ export interface DLSInputProps extends Omit<MuiTextFieldProps, "variant"> {
   required?: boolean;
 }
 
-export const DLSInput: React.FC<DLSInputProps> = ({
+export const DLSInput = ({
   variant = "outlined",
   size = "medium",
   fullWidth = false,
   ...props
-}) => {
+}: DLSInputProps) => {
   return (
     <MuiTextField
       variant={variant}

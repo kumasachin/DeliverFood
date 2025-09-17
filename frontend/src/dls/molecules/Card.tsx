@@ -20,13 +20,13 @@ export interface DLSCardProps extends MuiCardProps {
   children?: React.ReactNode;
 }
 
-export const DLSCard: React.FC<DLSCardProps> = ({
+export const DLSCard = ({
   title,
   subtitle,
   actions,
   children,
   ...props
-}) => {
+}: DLSCardProps) => {
   return (
     <MuiCard {...props}>
       <CardContent>

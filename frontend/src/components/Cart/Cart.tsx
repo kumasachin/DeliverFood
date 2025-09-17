@@ -1,5 +1,4 @@
 import React from "react";
-import { Container, Box, IconButton, Divider, Alert } from "@mui/material";
 import {
   Add,
   Remove,
@@ -13,6 +12,7 @@ import { useAuth } from "contexts/AuthContext";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
+import { Container, Box, IconButton, Alert, Divider } from "dls/atoms";
 
 export const Cart = () => {
   const navigate = useNavigate();

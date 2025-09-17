@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Stepper, Step, StepLabel } from "@mui/material";
+import { Stepper, Step, StepLabel } from "@mui/material";
 import {
   ShoppingCart,
   Kitchen,
@@ -7,6 +7,7 @@ import {
   Home,
   CheckCircle,
 } from "@mui/icons-material";
+import { Box } from "dls/atoms";
 
 interface OrderStatusProps {
   currentStatus: string;

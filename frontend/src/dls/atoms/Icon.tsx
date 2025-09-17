@@ -73,11 +73,7 @@ const iconMap = {
   search: Search,
 };
 
-export const DLSIcon: React.FC<DLSIconProps> = ({
-  name,
-  size = "medium",
-  ...props
-}) => {
+export const DLSIcon = ({ name, size = "medium", ...props }: DLSIconProps) => {
   const IconComponent = iconMap[name];
 
   if (!IconComponent) {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, CardMedia, Container } from "@mui/material";
 import { Restaurant as RestaurantIcon } from "@mui/icons-material";
 import styled from "styled-components";
 import { Restaurant } from "types/restaurant";
@@ -10,6 +9,7 @@ import { EmptyState } from "../Common/EmptyState";
 import { useSearchFilter } from "hooks";
 import { DLSCard } from "dls/molecules/Card";
 import { DLSTypography } from "dls/atoms/Typography";
+import { Box, CardMedia, Container } from "dls/atoms";
 
 type RestaurantListProps = {
   onSelectRestaurant?: (restaurant: Restaurant) => void;

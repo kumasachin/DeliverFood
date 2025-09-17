@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, CircularProgress } from "@mui/material";
 import { DLSTypography } from "dls/atoms/Typography";
+import { Box, CircularProgress } from "dls/atoms";
 
 type LoadingProps = {
   message?: string;

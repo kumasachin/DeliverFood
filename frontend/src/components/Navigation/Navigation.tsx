@@ -1,6 +1,5 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { AppBar, Toolbar, Box, IconButton, Badge } from "@mui/material";
 import {
   Restaurant,
   Storefront,
@@ -14,6 +13,7 @@ import { useAuth } from "contexts/AuthContext";
 import { useCart } from "contexts/CartContext";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
+import { AppBar, Toolbar, Box, IconButton, Badge } from "dls/atoms";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -59,8 +59,6 @@ export const Navigation = () => {
                   location.pathname === item.path ? "#FFFFFF1A" : "transparent",
               }}
               onClick={() => {
-                // Use navigate for programmatic navigation
-                // For now keeping simple navigation
                 window.location.href = item.path;
               }}
             >

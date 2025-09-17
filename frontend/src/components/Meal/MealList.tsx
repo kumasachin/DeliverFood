@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, CardMedia, Container, Chip, Alert } from "@mui/material";
 import styled from "styled-components";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -14,6 +13,7 @@ import { useCart } from "contexts/CartContext";
 import { DLSCard } from "dls/molecules/Card";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
+import { Box, CardMedia, Container, Chip, Alert } from "dls/atoms";
 
 type MealListProps = {
   restaurant: Restaurant;

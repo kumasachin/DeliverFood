@@ -1,12 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Paper, Alert } from "@mui/material";
 import { Login } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
 import { useFormState } from "hooks";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSInput } from "dls/atoms/Input";
+import { Box, Paper, Alert } from "dls/atoms";
 
 type SignInProps = {
   onSwitchToSignUp?: () => void;
@@ -26,9 +26,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
     try {
       await signIn(values.email, values.password);
       navigate("/restaurants");
-    } catch (err) {
-      // Error is handled by AuthContext
-    }
+    } catch (err) {}
   };
 
   return (

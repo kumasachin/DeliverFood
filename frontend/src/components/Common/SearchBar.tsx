@@ -1,7 +1,7 @@
 import React from "react";
-import { Box } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { DLSInput } from "dls/atoms/Input";
+import { Box } from "dls/atoms";
 
 interface SearchBarProps {
   value: string;

@@ -1,18 +1,17 @@
 import React from "react";
 import {
   Container,
-  Typography,
   Box,
-  Card,
-  CardContent,
   Chip,
-  Button,
   Alert,
 } from "@mui/material";
 import { Receipt, Visibility } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { useLocalStorage } from "../../hooks";
+import { useAuth } from "contexts/AuthContext";
+import { useLocalStorage } from "hooks";
+import { DLSTypography } from "dls/atoms/Typography";
+import { DLSButton } from "dls/atoms/Button";
+import { DLSCard } from "dls/molecules/Card";
 
 interface Order {
   id: string;
@@ -71,18 +70,18 @@ export const OrderList = () => {
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
           <Receipt sx={{ mr: 2, fontSize: 32 }} />
-          <Typography variant="h4" component="h1">
+          <DLSTypography variant="h4" component="h1">
             Your Orders
-          </Typography>
+          </DLSTypography>
         </Box>
 
         <Alert severity="info" sx={{ mb: 3 }}>
           You haven't placed any orders yet.
         </Alert>
 
-        <Button variant="contained" onClick={() => navigate("/restaurants")}>
+        <DLSButton variant="contained" onClick={() => navigate("/restaurants")}>
           Start Shopping
-        </Button>
+        </DLSButton>
       </Container>
     );
   }
@@ -91,15 +90,15 @@ export const OrderList = () => {
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
         <Receipt sx={{ mr: 2, fontSize: 32 }} />
-        <Typography variant="h4" component="h1">
+        <DLSTypography variant="h4" component="h1">
           Your Orders
-        </Typography>
+        </DLSTypography>
       </Box>
 
       <Box sx={{ mb: 3 }}>
         {orders.map((order) => (
-          <Card key={order.id} sx={{ mb: 2 }}>
-            <CardContent>
+          <DLSCard key={order.id} sx={{ mb: 2 }}>
+            <Box sx={{ p: 2 }}>
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -107,12 +106,12 @@ export const OrderList = () => {
                 sx={{ mb: 2 }}
               >
                 <Box>
-                  <Typography variant="h6" gutterBottom>
+                  <DLSTypography variant="h6" gutterBottom>
                     Order #{order.id.slice(-8)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  </DLSTypography>
+                  <DLSTypography variant="body2" color="textSecondary">
                     {formatDate(order.createdAt)}
-                  </Typography>
+                  </DLSTypography>
                 </Box>
                 <Chip
                   label={order.status.toUpperCase()}
@@ -122,26 +121,26 @@ export const OrderList = () => {
               </Box>
 
               <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+                <DLSTypography variant="body2" color="textSecondary" gutterBottom>
                   Items: {order.items.length} • Total: ${order.total.toFixed(2)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
+                </DLSTypography>
+                <DLSTypography variant="body2" color="textSecondary">
                   Delivery Address: {order.address}
-                </Typography>
+                </DLSTypography>
               </Box>
 
               <Box display="flex" gap={2}>
-                <Button
+                <DLSButton
                   variant="outlined"
                   size="small"
                   startIcon={<Visibility />}
                   onClick={() => navigate(`/orders/${order.id}`)}
                 >
                   View Details
-                </Button>
+                </DLSButton>
               </Box>
-            </CardContent>
-          </Card>
+            </Box>
+          </DLSCard>
         ))}
       </Box>
     </Container>

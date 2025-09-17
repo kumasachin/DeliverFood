@@ -1,12 +1,8 @@
 import React from "react";
 import {
   Container,
-  Typography,
   Box,
-  Card,
-  CardContent,
   Chip,
-  Button,
   Alert,
   List,
   ListItem,
@@ -15,9 +11,12 @@ import {
 } from "@mui/material";
 import { Receipt, ArrowBack } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { useLocalStorage } from "../../hooks";
+import { useAuth } from "contexts/AuthContext";
+import { useLocalStorage } from "hooks";
 import { OrderStatus } from "./OrderStatus";
+import { DLSTypography } from "dls/atoms/Typography";
+import { DLSButton } from "dls/atoms/Button";
+import { DLSCard } from "dls/molecules/Card";
 
 interface Order {
   id: string;
@@ -53,13 +52,13 @@ export const SingleOrder = () => {
         <Alert severity="error" sx={{ mb: 3 }}>
           Order not found.
         </Alert>
-        <Button
+        <DLSButton
           variant="outlined"
           startIcon={<ArrowBack />}
           onClick={() => navigate("/orders")}
         >
           Back to Orders
-        </Button>
+        </DLSButton>
       </Container>
     );
   }
@@ -101,22 +100,22 @@ export const SingleOrder = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
-        <Button
+        <DLSButton
           variant="outlined"
           startIcon={<ArrowBack />}
           onClick={() => navigate("/orders")}
           sx={{ mr: 2 }}
         >
           Back
-        </Button>
+        </DLSButton>
         <Receipt sx={{ mr: 2, fontSize: 32 }} />
-        <Typography variant="h4" component="h1">
+        <DLSTypography variant="h4" component="h1">
           Order Details
-        </Typography>
+        </DLSTypography>
       </Box>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
+      <DLSCard sx={{ mb: 3 }}>
+        <Box sx={{ p: 2 }}>
           <Box
             display="flex"
             justifyContent="space-between"
@@ -124,10 +123,12 @@ export const SingleOrder = () => {
             sx={{ mb: 3 }}
           >
             <Box>
-              <Typography variant="h6">Order #{order.id.slice(-8)}</Typography>
-              <Typography variant="body2" color="text.secondary">
+              <DLSTypography variant="h6">
+                Order #{order.id.slice(-8)}
+              </DLSTypography>
+              <DLSTypography variant="body2" color="textSecondary">
                 Placed on {formatDate(order.createdAt)}
-              </Typography>
+              </DLSTypography>
             </Box>
             <Chip
               label={order.status.toUpperCase()}
@@ -136,14 +137,14 @@ export const SingleOrder = () => {
           </Box>
 
           <OrderStatus currentStatus={order.status} />
-        </CardContent>
-      </Card>
+        </Box>
+      </DLSCard>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
+      <DLSCard sx={{ mb: 3 }}>
+        <Box sx={{ p: 2 }}>
+          <DLSTypography variant="h6" gutterBottom>
             Order Items
-          </Typography>
+          </DLSTypography>
           <List dense>
             {order.items.map((item, index) => (
               <ListItem key={index} sx={{ px: 0 }}>
@@ -151,9 +152,9 @@ export const SingleOrder = () => {
                   primary={item.meal.name}
                   secondary={`${item.quantity}x $${item.meal.price.toFixed(2)}`}
                 />
-                <Typography variant="body2">
+                <DLSTypography variant="body2">
                   ${(item.meal.price * item.quantity).toFixed(2)}
-                </Typography>
+                </DLSTypography>
               </ListItem>
             ))}
           </List>
@@ -161,48 +162,50 @@ export const SingleOrder = () => {
           <Divider sx={{ my: 2 }} />
 
           <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
-            <Typography>Subtotal:</Typography>
-            <Typography>${subtotal.toFixed(2)}</Typography>
+            <DLSTypography>Subtotal:</DLSTypography>
+            <DLSTypography>${subtotal.toFixed(2)}</DLSTypography>
           </Box>
           <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
-            <Typography>Delivery Fee:</Typography>
-            <Typography>${deliveryFee.toFixed(2)}</Typography>
+            <DLSTypography>Delivery Fee:</DLSTypography>
+            <DLSTypography>${deliveryFee.toFixed(2)}</DLSTypography>
           </Box>
           <Box display="flex" justifyContent="space-between" sx={{ mb: 2 }}>
-            <Typography>Tax:</Typography>
-            <Typography>${tax.toFixed(2)}</Typography>
+            <DLSTypography>Tax:</DLSTypography>
+            <DLSTypography>${tax.toFixed(2)}</DLSTypography>
           </Box>
 
           <Divider sx={{ my: 2 }} />
 
           <Box display="flex" justifyContent="space-between">
-            <Typography variant="h6">Total:</Typography>
-            <Typography variant="h6">${order.total.toFixed(2)}</Typography>
+            <DLSTypography variant="h6">Total:</DLSTypography>
+            <DLSTypography variant="h6">
+              ${order.total.toFixed(2)}
+            </DLSTypography>
           </Box>
-        </CardContent>
-      </Card>
+        </Box>
+      </DLSCard>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
+      <DLSCard sx={{ mb: 3 }}>
+        <Box sx={{ p: 2 }}>
+          <DLSTypography variant="h6" gutterBottom>
             Delivery Information
-          </Typography>
-          <Typography variant="body2" gutterBottom>
+          </DLSTypography>
+          <DLSTypography variant="body2" gutterBottom>
             <strong>Address:</strong> {order.address}
-          </Typography>
-          <Typography variant="body2" gutterBottom>
+          </DLSTypography>
+          <DLSTypography variant="body2" gutterBottom>
             <strong>Phone:</strong> {order.phone}
-          </Typography>
-          <Typography variant="body2">
+          </DLSTypography>
+          <DLSTypography variant="body2">
             <strong>Payment Method:</strong>{" "}
             {order.paymentMethod === "card"
               ? "Credit/Debit Card"
               : order.paymentMethod === "cash"
               ? "Cash on Delivery"
               : "Digital Wallet"}
-          </Typography>
-        </CardContent>
-      </Card>
+          </DLSTypography>
+        </Box>
+      </DLSCard>
     </Container>
   );
 };

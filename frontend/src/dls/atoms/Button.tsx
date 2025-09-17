@@ -47,13 +47,13 @@ const StyledButton = styled(MuiButton, {
   }),
 }));
 
-export const DLSButton: React.FC<DLSButtonProps> = ({
+export const DLSButton = ({
   variant = "primary",
   children,
   loading,
   disabled,
   ...props
-}) => {
+}: DLSButtonProps) => {
   const muiVariant =
     variant === "outlined"
       ? "outlined"

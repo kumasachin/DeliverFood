@@ -31,12 +31,12 @@ export interface DLSTypographyProps extends MuiTypographyProps {
   noWrap?: boolean;
 }
 
-export const DLSTypography: React.FC<DLSTypographyProps> = ({
+export const DLSTypography = ({
   variant = "body1",
   color = "textPrimary",
   children,
   ...props
-}) => {
+}: DLSTypographyProps) => {
   return (
     <MuiTypography variant={variant} color={color} {...props}>
       {children}
