@@ -19,6 +19,7 @@ import {
   Kitchen,
   Home,
   CheckCircle,
+  Search,
 } from "@mui/icons-material";
 import { SvgIconProps } from "@mui/material";
 
@@ -41,7 +42,8 @@ export type DLSIconName =
   | "arrowBack"
   | "kitchen"
   | "home"
-  | "checkCircle";
+  | "checkCircle"
+  | "search";
 
 export interface DLSIconProps extends SvgIconProps {
   name: DLSIconName;
@@ -68,6 +70,7 @@ const iconMap = {
   kitchen: Kitchen,
   home: Home,
   checkCircle: CheckCircle,
+  search: Search,
 };
 
 export const DLSIcon: React.FC<DLSIconProps> = ({

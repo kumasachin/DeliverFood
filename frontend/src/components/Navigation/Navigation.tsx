@@ -1,14 +1,6 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Box,
-  IconButton,
-  Badge,
-} from "@mui/material";
+import { useLocation } from "react-router-dom";
+import { AppBar, Toolbar, Box, IconButton, Badge } from "@mui/material";
 import {
   Restaurant,
   Storefront,
@@ -20,6 +12,8 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
+import { DLSTypography } from "../../dls/atoms/Typography";
+import { DLSButton } from "../../dls/atoms/Button";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -49,16 +43,14 @@ export const Navigation = () => {
   return (
     <AppBar position="static" sx={{ mb: 3 }}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <DLSTypography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Food Delivery App
-        </Typography>
+        </DLSTypography>
 
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           {navItems.map((item) => (
-            <Button
+            <DLSButton
               key={item.path}
-              component={Link}
-              to={item.path}
               color="inherit"
               startIcon={item.icon}
               variant={location.pathname === item.path ? "outlined" : "text"}
@@ -66,27 +58,35 @@ export const Navigation = () => {
                 bgcolor:
                   location.pathname === item.path ? "#FFFFFF1A" : "transparent",
               }}
+              onClick={() => {
+                // Use navigate for programmatic navigation
+                // For now keeping simple navigation
+                window.location.href = item.path;
+              }}
             >
               {item.label}
-            </Button>
+            </DLSButton>
           ))}
 
           {authState.isAuthenticated && (
             <>
-              <IconButton color="inherit" component={Link} to="/cart">
+              <IconButton
+                color="inherit"
+                onClick={() => (window.location.href = "/cart")}
+              >
                 <Badge badgeContent={totalItems} color="error">
                   <ShoppingCart />
                 </Badge>
               </IconButton>
 
-              <Button
+              <DLSButton
                 color="inherit"
                 startIcon={<Logout />}
                 onClick={logout}
                 sx={{ ml: 1 }}
               >
                 Logout
-              </Button>
+              </DLSButton>
             </>
           )}
         </Box>

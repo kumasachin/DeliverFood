@@ -6,7 +6,13 @@ import {
 import { styled } from "@mui/material/styles";
 
 export interface DLSButtonProps extends Omit<MuiButtonProps, "variant"> {
-  variant?: "primary" | "secondary" | "outlined" | "text" | "danger";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "outlined"
+    | "text"
+    | "danger"
+    | "contained";
   size?: "small" | "medium" | "large";
   fullWidth?: boolean;
   loading?: boolean;

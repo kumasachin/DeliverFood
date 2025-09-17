@@ -1,30 +1,31 @@
 import React from "react";
-import { TextField, InputAdornment } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Box } from "@mui/material";
+import { Search } from "@mui/icons-material";
+import { DLSInput } from "../../dls/atoms/Input";
 
-type SearchBarProps = {
+interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-};
+}
 
 export const SearchBar = ({
   value,
   onChange,
   placeholder = "Search...",
-}: SearchBarProps) => (
-  <TextField
-    fullWidth
-    placeholder={placeholder}
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-    sx={{ mb: 4 }}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <SearchIcon />
-        </InputAdornment>
-      ),
-    }}
-  />
-);
+}: SearchBarProps) => {
+  return (
+    <Box sx={{ mb: 3 }}>
+      <DLSInput
+        fullWidth
+        variant="outlined"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        InputProps={{
+          startAdornment: <Search sx={{ mr: 1, color: "action.active" }} />,
+        }}
+      />
+    </Box>
+  );
+};

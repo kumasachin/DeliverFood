@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
+import { DLSTypography } from "../../dls/atoms/Typography";
 
 type LoadingProps = {
   message?: string;
@@ -14,8 +15,8 @@ export const Loading = ({ message = "Loading..." }: LoadingProps) => (
     py={4}
   >
     <CircularProgress sx={{ mb: 2 }} />
-    <Typography variant="body1" color="text.secondary">
+    <DLSTypography variant="body1" color="textSecondary">
       {message}
-    </Typography>
+    </DLSTypography>
   </Box>
 );

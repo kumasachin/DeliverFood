@@ -1,5 +1,6 @@
 import React from "react";
-import { Typography, Box } from "@mui/material";
+import { Box } from "@mui/material";
+import { DLSTypography } from "../../dls/atoms/Typography";
 
 type EmptyStateProps = {
   message: string;
@@ -9,8 +10,8 @@ type EmptyStateProps = {
 export const EmptyState = ({ message, icon }: EmptyStateProps) => (
   <Box textAlign="center" py={4}>
     {icon && <Box mb={2}>{icon}</Box>}
-    <Typography variant="h6" color="text.secondary">
+    <DLSTypography variant="h6" color="textSecondary">
       {message}
-    </Typography>
+    </DLSTypography>
   </Box>
 );

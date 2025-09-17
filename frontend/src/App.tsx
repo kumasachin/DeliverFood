@@ -6,8 +6,9 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, Container } from "@mui/material";
+import { dlsTheme } from "./dls/theme";
 import { SignIn } from "./components/Auth/SignIn";
 import { SignUp } from "./components/Auth/SignUp";
 import { RestaurantList } from "./components/Restaurant/RestaurantList";
@@ -18,14 +19,6 @@ import { OrderList, SingleOrder } from "./components/Order";
 import { Navigation } from "./components/Navigation/Navigation";
 import { AuthProvider, CartProvider } from "./contexts";
 import { Restaurant } from "./types/restaurant";
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#1976d2",
-    },
-  },
-});
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -86,7 +79,7 @@ const App = () => {
   return (
     <AuthProvider>
       <CartProvider>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={dlsTheme}>
           <CssBaseline />
           <Router>
             <AppContent />

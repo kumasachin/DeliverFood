@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Container,
-} from "@mui/material";
+import { Box, CardMedia, Container } from "@mui/material";
 import { Restaurant as RestaurantIcon } from "@mui/icons-material";
 import styled from "styled-components";
 import { Restaurant } from "../../types/restaurant";
@@ -15,6 +8,8 @@ import { Loading } from "../Common/Loading";
 import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
 import { useSearchFilter } from "../../hooks";
+import { DLSCard } from "../../dls/molecules/Card";
+import { DLSTypography } from "../../dls/atoms/Typography";
 
 type RestaurantListProps = {
   onSelectRestaurant?: (restaurant: Restaurant) => void;
@@ -25,16 +20,6 @@ const RestaurantsGrid = styled(Box)`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
   margin-top: 16px;
-`;
-
-const RestaurantCard = styled(Card)`
-  height: 100%;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-
-  &:hover {
-    transform: translateY(-4px);
-  }
 `;
 
 const mockRestaurants: Restaurant[] = [
@@ -105,9 +90,9 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
         <RestaurantIcon sx={{ mr: 2, fontSize: 32 }} />
-        <Typography variant="h4" component="h1">
+        <DLSTypography variant="h4" component="h1">
           Browse Restaurants
-        </Typography>
+        </DLSTypography>
       </Box>
 
       <SearchBar
@@ -121,9 +106,17 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
       ) : (
         <RestaurantsGrid>
           {filteredRestaurants.map((restaurant) => (
-            <RestaurantCard
+            <DLSCard
               key={restaurant.id}
               onClick={() => handleRestaurantClick(restaurant)}
+              sx={{
+                height: "100%",
+                cursor: "pointer",
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                },
+              }}
             >
               <CardMedia
                 component="img"
@@ -132,34 +125,34 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
                 alt={restaurant.name}
                 sx={{ objectFit: "cover" }}
               />
-              <CardContent>
-                <Typography variant="h6" component="h2" gutterBottom>
+              <Box sx={{ p: 2 }}>
+                <DLSTypography variant="h6" component="h2" gutterBottom>
                   {restaurant.name}
-                </Typography>
-                <Typography
+                </DLSTypography>
+                <DLSTypography
                   variant="body2"
-                  color="text.secondary"
+                  color="textSecondary"
                   sx={{ mb: 2 }}
                 >
                   {restaurant.description}
-                </Typography>
+                </DLSTypography>
                 <Box
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
                 >
-                  <Typography variant="body2" color="primary">
+                  <DLSTypography variant="body2" color="primary">
                     {restaurant.rating}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  </DLSTypography>
+                  <DLSTypography variant="body2" color="textSecondary">
                     {restaurant.deliveryTime}
-                  </Typography>
+                  </DLSTypography>
                 </Box>
-                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                <DLSTypography variant="caption" display="block" sx={{ mt: 1 }}>
                   {restaurant.category}
-                </Typography>
-              </CardContent>
-            </RestaurantCard>
+                </DLSTypography>
+              </Box>
+            </DLSCard>
           ))}
         </RestaurantsGrid>
       )}
