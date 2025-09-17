@@ -10,12 +10,12 @@ import {
   MenuItem,
 } from "@mui/material";
 import { PersonAdd } from "@mui/icons-material";
-import { Role } from "../../types/auth";
-import { useAuth } from "../../contexts/AuthContext";
-import { useFormState } from "../../hooks";
-import { DLSTypography } from "../../dls/atoms/Typography";
-import { DLSButton } from "../../dls/atoms/Button";
-import { DLSInput } from "../../dls/atoms/Input";
+import { Role } from "types/auth";
+import { useAuth } from "contexts/AuthContext";
+import { useFormState } from "hooks";
+import { DLSTypography } from "dls/atoms/Typography";
+import { DLSButton } from "dls/atoms/Button";
+import { DLSInput } from "dls/atoms/Input";
 
 type SignUpProps = {
   onSwitchToSignIn?: () => void;

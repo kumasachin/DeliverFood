@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Box,
-  CardMedia,
-  Container,
-  Chip,
-  Alert,
-} from "@mui/material";
+import { Box, CardMedia, Container, Chip, Alert } from "@mui/material";
 import styled from "styled-components";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Fastfood } from "@mui/icons-material";
-import { Meal } from "../../types/meal";
-import { Restaurant } from "../../types/restaurant";
+import { Meal } from "types/meal";
+import { Restaurant } from "types/restaurant";
 import { Loading } from "../Common/Loading";
 import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
-import { useCart } from "../../contexts/CartContext";
-import { DLSCard } from "../../dls/molecules/Card";
-import { DLSTypography } from "../../dls/atoms/Typography";
-import { DLSButton } from "../../dls/atoms/Button";
+import { useCart } from "contexts/CartContext";
+import { DLSCard } from "dls/molecules/Card";
+import { DLSTypography } from "dls/atoms/Typography";
+import { DLSButton } from "dls/atoms/Button";
 
 type MealListProps = {
   restaurant: Restaurant;
@@ -176,12 +170,12 @@ export const MealList = ({
       ) : (
         <MealsGrid>
           {filteredMeals.map((meal) => (
-            <DLSCard 
+            <DLSCard
               key={meal.id}
-              sx={{ 
+              sx={{
                 height: "100%",
                 display: "flex",
-                flexDirection: "column"
+                flexDirection: "column",
               }}
             >
               <CardMedia
@@ -191,7 +185,14 @@ export const MealList = ({
                 alt={meal.name}
                 sx={{ objectFit: "cover" }}
               />
-              <Box sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column" }}>
+              <Box
+                sx={{
+                  p: 2,
+                  flexGrow: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 <DLSTypography variant="h6" component="h2" gutterBottom>
                   {meal.name}
                 </DLSTypography>

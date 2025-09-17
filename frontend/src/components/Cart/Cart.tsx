@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Container,
-  Box,
-  IconButton,
-  Divider,
-  Alert,
-} from "@mui/material";
+import { Container, Box, IconButton, Divider, Alert } from "@mui/material";
 import {
   Add,
   Remove,
@@ -14,11 +8,11 @@ import {
   ShoppingCart,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../../contexts/CartContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { DLSTypography } from "../../dls/atoms/Typography";
-import { DLSButton } from "../../dls/atoms/Button";
-import { DLSCard } from "../../dls/molecules/Card";
+import { useCart } from "contexts/CartContext";
+import { useAuth } from "contexts/AuthContext";
+import { DLSTypography } from "dls/atoms/Typography";
+import { DLSButton } from "dls/atoms/Button";
+import { DLSCard } from "dls/molecules/Card";
 
 export const Cart = () => {
   const navigate = useNavigate();
@@ -52,7 +46,10 @@ export const Cart = () => {
           <DLSTypography variant="body1" color="textSecondary" sx={{ mb: 4 }}>
             Add some delicious meals to get started!
           </DLSTypography>
-          <DLSButton variant="contained" onClick={() => navigate("/restaurants")}>
+          <DLSButton
+            variant="contained"
+            onClick={() => navigate("/restaurants")}
+          >
             Browse Restaurants
           </DLSButton>
         </Box>

@@ -10,10 +10,10 @@ import {
   Logout,
   Receipt,
 } from "@mui/icons-material";
-import { useAuth } from "../../contexts/AuthContext";
-import { useCart } from "../../contexts/CartContext";
-import { DLSTypography } from "../../dls/atoms/Typography";
-import { DLSButton } from "../../dls/atoms/Button";
+import { useAuth } from "contexts/AuthContext";
+import { useCart } from "contexts/CartContext";
+import { DLSTypography } from "dls/atoms/Typography";
+import { DLSButton } from "dls/atoms/Button";
 
 export const Navigation = () => {
   const location = useLocation();

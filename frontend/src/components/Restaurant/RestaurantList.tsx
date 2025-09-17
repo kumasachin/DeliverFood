@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Box, CardMedia, Container } from "@mui/material";
 import { Restaurant as RestaurantIcon } from "@mui/icons-material";
 import styled from "styled-components";
-import { Restaurant } from "../../types/restaurant";
+import { Restaurant } from "types/restaurant";
 import { Loading } from "../Common/Loading";
 import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
-import { useSearchFilter } from "../../hooks";
-import { DLSCard } from "../../dls/molecules/Card";
-import { DLSTypography } from "../../dls/atoms/Typography";
+import { useSearchFilter } from "hooks";
+import { DLSCard } from "dls/molecules/Card";
+import { DLSTypography } from "dls/atoms/Typography";
 
 type RestaurantListProps = {
   onSelectRestaurant?: (restaurant: Restaurant) => void;

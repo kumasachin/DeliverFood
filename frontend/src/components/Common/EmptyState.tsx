@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-import { DLSTypography } from "../../dls/atoms/Typography";
+import { DLSTypography } from "dls/atoms/Typography";
 
 type EmptyStateProps = {
   message: string;

@@ -2,11 +2,11 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Paper, Alert } from "@mui/material";
 import { Login } from "@mui/icons-material";
-import { useAuth } from "../../contexts/AuthContext";
-import { useFormState } from "../../hooks";
-import { DLSTypography } from "../../dls/atoms/Typography";
-import { DLSButton } from "../../dls/atoms/Button";
-import { DLSInput } from "../../dls/atoms/Input";
+import { useAuth } from "contexts/AuthContext";
+import { useFormState } from "hooks";
+import { DLSTypography } from "dls/atoms/Typography";
+import { DLSButton } from "dls/atoms/Button";
+import { DLSInput } from "dls/atoms/Input";
 
 type SignInProps = {
   onSwitchToSignUp?: () => void;
