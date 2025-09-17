@@ -30,8 +30,6 @@ const initialState: AuthState = {
 };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
-  console.log("AuthReducer: Action dispatched", action.type, action);
-
   switch (action.type) {
     case "AUTH_START":
       return {
@@ -50,15 +48,13 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       };
 
     case "AUTH_ERROR":
-      const newState = {
+      return {
         ...state,
         user: null,
         isAuthenticated: false,
         isLoading: false,
         error: action.payload.error,
       };
-      console.log("AuthReducer: New state after AUTH_ERROR", newState);
-      return newState;
 
     case "LOGOUT":
       return {
@@ -118,14 +114,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signIn = async (email: string, password: string): Promise<void> => {
-    console.log("AuthContext: signIn called with", email);
     dispatch({ type: "AUTH_START" });
 
     try {
-      console.log("AuthContext: Calling API login");
       const loginResponse = await apiService.login({ email, password });
-      console.log("AuthContext: Login successful", loginResponse);
-
       apiService.setAuthToken(loginResponse.token);
 
       const user: User = {
@@ -137,24 +129,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       };
 
       localStorage.setItem("userData", JSON.stringify(user));
-
       dispatch({ type: "AUTH_SUCCESS", payload: { user } });
     } catch (error: any) {
-      console.log("AuthContext: Login error caught", error);
-      console.log("AuthContext: Error response", error.response?.data);
-
       const errorMessage =
         error.response?.data?.error ||
         error.response?.data?.message ||
         "Invalid email or password";
 
-      console.log("AuthContext: Dispatching error:", errorMessage);
-
       dispatch({
         type: "AUTH_ERROR",
-        payload: {
-          error: errorMessage,
-        },
+        payload: { error: errorMessage },
       });
     }
   };
@@ -168,17 +152,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     dispatch({ type: "AUTH_START" });
 
     try {
-      // Call the real API registration endpoint
       const registerResponse = await apiService.register({
         email,
         password,
         role: role as "customer" | "owner",
       });
 
-      // Store the token
       apiService.setAuthToken(registerResponse.token);
 
-      // Create user object from registration response
       const user: User = {
         id: registerResponse.uuid,
         email: registerResponse.email,
@@ -188,7 +169,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       };
 
       localStorage.setItem("userData", JSON.stringify(user));
-
       dispatch({ type: "AUTH_SUCCESS", payload: { user } });
     } catch (error: any) {
       dispatch({

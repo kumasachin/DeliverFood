@@ -41,12 +41,10 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
     handleChange(field, value);
   };
 
-  // Clear errors when component mounts
   useEffect(() => {
     clearError();
-  }, [clearError]); // Include clearError in dependencies
+  }, [clearError]);
 
-  // Navigate on successful authentication
   useEffect(() => {
     if (state.isAuthenticated && state.user) {
       navigate("/restaurants");

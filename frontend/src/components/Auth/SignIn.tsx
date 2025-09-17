@@ -29,14 +29,11 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("SignIn: Starting login process with:", values.email);
-
     await signIn(values.email, values.password);
   };
 
   useEffect(() => {
     if (state.isAuthenticated && state.user && !state.error) {
-      console.log("SignIn: Navigating to restaurants after successful auth");
       navigate("/restaurants");
     }
   }, [state.isAuthenticated, state.user, state.error, navigate]);
