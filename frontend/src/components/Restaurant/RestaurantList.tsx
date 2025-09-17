@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Restaurant as RestaurantIcon } from "@mui/icons-material";
 import styled from "styled-components";
@@ -6,10 +6,11 @@ import { Restaurant } from "types/restaurant";
 import { Loading } from "../Common/Loading";
 import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
-import { useSearchFilter } from "hooks";
+import { useSearchFilter, useRestaurants } from "hooks";
 import { DLSCard } from "dls/molecules/Card";
 import { DLSTypography } from "dls/atoms/Typography";
 import { Box, CardMedia, Container } from "dls/atoms";
+import { Restaurant as APIRestaurant } from "services/api";
 
 type RestaurantListProps = {
   onSelectRestaurant?: (restaurant: Restaurant) => void;
@@ -22,59 +23,33 @@ const RestaurantsGrid = styled(Box)`
   margin-top: 16px;
 `;
 
-const mockRestaurants: Restaurant[] = [
-  {
-    id: "1",
-    name: "Spice Garden",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    image: "/assets/restaurants/restaurant.png",
-    rating: 4.5,
-    deliveryTime: "30-45 min",
-    category: "North Indian",
-  },
-  {
-    id: "2",
-    name: "Royal Curry House",
-    description:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    image: "/assets/restaurants/restaurant_2.png",
-    rating: 4.2,
-    deliveryTime: "25-35 min",
-    category: "South Indian",
-  },
-  {
-    id: "3",
-    name: "Tandoor Express",
-    description:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-    image: "/assets/restaurants/restaurant_3.png",
-    rating: 4.8,
-    deliveryTime: "20-30 min",
-    category: "Punjabi",
-  },
-];
+const mapAPIRestaurantToComponent = (apiRestaurant: APIRestaurant): Restaurant => ({
+  id: apiRestaurant.uuid,
+  uuid: apiRestaurant.uuid,
+  name: apiRestaurant.title,
+  description: apiRestaurant.description,
+  cuisine: apiRestaurant.cuisine,
+  category: apiRestaurant.cuisine,
+  image: "/assets/restaurants/restaurant.png",
+  rating: 4.5,
+  deliveryTime: "30-45 min",
+  ownerUuid: apiRestaurant.owner_uuid,
+});
 
 export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const { restaurants: apiRestaurants, loading, error } = useRestaurants();
+
+  const restaurants = apiRestaurants.map(mapAPIRestaurantToComponent);
 
   const {
     searchTerm,
     setSearchTerm,
     filteredItems: filteredRestaurants,
   } = useSearchFilter({
-    items: mockRestaurants,
+    items: restaurants,
     searchFields: ["name", "category"],
   });
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleRestaurantClick = (restaurant: Restaurant) => {
     console.log("Selected restaurant:", restaurant);
@@ -84,6 +59,10 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
 
   if (loading) {
     return <Loading message="Loading restaurants..." />;
+  }
+
+  if (error) {
+    return <EmptyState message={`Error loading restaurants: ${error}`} />;
   }
 
   return (
