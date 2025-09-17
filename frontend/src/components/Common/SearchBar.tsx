@@ -13,7 +13,8 @@ export const SearchBar = ({
   value,
   onChange,
   placeholder = "Search...",
-}: SearchBarProps) => {
+  ...props
+}: SearchBarProps & { [key: string]: any }) => {
   return (
     <Box sx={{ mb: 3 }}>
       <DLSInput
@@ -22,9 +23,11 @@ export const SearchBar = ({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        inputProps={{ "data-testid": "search-input" }}
         InputProps={{
           startAdornment: <Search sx={{ mr: 1, color: "action.active" }} />,
         }}
+        {...props}
       />
     </Box>
   );

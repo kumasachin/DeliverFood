@@ -53,17 +53,17 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
           sx={{ mb: 3 }}
         >
           <Login sx={{ mr: 2, fontSize: 32 }} />
-          <DLSTypography variant="h4" component="h1">
+          <DLSTypography variant="h4" component="h1" data-testid="signin-title">
             Sign In
           </DLSTypography>
         </Box>
 
         {state.error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }} data-testid="signin-error">
             {state.error}
           </Alert>
         )}
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} data-testid="signin-form">
           <DLSInput
             label="Email"
             type="email"
@@ -72,6 +72,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             fullWidth
             margin="normal"
             required
+            inputProps={{ "data-testid": "email-input" }}
           />
           <DLSInput
             label="Password"
@@ -81,6 +82,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             fullWidth
             margin="normal"
             required
+            inputProps={{ "data-testid": "password-input" }}
           />
           <DLSButton
             type="submit"
@@ -88,6 +90,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             disabled={state.isLoading}
+            data-testid="signin-submit-button"
           >
             {state.isLoading ? "Signing In..." : "Sign In"}
           </DLSButton>
@@ -101,6 +104,7 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
               textDecoration: "underline",
             }}
             onClick={onSwitchToSignUp}
+            data-testid="signup-link"
           >
             Sign up
           </span>

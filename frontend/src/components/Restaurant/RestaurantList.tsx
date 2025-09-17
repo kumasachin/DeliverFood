@@ -68,10 +68,18 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container
+      maxWidth="lg"
+      sx={{ py: 4 }}
+      data-testid="restaurant-list-container"
+    >
       <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
         <RestaurantIcon sx={{ mr: 2, fontSize: 32 }} />
-        <DLSTypography variant="h4" component="h1">
+        <DLSTypography
+          variant="h4"
+          component="h1"
+          data-testid="restaurant-list-title"
+        >
           Browse Restaurants
         </DLSTypography>
       </Box>
@@ -80,16 +88,21 @@ export const RestaurantList = ({ onSelectRestaurant }: RestaurantListProps) => {
         value={searchTerm}
         onChange={setSearchTerm}
         placeholder="Search restaurants or cuisine..."
+        data-testid="restaurant-search-bar"
       />
 
       {filteredRestaurants.length === 0 ? (
-        <EmptyState message="No restaurants found matching your search." />
+        <EmptyState
+          message="No restaurants found matching your search."
+          data-testid="no-restaurants-message"
+        />
       ) : (
-        <RestaurantsGrid>
+        <RestaurantsGrid data-testid="restaurants-grid">
           {filteredRestaurants.map((restaurant) => (
             <DLSCard
               key={restaurant.id}
               onClick={() => handleRestaurantClick(restaurant)}
+              data-testid={`restaurant-card-${restaurant.id}`}
               sx={{
                 height: "100%",
                 cursor: "pointer",

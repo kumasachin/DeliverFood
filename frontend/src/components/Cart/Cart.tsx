@@ -22,14 +22,20 @@ export const Cart = () => {
   if (!authState.isAuthenticated) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <Alert severity="warning">Please sign in to view your cart.</Alert>
+        <Alert severity="warning" data-testid="cart-auth-warning">
+          Please sign in to view your cart.
+        </Alert>
       </Container>
     );
   }
 
   if (cartState.items.length === 0) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container
+        maxWidth="md"
+        sx={{ py: 4 }}
+        data-testid="empty-cart-container"
+      >
         <Box
           display="flex"
           flexDirection="column"
@@ -40,10 +46,19 @@ export const Cart = () => {
           <ShoppingCartOutlined
             sx={{ fontSize: 80, color: "text.secondary", mb: 2 }}
           />
-          <DLSTypography variant="h5" gutterBottom>
+          <DLSTypography
+            variant="h5"
+            gutterBottom
+            data-testid="empty-cart-title"
+          >
             Your cart is empty
           </DLSTypography>
-          <DLSTypography variant="body1" color="textSecondary" sx={{ mb: 4 }}>
+          <DLSTypography
+            variant="body1"
+            color="textSecondary"
+            sx={{ mb: 4 }}
+            data-testid="empty-cart-message"
+          >
             Add some delicious meals to get started!
           </DLSTypography>
           <DLSButton

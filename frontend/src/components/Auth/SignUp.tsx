@@ -71,18 +71,18 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
           sx={{ mb: 3 }}
         >
           <PersonAdd sx={{ mr: 2, fontSize: 32 }} />
-          <DLSTypography variant="h4" component="h1">
+          <DLSTypography variant="h4" component="h1" data-testid="signup-title">
             Sign Up
           </DLSTypography>
         </Box>
 
         {state.error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }} data-testid="signup-error">
             {state.error}
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-testid="signup-form">
           <DLSInput
             label="Name"
             type="text"
@@ -91,6 +91,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             fullWidth
             margin="normal"
             required
+            inputProps={{ "data-testid": "name-input" }}
           />
 
           <DLSInput
@@ -101,6 +102,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             fullWidth
             margin="normal"
             required
+            inputProps={{ "data-testid": "email-input" }}
           />
 
           <DLSInput
@@ -111,6 +113,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             fullWidth
             margin="normal"
             required
+            inputProps={{ "data-testid": "password-input" }}
           />
 
           <FormControl fullWidth margin="normal">
@@ -121,6 +124,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
               onChange={(e) =>
                 handleInputChange("role", e.target.value as Role)
               }
+              data-testid="role-select"
             >
               <MenuItem value="customer">Customer</MenuItem>
               <MenuItem value="owner">Restaurant Owner</MenuItem>
@@ -134,6 +138,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             disabled={state.isLoading}
+            data-testid="signup-submit-button"
           >
             {state.isLoading ? "Creating Account..." : "Sign Up"}
           </DLSButton>
@@ -148,6 +153,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
               textDecoration: "underline",
             }}
             onClick={onSwitchToSignIn}
+            data-testid="signin-link"
           >
             Sign in
           </span>
