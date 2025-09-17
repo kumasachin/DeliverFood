@@ -83,18 +83,15 @@ export const MealManagement = () => {
         });
         setRestaurants(response);
 
-        // Auto-select first restaurant if only one
         if (response.length === 1) {
           setSelectedRestaurant(response[0].uuid);
         }
       } catch (err) {
         setError("Failed to load restaurants");
-        console.error("Error loading restaurants:", err);
       } finally {
         setLoading(false);
       }
     };
-
     loadRestaurants();
   }, [authState.user]);
 
@@ -114,12 +111,10 @@ export const MealManagement = () => {
         setMeals(response);
       } catch (err) {
         setError("Failed to load meals");
-        console.error("Error loading meals:", err);
       } finally {
         setLoading(false);
       }
     };
-
     loadMeals();
   }, [selectedRestaurant]);
 
@@ -191,7 +186,6 @@ export const MealManagement = () => {
       let updatedMeal: Meal;
 
       if (editingMeal) {
-        // Update existing meal
         updatedMeal = await apiService.updateMeal(
           editingMeal.uuid || editingMeal.id,
           mealData
@@ -205,7 +199,6 @@ export const MealManagement = () => {
         );
         setSuccess("Meal updated successfully!");
       } else {
-        // Create new meal
         updatedMeal = await apiService.createMeal(selectedRestaurant, mealData);
         setMeals((prev) => [...prev, updatedMeal]);
         setSuccess("Meal created successfully!");
@@ -217,7 +210,6 @@ export const MealManagement = () => {
         err.response?.data?.error ||
           `Failed to ${editingMeal ? "update" : "create"} meal`
       );
-      console.error("Error saving meal:", err);
     } finally {
       setLoading(false);
     }
@@ -237,7 +229,6 @@ export const MealManagement = () => {
       setSuccess("Meal deleted successfully!");
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to delete meal");
-      console.error("Error deleting meal:", err);
     } finally {
       setLoading(false);
     }

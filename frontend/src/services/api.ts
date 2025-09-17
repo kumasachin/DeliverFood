@@ -430,6 +430,14 @@ class ApiService {
   }
 
   // User blocking methods
+  async searchUserByEmail(email: string): Promise<BlockedUser> {
+    const response: AxiosResponse<BlockedUser> = await this.api.get(
+      "/users/search",
+      { params: { email } }
+    );
+    return response.data;
+  }
+
   async getBlockedUsers(): Promise<BlockedUser[]> {
     const response: AxiosResponse<BlockedUser[]> = await this.api.get(
       "/blocked-users"

@@ -2,23 +2,21 @@ import React, { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Container } from "@mui/material";
 
-import { SignIn } from "../components/Auth/SignIn";
-import { SignUp } from "../components/Auth/SignUp";
-import { RestaurantList } from "../components/Restaurant/RestaurantList";
-import { MealList } from "../components/Meal/MealList";
-import { Cart } from "../components/Cart/Cart";
-import { Checkout } from "../components/Checkout/Checkout";
-import { Dashboard } from "../components/Dashboard";
+import { SignIn, SignUp } from "../pages/auth";
+import { Dashboard } from "../pages/dashboard";
+import { Cart } from "../pages/cart";
+import { Checkout } from "../pages/checkout";
+import { RestaurantList } from "../pages/restaurants";
+import { MealList } from "../pages/meals";
 import {
   OrderList,
   SingleOrder,
   RestaurantOrdersDashboard,
   AdminOrdersDashboard,
-} from "../components/Order";
-import { CouponManagement } from "../components/Coupon";
-import { MealManagement } from "../components/Meal/Management";
-import { RestaurantManagement } from "../components/Restaurant/Management";
-import { BlockedUsersManagement } from "../components/User";
+} from "../pages/orders";
+import { MealManagement } from "../pages/meals";
+import { RestaurantManagement } from "../pages/restaurants";
+import { CustomerManagement } from "../pages/users";
 import { Navigation } from "../components/Navigation/Navigation";
 import { Restaurant } from "../types/restaurant";
 import { useAuth } from "../contexts/AuthContext";
@@ -34,18 +32,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     <>{children}</>
   ) : (
     <Navigate to="/signin" replace />
-  );
-};
-
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { state } = useAuth();
-
-  if (state.isLoading) return <LoadingScreen />;
-
-  return state.isAuthenticated ? (
-    <Navigate to="/restaurants" replace />
-  ) : (
-    <>{children}</>
   );
 };
 
@@ -79,15 +65,15 @@ export const AppRouter = () => {
         <Routes>
           <Route
             path="/signin"
-            element={<SignIn onSwitchToSignUp={goToSignUp} />}
+            element={
+              <SignIn key="signin-route" onSwitchToSignUp={goToSignUp} />
+            }
           />
 
           <Route
             path="/signup"
             element={
-              <PublicRoute>
-                <SignUp onSwitchToSignIn={goToSignIn} />
-              </PublicRoute>
+              <SignUp key="signup-route" onSwitchToSignIn={goToSignIn} />
             }
           />
 
@@ -155,15 +141,6 @@ export const AppRouter = () => {
           />
 
           <Route
-            path="/coupons"
-            element={
-              <ProtectedRoute>
-                <CouponManagement />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
             path="/meal-management"
             element={
               <ProtectedRoute>
@@ -182,10 +159,10 @@ export const AppRouter = () => {
           />
 
           <Route
-            path="/blocked-users"
+            path="/customer-management"
             element={
               <ProtectedRoute>
-                <BlockedUsersManagement />
+                <CustomerManagement />
               </ProtectedRoute>
             }
           />

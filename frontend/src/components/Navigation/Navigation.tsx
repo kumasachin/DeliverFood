@@ -11,7 +11,7 @@ import {
   AdminPanelSettings,
   LocalOffer,
   RestaurantMenu,
-  PersonOff,
+  ManageAccounts,
 } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
 import { useCart } from "contexts/CartContext";
@@ -69,9 +69,9 @@ export const Navigation = () => {
           icon: <LocalOffer />,
         },
         {
-          path: "/blocked-users",
-          label: "Blocked Users",
-          icon: <PersonOff />,
+          path: "/customer-management",
+          label: "Manage Customers",
+          icon: <ManageAccounts />,
         }
       );
     } else if (authState.user?.role === "admin") {
@@ -82,9 +82,9 @@ export const Navigation = () => {
           icon: <AdminPanelSettings />,
         },
         {
-          path: "/blocked-users",
-          label: "Blocked Users",
-          icon: <PersonOff />,
+          path: "/customer-management",
+          label: "Manage Customers",
+          icon: <ManageAccounts />,
         }
       );
     }

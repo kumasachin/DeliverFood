@@ -139,6 +139,14 @@ class UserModel {
     return castSchema.deserialize(res);
   }
 
+  async getByStatus(status) {
+    const stmt = this.db.prepare(
+      `SELECT ${exposedFields} FROM users WHERE status = ? ORDER BY created_at DESC`
+    );
+    const res = stmt.all(status);
+    return res.map(castSchema.deserialize);
+  }
+
   async getByEmail(email) {
     const stmt = this.db.prepare(
       `SELECT uuid, password_hash, role, status FROM users WHERE email = ?`

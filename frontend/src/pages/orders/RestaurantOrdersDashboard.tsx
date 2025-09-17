@@ -48,56 +48,46 @@ export const RestaurantOrdersDashboard = () => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
 
   const fetchOrders = useCallback(async () => {
-    if (!authState.user || authState.user.role !== "owner") {
-      setError("Access denied. Restaurant owner account required.");
-      return;
-    }
+    if (!authState.user?.id) return;
+
+    setLoading(true);
+    setError(null);
 
     try {
-      setLoading(true);
-      setError(null);
-
-      // First, get the owner's restaurants
-      const ownerRestaurants = await apiService.getRestaurants({
+      const restaurantsResponse = await apiService.getRestaurants({
         owner_uuid: authState.user.uuid,
       });
 
-      // Then fetch orders for each restaurant
-      const allOrders: OrderResponse[] = [];
-      for (const restaurant of ownerRestaurants) {
-        try {
-          const restaurantOrders = await apiService.getRestaurantOrders(
-            restaurant.uuid
-          );
-          allOrders.push(...restaurantOrders);
-        } catch (err: any) {
-          console.error(
-            `Failed to fetch orders for restaurant ${restaurant.uuid}:`,
-            err
-          );
-        }
+      if (restaurantsResponse.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      const allOrders = [];
+      for (const restaurant of restaurantsResponse) {
+        const restaurantOrders = await apiService.getRestaurantOrders(
+          restaurant.uuid
+        );
+        allOrders.push(...restaurantOrders);
       }
 
       setOrders(allOrders);
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to load orders");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load orders");
     } finally {
       setLoading(false);
     }
-  }, [authState.user]);
+  }, [authState.user?.id, authState.user?.uuid]);
 
-  // Auto-refresh functionality
   const { refreshNow } = useAutoRefresh(
     async () => {
       if (!authState.user || authState.user.role !== "owner") return;
 
       try {
-        // Get the owner's restaurants
         const ownerRestaurants = await apiService.getRestaurants({
           owner_uuid: authState.user.uuid,
         });
 
-        // Fetch orders for each restaurant
         const allOrders: OrderResponse[] = [];
         for (const restaurant of ownerRestaurants) {
           try {
@@ -106,21 +96,18 @@ export const RestaurantOrdersDashboard = () => {
             );
             allOrders.push(...restaurantOrders);
           } catch (err: any) {
-            console.error(
-              `Auto-refresh failed for restaurant ${restaurant.uuid}:`,
-              err
-            );
+            // Skip failed restaurants but continue with others
           }
         }
 
         setOrders(allOrders);
       } catch (err: any) {
-        console.error("Auto-refresh failed:", err);
+        // Auto-refresh error handling
       }
     },
     {
       enabled: autoRefreshEnabled,
-      interval: 20000, // 20 seconds for restaurant owners (more frequent)
+      interval: 20000,
       immediate: false,
     }
   );
@@ -155,7 +142,6 @@ export const RestaurantOrdersDashboard = () => {
     );
   };
 
-  // Filter orders by status for tabs
   const getFilteredOrders = (status?: OrderStatus) => {
     if (!status) return orders;
     return orders.filter((order) => order.status === status);
