@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from "react";
 import { User, Role } from "../types/auth";
+import { apiService } from "../services";
 
 export interface AuthState {
   user: User | null;
@@ -116,24 +117,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     dispatch({ type: "AUTH_START" });
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call the real API login endpoint
+      const loginResponse = await apiService.login({ email, password });
 
-      const mockUser: User = {
-        id: "1",
+      // Store the token
+      apiService.setAuthToken(loginResponse.token);
+
+      // For now, create user object from email since login endpoint only returns token
+      // In a real app, you might decode JWT or make a separate API call to get user info
+      const user: User = {
+        id: email, // Using email as ID for now
         email,
-        name: email.split("@")[0],
-        role: "customer" as Role,
+        name: email.split("@")[0], // Extract name from email
+        role: email.includes("owner") ? "owner" : ("customer" as Role), // Simple role detection
         isActive: true,
       };
 
-      localStorage.setItem("authToken", "mock-token-123");
-      localStorage.setItem("userData", JSON.stringify(mockUser));
+      localStorage.setItem("userData", JSON.stringify(user));
 
-      dispatch({ type: "AUTH_SUCCESS", payload: { user: mockUser } });
-    } catch (error) {
+      dispatch({ type: "AUTH_SUCCESS", payload: { user } });
+    } catch (error: any) {
       dispatch({
         type: "AUTH_ERROR",
-        payload: { error: "Invalid email or password" },
+        payload: {
+          error: error.response?.data?.message || "Invalid email or password",
+        },
       });
     }
   };
@@ -147,31 +155,40 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     dispatch({ type: "AUTH_START" });
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const mockUser: User = {
-        id: Date.now().toString(),
+      // Call the real API registration endpoint
+      const registerResponse = await apiService.register({
         email,
-        name,
-        role,
+        password,
+        role: role as "customer" | "owner",
+      });
+
+      // Store the token
+      apiService.setAuthToken(registerResponse.token);
+
+      // Create user object from registration response
+      const user: User = {
+        id: registerResponse.uuid,
+        email: registerResponse.email,
+        name: name || email.split("@")[0],
+        role: registerResponse.role as Role,
         isActive: true,
       };
 
-      localStorage.setItem("authToken", "mock-token-123");
-      localStorage.setItem("userData", JSON.stringify(mockUser));
+      localStorage.setItem("userData", JSON.stringify(user));
 
-      dispatch({ type: "AUTH_SUCCESS", payload: { user: mockUser } });
-    } catch (error) {
+      dispatch({ type: "AUTH_SUCCESS", payload: { user } });
+    } catch (error: any) {
       dispatch({
         type: "AUTH_ERROR",
-        payload: { error: "Failed to create account" },
+        payload: {
+          error: error.response?.data?.message || "Failed to create account",
+        },
       });
     }
   };
 
   const logout = (): void => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userData");
+    apiService.clearAuthToken();
     dispatch({ type: "LOGOUT" });
   };
 
