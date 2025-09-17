@@ -36,6 +36,7 @@ export const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [tipAmount, setTipAmount] = useState(0);
 
   const [formData, setFormData] = useState({
     address: "",
@@ -47,7 +48,7 @@ export const Checkout = () => {
   const subtotal = cartState.total;
   const deliveryFee = 3.99;
   const tax = subtotal * 0.08;
-  const total = subtotal + deliveryFee + tax;
+  const total = subtotal + deliveryFee + tax + tipAmount;
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -73,7 +74,7 @@ export const Checkout = () => {
           meal_uuid: item.meal.uuid || item.meal.id,
           quantity: item.quantity,
         })),
-        tip_amount: 0,
+        tip_amount: tipAmount,
       };
 
       await apiService.createOrder(orderData);
@@ -215,6 +216,14 @@ export const Checkout = () => {
               <Typography>Tax:</Typography>
               <Typography>${tax.toFixed(2)}</Typography>
             </Box>
+            {tipAmount > 0 && (
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+              >
+                <Typography>Tip:</Typography>
+                <Typography>${tipAmount.toFixed(2)}</Typography>
+              </Box>
+            )}
             <Divider sx={{ my: 2 }} />
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <Typography variant="h6">Total:</Typography>
@@ -280,6 +289,37 @@ export const Checkout = () => {
                 <MenuItem value="cash">Cash on Delivery</MenuItem>
               </Select>
             </FormControl>
+
+            {/* Tip Section */}
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              Tip Amount
+            </Typography>
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
+                {[0, 2, 3, 5].map((tip) => (
+                  <Button
+                    key={tip}
+                    variant={tipAmount === tip ? "contained" : "outlined"}
+                    size="small"
+                    onClick={() => setTipAmount(tip)}
+                  >
+                    ${tip}
+                  </Button>
+                ))}
+              </Box>
+              <TextField
+                size="small"
+                label="Custom tip amount"
+                type="number"
+                placeholder="Enter custom tip amount"
+                value={tipAmount || ""}
+                onChange={(e) => setTipAmount(Number(e.target.value) || 0)}
+              />
+            </Box>
 
             <TextField
               fullWidth
