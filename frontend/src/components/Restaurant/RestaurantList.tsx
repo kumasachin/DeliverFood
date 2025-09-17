@@ -23,7 +23,9 @@ const RestaurantsGrid = styled(Box)`
   margin-top: 16px;
 `;
 
-const mapAPIRestaurantToComponent = (apiRestaurant: APIRestaurant): Restaurant => ({
+const mapAPIRestaurantToComponent = (
+  apiRestaurant: APIRestaurant
+): Restaurant => ({
   id: apiRestaurant.uuid,
   uuid: apiRestaurant.uuid,
   name: apiRestaurant.title,
