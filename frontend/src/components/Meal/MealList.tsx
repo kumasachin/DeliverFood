@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Card,
-  CardContent,
   CardMedia,
-  Typography,
-  Button,
   Container,
   Chip,
   Alert,
@@ -21,6 +17,9 @@ import { Loading } from "../Common/Loading";
 import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
 import { useCart } from "../../contexts/CartContext";
+import { DLSCard } from "../../dls/molecules/Card";
+import { DLSTypography } from "../../dls/atoms/Typography";
+import { DLSButton } from "../../dls/atoms/Button";
 
 type MealListProps = {
   restaurant: Restaurant;
@@ -32,10 +31,6 @@ const MealsGrid = styled(Box)`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
   margin-top: 16px;
-`;
-
-const MealCard = styled(Card)`
-  height: 100%;
 `;
 
 const getMockMeals = (restaurantId: string): Meal[] => [
@@ -141,24 +136,24 @@ export const MealList = ({
       )}
 
       <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
-        <Button
+        <DLSButton
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={handleBackToRestaurants}
           sx={{ mr: 2 }}
         >
           Back to Restaurants
-        </Button>
+        </DLSButton>
         <Fastfood sx={{ mr: 2 }} />
-        <Typography variant="h4" component="h1">
+        <DLSTypography variant="h4" component="h1">
           {restaurant.name} - Menu
-        </Typography>
+        </DLSTypography>
       </Box>
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="body1" color="text.secondary">
+        <DLSTypography variant="body1" color="textSecondary">
           {restaurant.description}
-        </Typography>
+        </DLSTypography>
         <Box display="flex" gap={2} sx={{ mt: 1 }}>
           <Chip label={`⭐ ${restaurant.rating}`} size="small" />
           <Chip
@@ -181,7 +176,14 @@ export const MealList = ({
       ) : (
         <MealsGrid>
           {filteredMeals.map((meal) => (
-            <MealCard key={meal.id}>
+            <DLSCard 
+              key={meal.id}
+              sx={{ 
+                height: "100%",
+                display: "flex",
+                flexDirection: "column"
+              }}
+            >
               <CardMedia
                 component="img"
                 height="200"
@@ -189,29 +191,29 @@ export const MealList = ({
                 alt={meal.name}
                 sx={{ objectFit: "cover" }}
               />
-              <CardContent>
-                <Typography variant="h6" component="h2" gutterBottom>
+              <Box sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                <DLSTypography variant="h6" component="h2" gutterBottom>
                   {meal.name}
-                </Typography>
-                <Typography
+                </DLSTypography>
+                <DLSTypography
                   variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 2 }}
+                  color="textSecondary"
+                  sx={{ mb: 2, flexGrow: 1 }}
                 >
                   {meal.description}
-                </Typography>
+                </DLSTypography>
                 <Box
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
                   sx={{ mb: 2 }}
                 >
-                  <Typography variant="h6" color="primary">
+                  <DLSTypography variant="h6" color="primary">
                     ${meal.price.toFixed(2)}
-                  </Typography>
+                  </DLSTypography>
                   <Chip label={meal.category} size="small" variant="outlined" />
                 </Box>
-                <Button
+                <DLSButton
                   fullWidth
                   variant="contained"
                   startIcon={<AddShoppingCartIcon />}
@@ -219,9 +221,9 @@ export const MealList = ({
                   disabled={!meal.available}
                 >
                   {meal.available ? "Add to Cart" : "Not Available"}
-                </Button>
-              </CardContent>
-            </MealCard>
+                </DLSButton>
+              </Box>
+            </DLSCard>
           ))}
         </MealsGrid>
       )}

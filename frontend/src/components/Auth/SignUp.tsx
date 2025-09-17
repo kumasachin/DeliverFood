@@ -2,9 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
-  TextField,
-  Button,
-  Typography,
   Paper,
   Alert,
   FormControl,
@@ -16,6 +13,9 @@ import { PersonAdd } from "@mui/icons-material";
 import { Role } from "../../types/auth";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFormState } from "../../hooks";
+import { DLSTypography } from "../../dls/atoms/Typography";
+import { DLSButton } from "../../dls/atoms/Button";
+import { DLSInput } from "../../dls/atoms/Input";
 
 type SignUpProps = {
   onSwitchToSignIn?: () => void;
@@ -55,9 +55,9 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
           sx={{ mb: 3 }}
         >
           <PersonAdd sx={{ mr: 2, fontSize: 32 }} />
-          <Typography variant="h4" component="h1">
+          <DLSTypography variant="h4" component="h1">
             Sign Up
-          </Typography>
+          </DLSTypography>
         </Box>
 
         {state.error && (
@@ -67,7 +67,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
         )}
 
         <form onSubmit={handleSubmit}>
-          <TextField
+          <DLSInput
             label="Name"
             type="text"
             value={values.name}
@@ -77,7 +77,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             required
           />
 
-          <TextField
+          <DLSInput
             label="Email"
             type="email"
             value={values.email}
@@ -87,7 +87,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             required
           />
 
-          <TextField
+          <DLSInput
             label="Password"
             type="password"
             value={values.password}
@@ -110,7 +110,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             </Select>
           </FormControl>
 
-          <Button
+          <DLSButton
             type="submit"
             fullWidth
             variant="contained"
@@ -118,10 +118,10 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             disabled={state.isLoading}
           >
             {state.isLoading ? "Creating Account..." : "Sign Up"}
-          </Button>
+          </DLSButton>
         </form>
 
-        <Typography align="center">
+        <DLSTypography align="center">
           Already have an account?{" "}
           <span
             style={{
@@ -133,7 +133,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
           >
             Sign in
           </span>
-        </Typography>
+        </DLSTypography>
       </Paper>
     </Box>
   );
