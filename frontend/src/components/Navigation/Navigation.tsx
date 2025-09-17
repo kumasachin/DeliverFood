@@ -9,6 +9,9 @@ import {
   Receipt,
   Store,
   AdminPanelSettings,
+  LocalOffer,
+  RestaurantMenu,
+  PersonOff,
 } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
 import { useCart } from "contexts/CartContext";
@@ -44,17 +47,46 @@ export const Navigation = () => {
         icon: <Receipt />,
       });
     } else if (authState.user?.role === "owner") {
-      baseItems.push({
-        path: "/restaurant-orders",
-        label: "Restaurant Orders",
-        icon: <Store />,
-      });
+      baseItems.push(
+        {
+          path: "/restaurant-orders",
+          label: "Restaurant Orders",
+          icon: <Store />,
+        },
+        {
+          path: "/restaurant-management",
+          label: "Manage Restaurants",
+          icon: <Restaurant />,
+        },
+        {
+          path: "/meal-management",
+          label: "Manage Meals",
+          icon: <RestaurantMenu />,
+        },
+        {
+          path: "/coupons",
+          label: "Manage Coupons",
+          icon: <LocalOffer />,
+        },
+        {
+          path: "/blocked-users",
+          label: "Blocked Users",
+          icon: <PersonOff />,
+        }
+      );
     } else if (authState.user?.role === "admin") {
-      baseItems.push({
-        path: "/admin-orders",
-        label: "Admin Dashboard",
-        icon: <AdminPanelSettings />,
-      });
+      baseItems.push(
+        {
+          path: "/admin-orders",
+          label: "Admin Dashboard",
+          icon: <AdminPanelSettings />,
+        },
+        {
+          path: "/blocked-users",
+          label: "Blocked Users",
+          icon: <PersonOff />,
+        }
+      );
     }
 
     return baseItems;

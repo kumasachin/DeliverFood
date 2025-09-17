@@ -9,12 +9,20 @@ import {
   Tab,
   Tabs,
   Badge,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
-import { Store, Refresh, FilterList } from "@mui/icons-material";
+import {
+  Store,
+  Refresh,
+  FilterList,
+  AutorenewRounded,
+} from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
 import { apiService, OrderResponse } from "services/api";
 import { OrderStatus } from "types/order";
 import { OrderStatusManager } from "./OrderStatusManager";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
@@ -37,6 +45,7 @@ export const RestaurantOrdersDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
 
   const fetchOrders = useCallback(async () => {
     if (!authState.user || authState.user.role !== "owner") {
@@ -58,6 +67,25 @@ export const RestaurantOrdersDashboard = () => {
       setLoading(false);
     }
   }, [authState.user]);
+
+  // Auto-refresh functionality
+  const { refreshNow } = useAutoRefresh(
+    async () => {
+      if (!authState.user || authState.user.role !== "owner") return;
+
+      try {
+        const ordersData = await apiService.getOrders();
+        setOrders(ordersData);
+      } catch (err: any) {
+        console.error("Auto-refresh failed:", err);
+      }
+    },
+    {
+      enabled: autoRefreshEnabled,
+      interval: 20000, // 20 seconds for restaurant owners (more frequent)
+      immediate: false,
+    }
+  );
 
   useEffect(() => {
     fetchOrders();
@@ -125,14 +153,37 @@ export const RestaurantOrdersDashboard = () => {
           <Store sx={{ mr: 1, verticalAlign: "middle" }} />
           Restaurant Orders
         </DLSTypography>
-        <DLSButton
-          variant="outlined"
-          startIcon={loading ? <CircularProgress size={16} /> : <Refresh />}
-          onClick={fetchOrders}
-          disabled={loading}
-        >
-          Refresh
-        </DLSButton>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={autoRefreshEnabled}
+                onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
+                size="small"
+              />
+            }
+            label={
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <AutorenewRounded fontSize="small" />
+                Auto-refresh
+              </Box>
+            }
+          />
+
+          <DLSButton
+            variant="outlined"
+            startIcon={loading ? <CircularProgress size={16} /> : <Refresh />}
+            onClick={() => {
+              fetchOrders();
+              refreshNow();
+            }}
+            disabled={loading}
+            size="small"
+          >
+            Refresh Now
+          </DLSButton>
+        </Box>
       </Box>
 
       {error && (

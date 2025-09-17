@@ -4,7 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { dlsTheme } from "./dls/theme";
 import { AuthProvider, CartProvider } from "./contexts";
-import { AppRouter } from "./router/AppRouter";
+import { AppRouter } from "router/AppRouter";
 
 const App = () => {
   return (

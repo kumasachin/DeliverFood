@@ -5,5 +5,5 @@ export type {
   AuthResponse,
   LoginResponse,
   Restaurant,
-  Meal,
 } from "./api";
+export type { Meal } from "../types/meal";

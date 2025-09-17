@@ -14,17 +14,22 @@ import {
   FormControl,
   InputLabel,
   Select,
+  Switch,
+  FormControlLabel,
+  Button,
 } from "@mui/material";
 import {
   AdminPanelSettings,
   Refresh,
   Search,
   FilterList,
+  AutorenewRounded,
 } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
 import { apiService, OrderResponse } from "services/api";
 import { OrderStatus } from "types/order";
 import { OrderStatusManager } from "./OrderStatusManager";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
@@ -38,6 +43,7 @@ export const AdminOrdersDashboard = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -53,6 +59,13 @@ export const AdminOrdersDashboard = () => {
       setLoading(false);
     }
   }, []);
+
+  // Auto-refresh functionality for admins (30 second interval)
+  useAutoRefresh(fetchOrders, {
+    enabled: autoRefreshEnabled,
+    interval: 30000,
+    onError: (err) => setError(err.message || "Failed to refresh orders"),
+  });
 
   useEffect(() => {
     fetchOrders();
@@ -181,36 +194,79 @@ export const AdminOrdersDashboard = () => {
 
       {/* Filters */}
       <DLSCard sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          <TextField
-            label="Search Orders"
-            variant="outlined"
-            size="small"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <Search sx={{ mr: 1, color: "text.secondary" }} />
-              ),
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              flexWrap: "wrap",
             }}
-            placeholder="Search by order ID, customer ID, or coupon..."
-            sx={{ minWidth: 300 }}
-          />
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Status Filter</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Status Filter"
-              onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <TextField
+              label="Search Orders"
+              variant="outlined"
+              size="small"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <Search sx={{ mr: 1, color: "text.secondary" }} />
+                ),
+              }}
+              placeholder="Search by order ID, customer ID, or coupon..."
+              sx={{ minWidth: 300 }}
+            />
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Status Filter</InputLabel>
+              <Select
+                value={statusFilter}
+                label="Status Filter"
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <MenuItem value="all">All Statuses</MenuItem>
+                {Object.values(OrderStatus).map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={autoRefreshEnabled}
+                  onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
+                  size="small"
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <AutorenewRounded fontSize="small" />
+                  Auto-refresh (30s)
+                </Box>
+              }
+            />
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={fetchOrders}
+              disabled={loading}
+              startIcon={<AutorenewRounded />}
             >
-              <MenuItem value="all">All Statuses</MenuItem>
-              {Object.values(OrderStatus).map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              Refresh
+            </Button>
+          </Box>
         </Box>
       </DLSCard>
 

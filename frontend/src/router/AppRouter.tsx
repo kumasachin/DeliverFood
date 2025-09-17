@@ -15,6 +15,10 @@ import {
   RestaurantOrdersDashboard,
   AdminOrdersDashboard,
 } from "../components/Order";
+import { CouponManagement } from "../components/Coupon";
+import { MealManagement } from "../components/Meal/Management";
+import { RestaurantManagement } from "../components/Restaurant/Management";
+import { BlockedUsersManagement } from "../components/User";
 import { Navigation } from "../components/Navigation/Navigation";
 import { Restaurant } from "../types/restaurant";
 import { useAuth } from "../contexts/AuthContext";
@@ -146,6 +150,42 @@ export const AppRouter = () => {
             element={
               <ProtectedRoute>
                 <AdminOrdersDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/coupons"
+            element={
+              <ProtectedRoute>
+                <CouponManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/meal-management"
+            element={
+              <ProtectedRoute>
+                <MealManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/restaurant-management"
+            element={
+              <ProtectedRoute>
+                <RestaurantManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/blocked-users"
+            element={
+              <ProtectedRoute>
+                <BlockedUsersManagement />
               </ProtectedRoute>
             }
           />

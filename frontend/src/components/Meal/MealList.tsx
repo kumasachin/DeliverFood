@@ -18,6 +18,7 @@ import { SearchBar } from "../Common/SearchBar";
 import { EmptyState } from "../Common/EmptyState";
 import { useCart } from "contexts/CartContext";
 import { DLSCard } from "dls/molecules/Card";
+import { apiService } from "../../services/api";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { Box, CardMedia, Container, Chip, Alert } from "dls/atoms";
@@ -84,16 +85,30 @@ export const MealList = ({
   const [pendingMeal, setPendingMeal] = useState<Meal | null>(null);
 
   useEffect(() => {
-    const loadMeals = () => {
+    const loadMeals = async () => {
       setLoading(true);
-      setTimeout(() => {
+      try {
+        // Try to fetch real meals from API first
+        const realMeals = await apiService.getRestaurantMeals(
+          restaurant.uuid || restaurant.id
+        );
+        if (realMeals && realMeals.length > 0) {
+          setMeals(realMeals);
+        } else {
+          // Fallback to mock data if no real meals found
+          setMeals(getMockMeals(restaurant.id));
+        }
+      } catch (error) {
+        console.warn("Failed to fetch meals from API, using mock data:", error);
+        // Fallback to mock data on error
         setMeals(getMockMeals(restaurant.id));
+      } finally {
         setLoading(false);
-      }, 500);
+      }
     };
 
     loadMeals();
-  }, [restaurant.id]);
+  }, [restaurant.id, restaurant.uuid]);
 
   const filteredMeals = meals.filter(
     (meal) =>

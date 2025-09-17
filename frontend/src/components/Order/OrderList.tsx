@@ -6,13 +6,21 @@ import {
   CardContent,
   Chip,
   CircularProgress,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
-import { Receipt, Visibility, Refresh } from "@mui/icons-material";
+import {
+  Receipt,
+  Visibility,
+  Refresh,
+  AutorenewRounded,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "contexts/AuthContext";
 import { apiService, OrderResponse } from "services/api";
 import { OrderStatus } from "types/order";
 import { OrderStatusManager } from "./OrderStatusManager";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
@@ -23,6 +31,7 @@ export const OrderList = () => {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
 
   const fetchOrders = useCallback(async () => {
     if (!authState.user) return;
@@ -47,6 +56,32 @@ export const OrderList = () => {
       setLoading(false);
     }
   }, [authState.user]);
+
+  // Auto-refresh functionality
+  const { refreshNow } = useAutoRefresh(
+    async () => {
+      if (!authState.user) return;
+
+      try {
+        let ordersData: OrderResponse[];
+        if (authState.user.role === "customer") {
+          ordersData = await apiService.getOrders({
+            customer_uuid: authState.user.id,
+          });
+        } else {
+          ordersData = await apiService.getOrders();
+        }
+        setOrders(ordersData);
+      } catch (err: any) {
+        console.error("Auto-refresh failed:", err);
+      }
+    },
+    {
+      enabled: autoRefreshEnabled,
+      interval: 30000, // 30 seconds
+      immediate: false,
+    }
+  );
 
   useEffect(() => {
     fetchOrders();
@@ -95,14 +130,37 @@ export const OrderList = () => {
           <Receipt sx={{ mr: 1, verticalAlign: "middle" }} />
           {getRoleTitle()}
         </DLSTypography>
-        <DLSButton
-          variant="outlined"
-          startIcon={loading ? <CircularProgress size={16} /> : <Refresh />}
-          onClick={fetchOrders}
-          disabled={loading}
-        >
-          Refresh
-        </DLSButton>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={autoRefreshEnabled}
+                onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
+                size="small"
+              />
+            }
+            label={
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <AutorenewRounded fontSize="small" />
+                Auto-refresh
+              </Box>
+            }
+          />
+
+          <DLSButton
+            variant="outlined"
+            startIcon={loading ? <CircularProgress size={16} /> : <Refresh />}
+            onClick={() => {
+              fetchOrders();
+              refreshNow();
+            }}
+            disabled={loading}
+            size="small"
+          >
+            Refresh Now
+          </DLSButton>
+        </Box>
       </Box>
 
       {error && (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiService } from "../services";
-import { Meal } from "../services/api";
+import { Meal } from "../types/meal";
 
 export interface UseMealsOptions {
   restaurantUuid?: string;
