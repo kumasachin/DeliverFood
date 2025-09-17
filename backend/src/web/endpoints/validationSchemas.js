@@ -26,7 +26,7 @@ const ordresQuerySchema = Joi.object({
 });
 
 const orderCreateSchema = Joi.object({
-  tip_amount: Joi.number().min(1),
+  tip_amount: Joi.number().min(0),
   coupon_code: Joi.string().max(10),
   order_items: Joi.array().items({
     meal_uuid: Joi.string().guid(),
