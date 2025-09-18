@@ -68,11 +68,11 @@ function registerUserEndpoints(app, models) {
     }
   );
 
-  // Block user
+  // Block user - ADMIN ONLY (global blocking)
   app.post(
     "/block/:uuid",
     authentication(models),
-    checkPermissions(MODERATORS, models),
+    checkPermissions(["admin"], models), // Only admins can do global blocking
     async (req, res) => {
       const userToBeBlocked = await models.users().get(req.params.uuid);
       if (!userToBeBlocked) {
@@ -85,19 +85,11 @@ function registerUserEndpoints(app, models) {
       }
 
       if (userToBeBlocked.role === "admin") {
-        return res
-          .status(403)
-          .json({ error: "Admin user cannot be blocked by owner" });
-      }
-
-      if (req.userRole === "owner" && userToBeBlocked.role === "owner") {
-        return res
-          .status(403)
-          .json({ error: "Onwers can block only customers" });
+        return res.status(403).json({ error: "Admin user cannot be blocked" });
       }
 
       if (userToBeBlocked.status === "blocked") {
-        return res.status(403).json({ error: "It's already blocked" });
+        return res.status(403).json({ error: "User is already blocked" });
       }
 
       await models.users().updateStatus(userToBeBlocked.uuid, "blocked");
@@ -105,11 +97,11 @@ function registerUserEndpoints(app, models) {
     }
   );
 
-  // Unblock user
+  // Unblock user - ADMIN ONLY (global unblocking)
   app.post(
     "/unblock/:uuid",
     authentication(models),
-    checkPermissions(MODERATORS, models),
+    checkPermissions(["admin"], models), // Only admins can do global unblocking
     async (req, res) => {
       const userToBeUnblocked = await models.users().get(req.params.uuid);
       if (!userToBeUnblocked) {

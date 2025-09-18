@@ -54,17 +54,13 @@ function registerOrdersEndpoints(app, models) {
 
         const customer = await models.users().get(req.query.customer_uuid);
         if (!customer)
-          return res
-            .status(404)
-            .json({
-              error: `customer with customer_uuid ${req.query.customer_uuid} not found`,
-            });
+          return res.status(404).json({
+            error: `customer with customer_uuid ${req.query.customer_uuid} not found`,
+          });
         if (customer.status !== "active")
-          return res
-            .status(400)
-            .json({
-              error: `customer with customer_uuid ${req.query.customer_uuid} is not active`,
-            });
+          return res.status(400).json({
+            error: `customer with customer_uuid ${req.query.customer_uuid} is not active`,
+          });
 
         customer_uuid = req.query.customer_uuid;
       }
@@ -130,23 +126,17 @@ function registerOrdersEndpoints(app, models) {
           .users()
           .get(req.validatedBody.customer_uuid);
         if (!customer)
-          return res
-            .status(404)
-            .json({
-              error: `Customer with customer_uuid ${req.validatedBody.customer_uuid} not found`,
-            });
+          return res.status(404).json({
+            error: `Customer with customer_uuid ${req.validatedBody.customer_uuid} not found`,
+          });
         if (customer.role !== "customer")
-          return res
-            .status(404)
-            .json({
-              error: `Creating orders is not allowed for non-customers`,
-            });
+          return res.status(404).json({
+            error: `Creating orders is not allowed for non-customers`,
+          });
         if (customer.status !== "active")
-          return res
-            .status(400)
-            .json({
-              error: `Customer with customer_uuid ${req.validatedBody.customer_uuid} is not active`,
-            });
+          return res.status(400).json({
+            error: `Customer with customer_uuid ${req.validatedBody.customer_uuid} is not active`,
+          });
 
         customer_uuid = req.validatedBody.customer_uuid;
       }
@@ -171,17 +161,15 @@ function registerOrdersEndpoints(app, models) {
         }
       }
       if (!allItemsSameRestaurant) {
-        res
-          .status(400)
-          .json({
-            error: "All the order_items should be from the same restaurant.",
-          });
+        res.status(400).json({
+          error: "All the order_items should be from the same restaurant.",
+        });
         return;
       }
 
       const couponCode = req.validatedBody.coupon_code;
       let discount_percentage = 0;
-      if (couponCode) { 
+      if (couponCode) {
         const coupon = await models
           .coupons()
           .getWithCodeAndRestaurantUUID(couponCode, firstItemRestaurantUuid);

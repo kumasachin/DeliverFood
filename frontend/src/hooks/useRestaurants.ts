@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiService } from "../services";
-import { Restaurant } from "../services/api";
+import { apiService } from "../api";
+import { Restaurant } from "../api/restaurants";
 
 export interface UseRestaurantsOptions {
   page?: number;
@@ -43,8 +43,38 @@ export const useRestaurants = (
   }, [page, limit, title, description, cuisine, owner_uuid]);
 
   useEffect(() => {
-    fetchRestaurants();
-  }, [fetchRestaurants]);
+    let isCancelled = false;
+
+    const loadRestaurants = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params = { page, limit, title, description, cuisine, owner_uuid };
+        const data = await apiService.getRestaurants(params);
+
+        if (!isCancelled) {
+          setRestaurants(data);
+        }
+      } catch (err: any) {
+        if (!isCancelled) {
+          setError(
+            err.response?.data?.message || "Failed to fetch restaurants"
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadRestaurants();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [page, limit, title, description, cuisine, owner_uuid]);
 
   return {
     restaurants,
@@ -83,8 +113,37 @@ export const useRestaurant = (uuid: string): UseRestaurantResult => {
   }, [uuid]);
 
   useEffect(() => {
-    fetchRestaurant();
-  }, [fetchRestaurant]);
+    if (!uuid) return;
+
+    let isCancelled = false;
+
+    const loadRestaurant = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await apiService.getRestaurant(uuid);
+
+        if (!isCancelled) {
+          setRestaurant(data);
+        }
+      } catch (err: any) {
+        if (!isCancelled) {
+          setError(err.response?.data?.message || "Failed to fetch restaurant");
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadRestaurant();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [uuid]);
 
   return {
     restaurant,

@@ -87,9 +87,9 @@ export const Checkout = () => {
       await apiService.createOrder(orderData);
 
       setOrderSuccess(true);
-      clearCart();
 
       setTimeout(() => {
+        clearCart();
         navigate("/orders");
       }, 2000);
     } catch (err: any) {
@@ -128,7 +128,7 @@ export const Checkout = () => {
     );
   }
 
-  if (cartState.items.length === 0) {
+  if (cartState.items.length === 0 && !isProcessing && !orderSuccess) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="info">

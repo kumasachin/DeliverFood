@@ -67,11 +67,6 @@ export const Navigation = () => {
           path: "/coupons",
           label: "Manage Coupons",
           icon: <LocalOffer />,
-        },
-        {
-          path: "/customer-management",
-          label: "Manage Customers",
-          icon: <ManageAccounts />,
         }
       );
     } else if (authState.user?.role === "admin") {

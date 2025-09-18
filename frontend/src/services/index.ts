@@ -1,4 +1,4 @@
-export { default as apiService } from "./api";
+export { apiService } from "../api";
 export type {
   LoginRequest,
   RegisterRequest,

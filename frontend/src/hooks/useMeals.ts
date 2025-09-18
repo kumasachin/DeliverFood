@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiService } from "../services";
+import { apiService } from "../api";
 import { Meal } from "../types/meal";
 
 export interface UseMealsOptions {
@@ -40,8 +40,40 @@ export const useMeals = (options: UseMealsOptions): UseMealsResult => {
   }, [options.restaurantUuid, options.page, options.limit]);
 
   useEffect(() => {
-    fetchMeals();
-  }, [fetchMeals]);
+    if (!options.restaurantUuid) return;
+
+    let isCancelled = false;
+
+    const loadMeals = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await apiService.getRestaurantMeals(
+          options.restaurantUuid!,
+          { page: options.page, limit: options.limit }
+        );
+
+        if (!isCancelled) {
+          setMeals(data);
+        }
+      } catch (err: any) {
+        if (!isCancelled) {
+          setError(err.response?.data?.message || "Failed to fetch meals");
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadMeals();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [options.restaurantUuid, options.page, options.limit]);
 
   return {
     meals,
@@ -80,8 +112,37 @@ export const useMeal = (uuid: string): UseMealResult => {
   }, [uuid]);
 
   useEffect(() => {
-    fetchMeal();
-  }, [fetchMeal]);
+    if (!uuid) return;
+
+    let isCancelled = false;
+
+    const loadMeal = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await apiService.getMeal(uuid);
+
+        if (!isCancelled) {
+          setMeal(data);
+        }
+      } catch (err: any) {
+        if (!isCancelled) {
+          setError(err.response?.data?.message || "Failed to fetch meal");
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadMeal();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [uuid]);
 
   return {
     meal,

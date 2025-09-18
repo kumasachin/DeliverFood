@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosInstance } from "axios";
 import { Meal } from "../types/meal";
 
 const API_BASE_URL =
@@ -108,154 +108,158 @@ export interface BlockedUser {
   created_at: string;
 }
 
-class ApiService {
-  private api: AxiosInstance;
+const createApiService = () => {
+  const httpClient: AxiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-  constructor() {
-    this.api = axios.create({
-      baseURL: API_BASE_URL,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    // Request interceptor to add auth token
-    this.api.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem("authToken");
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
+  httpClient.interceptors.request.use(
+    (config) => {
+      const authToken = localStorage.getItem("authToken");
+      if (authToken) {
+        config.headers.Authorization = `Bearer ${authToken}`;
       }
-    );
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-    this.api.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("userData");
-          window.location.href = "/signin";
-        }
-        return Promise.reject(error);
+  httpClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userData");
+        window.location.href = "/signin";
       }
-    );
-  }
+      return Promise.reject(error);
+    }
+  );
 
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response: AxiosResponse<LoginResponse> = await this.api.post(
+  const login = async (credentials: LoginRequest): Promise<LoginResponse> => {
+    const response = await httpClient.post<LoginResponse>(
       "/tokens",
       credentials
     );
     return response.data;
-  }
+  };
 
-  async register(userData: RegisterRequest): Promise<AuthResponse> {
-    const response: AxiosResponse<AuthResponse> = await this.api.post(
+  const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
+    const response = await httpClient.post<AuthResponse>(
       "/registrations",
       userData
     );
     return response.data;
-  }
+  };
 
-  async getRestaurants(params?: {
+  const setAuthToken = (token: string): void => {
+    localStorage.setItem("authToken", token);
+  };
+
+  const getAuthToken = (): string | null => {
+    return localStorage.getItem("authToken");
+  };
+
+  const clearAuthToken = (): void => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+  };
+
+  const isAuthenticated = (): boolean => {
+    return !!getAuthToken();
+  };
+
+  const getRestaurants = async (params?: {
     page?: number;
     limit?: number;
     title?: string;
     description?: string;
     cuisine?: string;
     owner_uuid?: string;
-  }): Promise<Restaurant[]> {
-    const response: AxiosResponse<Restaurant[]> = await this.api.get(
-      "/restaurants",
-      { params }
-    );
+  }): Promise<Restaurant[]> => {
+    const response = await httpClient.get<Restaurant[]>("/restaurants", {
+      params,
+    });
     return response.data;
-  }
+  };
 
-  async getRestaurant(uuid: string): Promise<Restaurant> {
-    const response: AxiosResponse<Restaurant> = await this.api.get(
-      `/restaurants/${uuid}`
-    );
+  const getRestaurant = async (uuid: string): Promise<Restaurant> => {
+    const response = await httpClient.get<Restaurant>(`/restaurants/${uuid}`);
     return response.data;
-  }
+  };
 
-  async createRestaurant(
+  const createRestaurant = async (
     restaurant: Omit<Restaurant, "uuid" | "created_at" | "owner_uuid">
-  ): Promise<Restaurant> {
-    const response: AxiosResponse<Restaurant> = await this.api.post(
+  ): Promise<Restaurant> => {
+    const response = await httpClient.post<Restaurant>(
       "/restaurants",
       restaurant
     );
     return response.data;
-  }
+  };
 
-  async updateRestaurant(
+  const updateRestaurant = async (
     uuid: string,
     restaurant: Partial<Restaurant>
-  ): Promise<Restaurant> {
-    const response: AxiosResponse<Restaurant> = await this.api.put(
+  ): Promise<Restaurant> => {
+    const response = await httpClient.put<Restaurant>(
       `/restaurants/${uuid}`,
       restaurant
     );
     return response.data;
-  }
+  };
 
-  async deleteRestaurant(uuid: string): Promise<void> {
-    await this.api.delete(`/restaurants/${uuid}`);
-  }
+  const deleteRestaurant = async (uuid: string): Promise<void> => {
+    await httpClient.delete(`/restaurants/${uuid}`);
+  };
 
-  async getRestaurantMeals(
+  const getRestaurantMeals = async (
     restaurantUuid: string,
-    params?: {
-      page?: number;
-      limit?: number;
-    }
-  ): Promise<Meal[]> {
-    const response: AxiosResponse<any[]> = await this.api.get(
+    params?: { page?: number; limit?: number }
+  ): Promise<Meal[]> => {
+    const response = await httpClient.get<any[]>(
       `/restaurants/${restaurantUuid}/meals`,
       { params }
     );
-    // Transform backend meal format to frontend format
-    return response.data.map((meal: any) => ({
-      id: meal.uuid,
-      uuid: meal.uuid,
-      name: meal.title,
-      description: meal.description,
-      price: meal.price,
-      category: meal.section,
-      restaurantId: meal.restaurant_uuid,
-      restaurantUuid: meal.restaurant_uuid,
+
+    return response.data.map((mealData: any) => ({
+      id: mealData.uuid,
+      uuid: mealData.uuid,
+      name: mealData.title,
+      description: mealData.description,
+      price: mealData.price,
+      category: mealData.section,
+      restaurantId: mealData.restaurant_uuid,
+      restaurantUuid: mealData.restaurant_uuid,
       available: true,
     }));
-  }
+  };
 
-  async getMeal(uuid: string): Promise<Meal> {
-    const response: AxiosResponse<any> = await this.api.get(`/meals/${uuid}`);
-    const meal = response.data;
+  const getMeal = async (uuid: string): Promise<Meal> => {
+    const response = await httpClient.get<any>(`/meals/${uuid}`);
+    const mealData = response.data;
+
     return {
-      id: meal.uuid,
-      uuid: meal.uuid,
-      name: meal.title,
-      description: meal.description,
-      price: meal.price,
-      category: meal.section,
-      restaurantId: meal.restaurant_uuid,
-      restaurantUuid: meal.restaurant_uuid,
+      id: mealData.uuid,
+      uuid: mealData.uuid,
+      name: mealData.title,
+      description: mealData.description,
+      price: mealData.price,
+      category: mealData.section,
+      restaurantId: mealData.restaurant_uuid,
+      restaurantUuid: mealData.restaurant_uuid,
       available: true,
     };
-  }
+  };
 
-  async createMeal(
+  const createMeal = async (
     restaurantUuid: string,
     meal: Omit<Meal, "id" | "uuid" | "restaurantId" | "restaurantUuid">
-  ): Promise<Meal> {
-    // Transform frontend meal format to backend format
-    const backendMeal = {
+  ): Promise<Meal> => {
+    const backendMealData = {
       title: meal.name,
       description: meal.description || "",
       price: meal.price,
@@ -263,78 +267,87 @@ class ApiService {
       restaurant_uuid: restaurantUuid,
     };
 
-    const response: AxiosResponse<any> = await this.api.post(
+    const response = await httpClient.post<{ meal: any }>(
       `/restaurants/${restaurantUuid}/meals`,
-      backendMeal
+      backendMealData
     );
 
-    // Transform response back to frontend format
-    const responseMeal = response.data.meal;
+    const createdMeal = response.data.meal;
     return {
-      id: responseMeal.uuid,
-      uuid: responseMeal.uuid,
-      name: responseMeal.title,
-      description: responseMeal.description,
-      price: responseMeal.price,
-      category: responseMeal.section,
-      restaurantId: responseMeal.restaurant_uuid,
-      restaurantUuid: responseMeal.restaurant_uuid,
+      id: createdMeal.uuid,
+      uuid: createdMeal.uuid,
+      name: createdMeal.title,
+      description: createdMeal.description,
+      price: createdMeal.price,
+      category: createdMeal.section,
+      restaurantId: createdMeal.restaurant_uuid,
+      restaurantUuid: createdMeal.restaurant_uuid,
       available: true,
     };
-  }
+  };
 
-  async updateMeal(uuid: string, meal: Partial<Meal>): Promise<Meal> {
-    // Transform frontend meal format to backend format
-    const backendMeal: any = {};
-    if (meal.name) backendMeal.title = meal.name;
+  const updateMeal = async (
+    uuid: string,
+    meal: Partial<Meal>
+  ): Promise<Meal> => {
+    const backendUpdateData: any = {};
+    if (meal.name) backendUpdateData.title = meal.name;
     if (meal.description !== undefined)
-      backendMeal.description = meal.description;
-    if (meal.price !== undefined) backendMeal.price = meal.price;
-    if (meal.category) backendMeal.section = meal.category;
+      backendUpdateData.description = meal.description;
+    if (meal.price !== undefined) backendUpdateData.price = meal.price;
+    if (meal.category) backendUpdateData.section = meal.category;
 
-    const response: AxiosResponse<any> = await this.api.put(
+    const response = await httpClient.put<any>(
       `/meals/${uuid}`,
-      backendMeal
+      backendUpdateData
     );
+    const updatedMeal = response.data;
 
-    // Transform response back to frontend format
-    const responseMeal = response.data;
     return {
-      id: responseMeal.uuid,
-      uuid: responseMeal.uuid,
-      name: responseMeal.title,
-      description: responseMeal.description,
-      price: responseMeal.price,
-      category: responseMeal.section,
-      restaurantId: responseMeal.restaurant_uuid,
-      restaurantUuid: responseMeal.restaurant_uuid,
+      id: updatedMeal.uuid,
+      uuid: updatedMeal.uuid,
+      name: updatedMeal.title,
+      description: updatedMeal.description,
+      price: updatedMeal.price,
+      category: updatedMeal.section,
+      restaurantId: updatedMeal.restaurant_uuid,
+      restaurantUuid: updatedMeal.restaurant_uuid,
       available: true,
     };
-  }
+  };
 
-  async deleteMeal(uuid: string): Promise<void> {
-    await this.api.delete(`/meals/${uuid}`);
-  }
+  const deleteMeal = async (uuid: string): Promise<void> => {
+    await httpClient.delete(`/meals/${uuid}`);
+  };
 
-  async getOrderStatus(orderUuid: string): Promise<OrderStatusResponse> {
-    const response: AxiosResponse<OrderStatusResponse> = await this.api.get(
+  const getOrderStatus = async (
+    orderUuid: string
+  ): Promise<OrderStatusResponse> => {
+    const response = await httpClient.get<OrderStatusResponse>(
       `/orders/${orderUuid}/status`
     );
     return response.data;
-  }
+  };
 
-  async getOrderHistory(orderUuid: string): Promise<OrderHistoryResponse[]> {
-    const response: AxiosResponse<OrderHistoryResponse[]> = await this.api.get(
+  const getOrderHistory = async (
+    orderUuid: string
+  ): Promise<OrderHistoryResponse[]> => {
+    const response = await httpClient.get<OrderHistoryResponse[]>(
       `/orders/${orderUuid}/history`
     );
     return response.data;
-  }
+  };
 
-  async updateOrderStatus(orderUuid: string, status: string): Promise<void> {
-    await this.api.patch(`/orders/${orderUuid}`, { status });
-  }
+  const updateOrderStatus = async (
+    orderUuid: string,
+    status: string
+  ): Promise<void> => {
+    await httpClient.patch(`/orders/${orderUuid}`, { status });
+  };
 
-  async getOrders(params: GetOrdersParams = {}): Promise<OrderResponse[]> {
+  const getOrders = async (
+    params: GetOrdersParams = {}
+  ): Promise<OrderResponse[]> => {
     const searchParams = new URLSearchParams();
     if (params.page !== undefined)
       searchParams.append("page", params.page.toString());
@@ -343,133 +356,143 @@ class ApiService {
     if (params.customer_uuid)
       searchParams.append("customer_uuid", params.customer_uuid);
 
-    const response: AxiosResponse<OrderResponse[]> = await this.api.get(
-      `/orders${searchParams.toString() ? "?" + searchParams.toString() : ""}`
+    const queryString = searchParams.toString();
+    const response = await httpClient.get<OrderResponse[]>(
+      `/orders${queryString ? "?" + queryString : ""}`
     );
     return response.data;
-  }
+  };
 
-  async getOrder(orderUuid: string): Promise<OrderResponse> {
-    const response: AxiosResponse<OrderResponse> = await this.api.get(
+  const getOrder = async (orderUuid: string): Promise<OrderResponse> => {
+    const response = await httpClient.get<OrderResponse>(
       `/orders/${orderUuid}`
     );
     return response.data;
-  }
+  };
 
-  async getRestaurantOrders(
+  const getRestaurantOrders = async (
     restaurantUuid: string,
     params: GetOrdersParams = {}
-  ): Promise<OrderResponse[]> {
+  ): Promise<OrderResponse[]> => {
     const searchParams = new URLSearchParams();
     if (params.page !== undefined)
       searchParams.append("page", params.page.toString());
     if (params.limit !== undefined)
       searchParams.append("limit", params.limit.toString());
 
-    const response: AxiosResponse<OrderResponse[]> = await this.api.get(
+    const queryString = searchParams.toString();
+    const response = await httpClient.get<OrderResponse[]>(
       `/restaurants/${restaurantUuid}/orders${
-        searchParams.toString() ? "?" + searchParams.toString() : ""
+        queryString ? "?" + queryString : ""
       }`
     );
     return response.data;
-  }
+  };
 
-  // Coupon methods
-  async getRestaurantCoupons(
+  const createOrder = async (
+    order: CreateOrderRequest
+  ): Promise<OrderResponse> => {
+    const response = await httpClient.post<{ order: OrderResponse }>(
+      `/orders`,
+      order
+    );
+    return response.data.order;
+  };
+
+  const getRestaurantCoupons = async (
     restaurantUuid: string,
-    params?: {
-      page?: number;
-      limit?: number;
-    }
-  ): Promise<Coupon[]> {
-    const response: AxiosResponse<Coupon[]> = await this.api.get(
+    params?: { page?: number; limit?: number }
+  ): Promise<Coupon[]> => {
+    const response = await httpClient.get<Coupon[]>(
       `/restaurants/${restaurantUuid}/coupons`,
       { params }
     );
     return response.data;
-  }
+  };
 
-  async getCoupon(uuid: string): Promise<Coupon> {
-    const response: AxiosResponse<Coupon> = await this.api.get(
-      `/coupons/${uuid}`
-    );
+  const getCoupon = async (uuid: string): Promise<Coupon> => {
+    const response = await httpClient.get<Coupon>(`/coupons/${uuid}`);
     return response.data;
-  }
+  };
 
-  async createCoupon(
+  const createCoupon = async (
     restaurantUuid: string,
     coupon: CreateCouponRequest
-  ): Promise<Coupon> {
-    const response: AxiosResponse<{ coupon: Coupon }> = await this.api.post(
+  ): Promise<Coupon> => {
+    const response = await httpClient.post<{ coupon: Coupon }>(
       `/restaurants/${restaurantUuid}/coupons`,
       coupon
     );
     return response.data.coupon;
-  }
+  };
 
-  async updateCoupon(
+  const updateCoupon = async (
     uuid: string,
     coupon: UpdateCouponRequest
-  ): Promise<Coupon> {
-    const response: AxiosResponse<Coupon> = await this.api.patch(
-      `/coupons/${uuid}`,
-      coupon
-    );
+  ): Promise<Coupon> => {
+    const response = await httpClient.patch<Coupon>(`/coupons/${uuid}`, coupon);
     return response.data;
-  }
+  };
 
-  async deleteCoupon(uuid: string): Promise<void> {
-    await this.api.delete(`/coupons/${uuid}`);
-  }
+  const deleteCoupon = async (uuid: string): Promise<void> => {
+    await httpClient.delete(`/coupons/${uuid}`);
+  };
 
-  // Order methods
-  async createOrder(order: CreateOrderRequest): Promise<OrderResponse> {
-    const response: AxiosResponse<{ order: OrderResponse }> =
-      await this.api.post(`/orders`, order);
-    return response.data.order;
-  }
-
-  // User blocking methods
-  async searchUserByEmail(email: string): Promise<BlockedUser> {
-    const response: AxiosResponse<BlockedUser> = await this.api.get(
-      "/users/search",
-      { params: { email } }
-    );
+  const searchUserByEmail = async (email: string): Promise<BlockedUser> => {
+    const response = await httpClient.get<BlockedUser>("/users/search", {
+      params: { email },
+    });
     return response.data;
-  }
+  };
 
-  async getBlockedUsers(): Promise<BlockedUser[]> {
-    const response: AxiosResponse<BlockedUser[]> = await this.api.get(
-      "/blocked-users"
-    );
+  const getBlockedUsers = async (): Promise<BlockedUser[]> => {
+    const response = await httpClient.get<BlockedUser[]>("/blocked-users");
     return response.data;
-  }
+  };
 
-  async blockUser(userUuid: string): Promise<void> {
-    await this.api.post(`/block/${userUuid}`);
-  }
+  const blockUser = async (userUuid: string): Promise<void> => {
+    await httpClient.post(`/block/${userUuid}`);
+  };
 
-  async unblockUser(userUuid: string): Promise<void> {
-    await this.api.post(`/unblock/${userUuid}`);
-  }
+  const unblockUser = async (userUuid: string): Promise<void> => {
+    await httpClient.post(`/unblock/${userUuid}`);
+  };
 
-  setAuthToken(token: string): void {
-    localStorage.setItem("authToken", token);
-  }
+  return {
+    login,
+    register,
+    setAuthToken,
+    getAuthToken,
+    clearAuthToken,
+    isAuthenticated,
+    getRestaurants,
+    getRestaurant,
+    createRestaurant,
+    updateRestaurant,
+    deleteRestaurant,
+    getRestaurantMeals,
+    getMeal,
+    createMeal,
+    updateMeal,
+    deleteMeal,
+    getOrderStatus,
+    getOrderHistory,
+    updateOrderStatus,
+    getOrders,
+    getOrder,
+    getRestaurantOrders,
+    createOrder,
+    getRestaurantCoupons,
+    getCoupon,
+    createCoupon,
+    updateCoupon,
+    deleteCoupon,
+    searchUserByEmail,
+    getBlockedUsers,
+    blockUser,
+    unblockUser,
+  };
+};
 
-  getAuthToken(): string | null {
-    return localStorage.getItem("authToken");
-  }
-
-  clearAuthToken(): void {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userData");
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.getAuthToken();
-  }
-}
-
-export const apiService = new ApiService();
+export const apiService = createApiService();
 export default apiService;

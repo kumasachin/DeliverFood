@@ -107,23 +107,17 @@ function registerRestaurantsEndpoints(app, models) {
 
         const owner = await models.users().get(req.validatedBody.owner_uuid);
         if (!owner)
-          return res
-            .status(404)
-            .json({
-              error: `Owner with owner_uuid ${req.validatedBody.owner_uuid} not found`,
-            });
+          return res.status(404).json({
+            error: `Owner with owner_uuid ${req.validatedBody.owner_uuid} not found`,
+          });
         if (owner.role !== "owner")
-          return res
-            .status(404)
-            .json({
-              error: `Creating restaurants is not allowed for non-owners`,
-            });
+          return res.status(404).json({
+            error: `Creating restaurants is not allowed for non-owners`,
+          });
         if (owner.status !== "active")
-          return res
-            .status(400)
-            .json({
-              error: `Owner with owner_uuid ${req.validatedBody.owner_uuid} is not active`,
-            });
+          return res.status(400).json({
+            error: `Owner with owner_uuid ${req.validatedBody.owner_uuid} is not active`,
+          });
 
         owner_uuid = req.validatedBody.owner_uuid;
       }
@@ -184,17 +178,13 @@ function registerRestaurantsEndpoints(app, models) {
 
       if (!restaurant) {
         if (req.userRole === "owner") {
-          res
-            .status(404)
-            .json({
-              error: "You don't own a restaurant with this restaurant_uuid",
-            });
+          res.status(404).json({
+            error: "You don't own a restaurant with this restaurant_uuid",
+          });
         } else {
-          res
-            .status(404)
-            .json({
-              error: "Restaurant with this restaurant_uuid does not exist",
-            });
+          res.status(404).json({
+            error: "Restaurant with this restaurant_uuid does not exist",
+          });
         }
         return;
       }
@@ -217,11 +207,9 @@ function registerRestaurantsEndpoints(app, models) {
 
       const restaurant = await models.restaurants().get(req.params.uuid);
       if (!restaurant) {
-        return res
-          .status(404)
-          .json({
-            error: "Restaurant with this restaurant_uuid does not exist",
-          });
+        return res.status(404).json({
+          error: "Restaurant with this restaurant_uuid does not exist",
+        });
       }
 
       const meals = await models.meals().list({
@@ -326,7 +314,6 @@ function registerRestaurantsEndpoints(app, models) {
     validation(couponsQuerySchema),
     checkPermissions(MODERATORS, models),
     async (req, res) => {
-
       const paginationParams = getPaginationParams(req);
       if (!paginationParams.isValid) {
         return res.status(400).json({ error: paginationParams.error });
@@ -382,17 +369,13 @@ function registerRestaurantsEndpoints(app, models) {
 
       if (!restaurant) {
         if (req.userRole === "owner") {
-          res
-            .status(404)
-            .json({
-              error: "You don't own a restaurant with this restaurant_uuid",
-            });
+          res.status(404).json({
+            error: "You don't own a restaurant with this restaurant_uuid",
+          });
         } else {
-          res
-            .status(404)
-            .json({
-              error: "Restaurant with this restaurant_uuid does not exist",
-            });
+          res.status(404).json({
+            error: "Restaurant with this restaurant_uuid does not exist",
+          });
         }
         return;
       }
@@ -405,12 +388,10 @@ function registerRestaurantsEndpoints(app, models) {
         );
       if (coupon) {
         if (coupon.status === "active") {
-          return res
-            .status(400)
-            .json({
-              error: "Coupon already exists and is active. You can edit it.",
-              coupon: coupon,
-            });
+          return res.status(400).json({
+            error: "Coupon already exists and is active. You can edit it.",
+            coupon: coupon,
+          });
         } else {
           const newData = {
             percentage: req.validatedBody.percentage,
@@ -419,13 +400,11 @@ function registerRestaurantsEndpoints(app, models) {
           const updatedCoupon = await models
             .coupons()
             .update(coupon.uuid, newData);
-          return res
-            .status(200)
-            .json({
-              message:
-                "Coupon already exists and was inactive. and it's updated successfully",
-              coupon: updatedCoupon,
-            });
+          return res.status(200).json({
+            message:
+              "Coupon already exists and was inactive. and it's updated successfully",
+            coupon: updatedCoupon,
+          });
         }
       } else {
         coupon = await models.coupons().create({
