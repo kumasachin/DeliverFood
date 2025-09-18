@@ -17,6 +17,7 @@
     "axios": "^1.12.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-error-boundary": "^6.0.0",
     "react-router-dom": "^7.9.1",
     "react-scripts": "5.0.1",
     "styled-components": "^6.1.19",
@@ -52,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@storybook/addon-docs": "^9.1.6",
     "@storybook/preset-create-react-app": "^1.2.0",
     "@storybook/react-webpack5": "^9.1.6",

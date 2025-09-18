@@ -36,6 +36,7 @@ import {
 } from "@mui/icons-material";
 import { apiService } from "../../services/api";
 import type { BlockedUser } from "../../services/api";
+import { VirtualList } from "../../components/VirtualList";
 
 interface Customer {
   uuid: string;
@@ -198,6 +199,47 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
       setActionLoading(null);
     }
   };
+
+  const renderBlockedUserRow = (user: BlockedUser, index: number) => (
+    <Box
+      key={user.uuid}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        p: 2,
+        borderBottom: "1px solid rgba(224, 224, 224, 1)",
+        "& > *": { flex: 1 },
+      }}
+    >
+      <Typography sx={{ flex: 2 }}>{user.email}</Typography>
+      <Box sx={{ flex: 1 }}>
+        <Chip
+          label={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+          color="info"
+          size="small"
+        />
+      </Box>
+      <Typography sx={{ flex: 1 }}>
+        {new Date(user.created_at).toLocaleDateString()}
+      </Typography>
+      <Box sx={{ flex: 1, textAlign: "center" }}>
+        <Tooltip title="Unblock User">
+          <IconButton
+            color="success"
+            onClick={() => handleUnblockUser(user)}
+            disabled={actionLoading === user.uuid}
+            size="small"
+          >
+            {actionLoading === user.uuid ? (
+              <CircularProgress size={20} />
+            ) : (
+              <CheckCircleIcon />
+            )}
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+  );
 
   return (
     <Box>
@@ -426,44 +468,22 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
                           <TableCell align="center">Actions</TableCell>
                         </TableRow>
                       </TableHead>
-                      <TableBody>
-                        {blockedUsers.map((user) => (
-                          <TableRow key={user.uuid}>
-                            <TableCell>{user.email}</TableCell>
-                            <TableCell>
-                              <Chip
-                                label={
-                                  user.role.charAt(0).toUpperCase() +
-                                  user.role.slice(1)
-                                }
-                                color="info"
-                                size="small"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              {new Date(user.created_at).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell align="center">
-                              <Tooltip title="Unblock User">
-                                <IconButton
-                                  color="success"
-                                  onClick={() => handleUnblockUser(user)}
-                                  disabled={actionLoading === user.uuid}
-                                  size="small"
-                                >
-                                  {actionLoading === user.uuid ? (
-                                    <CircularProgress size={20} />
-                                  ) : (
-                                    <CheckCircleIcon />
-                                  )}
-                                </IconButton>
-                              </Tooltip>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
                     </Table>
                   </TableContainer>
+                  {blockedUsers.length > 10 ? (
+                    <VirtualList
+                      items={blockedUsers}
+                      itemHeight={73}
+                      containerHeight={400}
+                      renderItem={renderBlockedUserRow}
+                    />
+                  ) : (
+                    <Box>
+                      {blockedUsers.map((user, index) =>
+                        renderBlockedUserRow(user, index)
+                      )}
+                    </Box>
+                  )}
                 </CardContent>
               </Card>
             )}

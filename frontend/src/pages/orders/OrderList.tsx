@@ -24,6 +24,7 @@ import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
+import { VirtualList } from "../../components/VirtualList";
 
 export const OrderList = () => {
   const navigate = useNavigate();
@@ -106,6 +107,60 @@ export const OrderList = () => {
     }
   };
 
+  const renderOrderCard = (order: OrderResponse, index: number) => (
+    <DLSCard key={order.uuid} sx={{ mb: 3 }}>
+      <CardContent>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 2,
+          }}
+        >
+          <Box>
+            <DLSTypography variant="h6" component="h3">
+              Order #{order.uuid.slice(-8)}
+            </DLSTypography>
+            <DLSTypography variant="body2" color="textSecondary">
+              {formatDate(order.created_at)}
+            </DLSTypography>
+          </Box>
+          <DLSTypography variant="h6" color="primary">
+            {formatPrice(order.total_price)}
+          </DLSTypography>
+        </Box>
+
+        <OrderStatusManager
+          orderUuid={order.uuid}
+          initialStatus={order.status as OrderStatus}
+          showHistory={false}
+          onStatusChange={fetchOrders}
+        />
+
+        {order.coupon_code && (
+          <Chip
+            label={`Coupon: ${order.coupon_code}`}
+            size="small"
+            color="success"
+            sx={{ mt: 2 }}
+          />
+        )}
+
+        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+          <DLSButton
+            variant="outlined"
+            size="small"
+            startIcon={<Visibility />}
+            onClick={() => navigate(`/orders/${order.uuid}`)}
+          >
+            View Details
+          </DLSButton>
+        </Box>
+      </CardContent>
+    </DLSCard>
+  );
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box
@@ -174,61 +229,16 @@ export const OrderList = () => {
               : "No orders to manage"}
           </DLSTypography>
         </DLSCard>
+      ) : orders.length > 5 ? (
+        <VirtualList
+          items={orders}
+          itemHeight={240}
+          containerHeight={600}
+          renderItem={renderOrderCard}
+        />
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {orders.map((order) => (
-            <DLSCard key={order.uuid}>
-              <CardContent>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    mb: 2,
-                  }}
-                >
-                  <Box>
-                    <DLSTypography variant="h6" component="h3">
-                      Order #{order.uuid.slice(-8)}
-                    </DLSTypography>
-                    <DLSTypography variant="body2" color="textSecondary">
-                      {formatDate(order.created_at)}
-                    </DLSTypography>
-                  </Box>
-                  <DLSTypography variant="h6" color="primary">
-                    {formatPrice(order.total_price)}
-                  </DLSTypography>
-                </Box>
-
-                <OrderStatusManager
-                  orderUuid={order.uuid}
-                  initialStatus={order.status as OrderStatus}
-                  showHistory={false}
-                  onStatusChange={fetchOrders}
-                />
-
-                {order.coupon_code && (
-                  <Chip
-                    label={`Coupon: ${order.coupon_code}`}
-                    size="small"
-                    color="success"
-                    sx={{ mt: 2 }}
-                  />
-                )}
-
-                <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                  <DLSButton
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Visibility />}
-                    onClick={() => navigate(`/orders/${order.uuid}`)}
-                  >
-                    View Details
-                  </DLSButton>
-                </Box>
-              </CardContent>
-            </DLSCard>
-          ))}
+          {orders.map((order, index) => renderOrderCard(order, index))}
         </Box>
       )}
     </Container>
