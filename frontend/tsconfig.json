@@ -22,7 +22,10 @@
       "components/*": ["components/*"],
       "contexts/*": ["contexts/*"],
       "hooks/*": ["hooks/*"],
-      "types/*": ["types/*"]
+      "types/*": ["types/*"],
+      "utils/*": ["utils/*"],
+      "services/*": ["services/*"],
+      "pages/*": ["pages/*"]
     }
   },
   "include": ["src"]

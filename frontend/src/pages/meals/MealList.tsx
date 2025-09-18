@@ -13,12 +13,12 @@ import {
 } from "@mui/material";
 import { Meal } from "types/meal";
 import { Restaurant } from "types/restaurant";
-import { Loading } from "../../components/Common/Loading";
-import { SearchBar } from "../../components/Common/SearchBar";
-import { EmptyState } from "../../components/Common/EmptyState";
+import { Loading } from "components/Common/Loading";
+import { SearchBar } from "components/Common/SearchBar";
+import { EmptyState } from "components/Common/EmptyState";
 import { useCart } from "contexts/CartContext";
 import { DLSCard } from "dls/molecules/Card";
-import { apiService } from "../../services/api";
+import { apiService } from "services/api";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { Box, CardMedia, Container, Chip, Alert } from "dls/atoms";

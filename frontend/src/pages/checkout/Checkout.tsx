@@ -2,56 +2,65 @@ import React, { useState } from "react";
 import {
   Container,
   Typography,
-  Box,
   Card,
   CardContent,
   TextField,
   Button,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
   Divider,
   Alert,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  List,
-  ListItem,
-  ListItemText,
   CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import {
-  Payment,
-  LocalShipping,
   ShoppingBag,
+  LocalShipping,
+  Payment,
   CheckCircle,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../../contexts/CartContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { apiService, CreateOrderRequest } from "../../services/api";
+import { useCart } from "contexts/CartContext";
+import { useAuth } from "contexts/AuthContext";
+import { apiService } from "services/api";
+import { useFormValidation } from "utils/useValidation";
+import { validationSchemas } from "utils/validationSchemas";
+import { formatPhoneNumber } from "utils/formatters";
 
 export const Checkout = () => {
   const navigate = useNavigate();
   const { state: cartState, clearCart } = useCart();
   const { state: authState } = useAuth();
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [tipAmount, setTipAmount] = useState(0);
 
-  const [formData, setFormData] = useState({
-    address: "",
-    phone: "",
-    paymentMethod: "card",
-    notes: "",
-  });
+  // Use the new validation system
+  const { formData, handleFieldChange, handleFieldBlur, validateForm, errors } =
+    useFormValidation(validationSchemas.checkout, {
+      address: "",
+      phone: "",
+      paymentMethod: "card",
+      notes: "",
+    });
 
   const subtotal = cartState.total;
   const deliveryFee = 3.99;
   const tax = subtotal * 0.08;
   const total = subtotal + deliveryFee + tax + tipAmount;
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  // Handle phone number formatting
+  const handlePhoneChange = (value: string) => {
+    const formattedPhone = formatPhoneNumber(value);
+    handleFieldChange("phone", formattedPhone);
   };
 
   const handlePlaceOrder = async () => {
@@ -60,8 +69,9 @@ export const Checkout = () => {
       return;
     }
 
-    if (!formData.address.trim() || !formData.phone.trim()) {
-      setError("Please fill in all required fields.");
+    // Validate the form using the new validation system
+    if (!validateForm()) {
+      setError("Please correct the errors above and try again.");
       return;
     }
 
@@ -69,7 +79,7 @@ export const Checkout = () => {
       setIsProcessing(true);
       setError(null);
 
-      const orderData: CreateOrderRequest = {
+      const orderData = {
         order_items: cartState.items.map((item) => ({
           meal_uuid: item.meal.uuid || item.meal.id,
           quantity: item.quantity,
@@ -251,9 +261,12 @@ export const Checkout = () => {
                 multiline
                 rows={3}
                 value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
+                onChange={(e) => handleFieldChange("address", e.target.value)}
+                onBlur={() => handleFieldBlur("address")}
                 sx={{ mb: 2 }}
-                placeholder="Enter your full delivery address"
+                placeholder="Enter your full delivery address (include street number, street name, and city)"
+                error={!!errors.address}
+                helperText={errors.address}
               />
 
               <TextField
@@ -261,9 +274,12 @@ export const Checkout = () => {
                 label="Phone Number"
                 required
                 value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                onBlur={() => handleFieldBlur("phone")}
                 sx={{ mb: 2 }}
-                placeholder="Enter your phone number"
+                placeholder="Enter your phone number (e.g., +1-234-567-8900)"
+                error={!!errors.phone}
+                helperText={errors.phone}
               />
             </Box>
 
@@ -276,18 +292,26 @@ export const Checkout = () => {
               Payment Method
             </Typography>
 
-            <FormControl fullWidth sx={{ mb: 3 }}>
+            <FormControl
+              fullWidth
+              sx={{ mb: 3 }}
+              error={!!errors.paymentMethod}
+            >
               <InputLabel>Payment Method</InputLabel>
               <Select
                 value={formData.paymentMethod}
                 label="Payment Method"
                 onChange={(e) =>
-                  handleInputChange("paymentMethod", e.target.value)
+                  handleFieldChange("paymentMethod", e.target.value)
                 }
+                onBlur={() => handleFieldBlur("paymentMethod")}
               >
                 <MenuItem value="card">Credit Card</MenuItem>
                 <MenuItem value="cash">Cash on Delivery</MenuItem>
               </Select>
+              {errors.paymentMethod && (
+                <FormHelperText>{errors.paymentMethod}</FormHelperText>
+              )}
             </FormControl>
 
             {/* Tip Section */}
@@ -327,7 +351,7 @@ export const Checkout = () => {
               multiline
               rows={2}
               value={formData.notes}
-              onChange={(e) => handleInputChange("notes", e.target.value)}
+              onChange={(e) => handleFieldChange("notes", e.target.value)}
               sx={{ mb: 3 }}
               placeholder="Any special instructions for your order"
             />
@@ -340,7 +364,8 @@ export const Checkout = () => {
               disabled={
                 isProcessing ||
                 !formData.address.trim() ||
-                !formData.phone.trim()
+                !formData.phone.trim() ||
+                !formData.paymentMethod
               }
               startIcon={isProcessing ? <CircularProgress size={20} /> : null}
             >

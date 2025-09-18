@@ -28,8 +28,8 @@ import {
   Restaurant as RestaurantIcon,
   LocationOn as LocationIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../../../contexts/AuthContext";
-import { apiService, Restaurant } from "../../../services/api";
+import { useAuth } from "contexts/AuthContext";
+import { apiService, Restaurant } from "services/api";
 
 interface RestaurantFormData {
   title: string;

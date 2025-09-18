@@ -33,10 +33,10 @@ import {
   Restaurant as RestaurantIcon,
   AttachMoney as MoneyIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../../../contexts/AuthContext";
-import { apiService } from "../../../services/api";
-import { Meal } from "../../../types/meal";
-import { Restaurant } from "../../../services/api";
+import { useAuth } from "contexts/AuthContext";
+import { apiService } from "services/api";
+import { Meal } from "types/meal";
+import { Restaurant } from "services/api";
 
 interface MealFormData {
   name: string;

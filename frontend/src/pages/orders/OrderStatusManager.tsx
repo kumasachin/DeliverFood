@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { Box, Alert } from "@mui/material";
-import { useAuth } from "../../contexts/AuthContext";
-import { useOrderStatus } from "../../hooks/useOrderStatus";
+import { useAuth } from "contexts/AuthContext";
+import { useOrderStatus } from "hooks/useOrderStatus";
 import { OrderStatusDisplay } from "./OrderStatusDisplay";
 import { OrderHistory } from "./OrderHistory";
-import { OrderStatus } from "../../types/order";
+import { OrderStatus } from "types/order";
 
 interface OrderStatusManagerProps {
   orderUuid: string;

@@ -17,8 +17,8 @@ import {
   Restaurant,
   Schedule,
 } from "@mui/icons-material";
-import { OrderStatus } from "../../types/order";
-import { Role } from "../../types/auth";
+import { OrderStatus } from "types/order";
+import { Role } from "types/auth";
 
 interface OrderStatusDisplayProps {
   orderUuid: string;

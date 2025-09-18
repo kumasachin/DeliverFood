@@ -24,7 +24,7 @@ Object.defineProperty(window, "localStorage", {
 });
 
 // Test component to access auth context
-const TestComponent: React.FC = () => {
+const TestComponent = () => {
   const { state, signIn, signUp, logout } = useAuth();
 
   return (
