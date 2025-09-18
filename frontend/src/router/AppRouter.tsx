@@ -9,8 +9,8 @@ import { Checkout } from "../pages/checkout";
 import { RestaurantList } from "../pages/restaurants";
 import { MealList } from "../pages/meals";
 import {
-  OrderList,
   SingleOrder,
+  OrdersDashboard,
   RestaurantOrdersDashboard,
   AdminOrdersDashboard,
 } from "../pages/orders";
@@ -117,7 +117,7 @@ export const AppRouter = () => {
             path="/orders"
             element={
               <ProtectedRoute>
-                <OrderList />
+                <OrdersDashboard />
               </ProtectedRoute>
             }
           />
