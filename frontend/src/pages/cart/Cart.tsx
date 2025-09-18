@@ -7,7 +7,16 @@ import {
   ShoppingCart,
   LocalOffer,
 } from "@mui/icons-material";
-import { TextField, Chip, CircularProgress } from "@mui/material";
+import {
+  TextField,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "contexts/CartContext";
 import { useAuth } from "contexts/AuthContext";
@@ -16,6 +25,7 @@ import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
 import { Container, Box, IconButton, Alert, Divider } from "dls/atoms";
+import CouponBrowser from "../../components/Coupon/CouponBrowser";
 
 export const Cart = () => {
   const navigate = useNavigate();
@@ -26,6 +36,7 @@ export const Cart = () => {
   const [tipAmount, setTipAmount] = useState(0);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponBrowserOpen, setCouponBrowserOpen] = useState(false);
 
   const restaurantUuid =
     cartState.items.length > 0 ? cartState.items[0].restaurantId : null;
@@ -60,6 +71,13 @@ export const Cart = () => {
     setAppliedCoupon(null);
     setCouponCode("");
     setCouponError(null);
+  };
+
+  const handleCouponSelect = (coupon: Coupon) => {
+    setAppliedCoupon(coupon);
+    setCouponCode(coupon.coupon_code);
+    setCouponError(null);
+    setCouponBrowserOpen(false);
   };
 
   const calculateTotals = () => {
@@ -244,25 +262,40 @@ export const Cart = () => {
                 </DLSTypography>
               </Box>
             ) : (
-              <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                <TextField
-                  size="small"
-                  placeholder="Enter coupon code"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  disabled={couponLoading}
-                  sx={{ flex: 1 }}
-                />
-                <DLSButton
-                  variant="outlined"
-                  onClick={applyCoupon}
-                  disabled={!couponCode.trim() || couponLoading}
-                  startIcon={
-                    couponLoading ? <CircularProgress size={16} /> : undefined
-                  }
-                >
-                  Apply
-                </DLSButton>
+              <Box>
+                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                  <TextField
+                    size="small"
+                    placeholder="Enter coupon code"
+                    value={couponCode}
+                    onChange={(e) =>
+                      setCouponCode(e.target.value.toUpperCase())
+                    }
+                    disabled={couponLoading}
+                    sx={{ flex: 1 }}
+                  />
+                  <DLSButton
+                    variant="outlined"
+                    onClick={applyCoupon}
+                    disabled={!couponCode.trim() || couponLoading}
+                    startIcon={
+                      couponLoading ? <CircularProgress size={16} /> : undefined
+                    }
+                  >
+                    Apply
+                  </DLSButton>
+                </Box>
+
+                <Box sx={{ textAlign: "center" }}>
+                  <DLSButton
+                    variant="text"
+                    size="small"
+                    onClick={() => setCouponBrowserOpen(true)}
+                    startIcon={<LocalOffer />}
+                  >
+                    Browse Available Coupons
+                  </DLSButton>
+                </Box>
               </Box>
             )}
 
@@ -369,6 +402,25 @@ export const Cart = () => {
           </Box>
         </Box>
       </DLSCard>
+
+      <Dialog
+        open={couponBrowserOpen}
+        onClose={() => setCouponBrowserOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>Available Coupons</DialogTitle>
+        <DialogContent>
+          <CouponBrowser
+            restaurantUuid={restaurantUuid || undefined}
+            onCouponSelect={handleCouponSelect}
+            showSelectButton={true}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCouponBrowserOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

@@ -20,7 +20,11 @@ import {
   Restaurant,
 } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
-import { apiService, OrderResponse } from "services/api";
+import {
+  apiService,
+  OrderResponse,
+  Restaurant as RestaurantType,
+} from "services/api";
 import { OrderStatus } from "types/order";
 import { OrderStatusManager } from "../../components/Order/OrderStatusManager";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
@@ -43,10 +47,38 @@ const TabPanel = ({ children, value, index }: TabPanelProps) => (
 export const CustomerOrdersDashboard = () => {
   const { state: authState } = useAuth();
   const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [restaurants, setRestaurants] = useState<
+    Record<string, RestaurantType>
+  >({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+
+  const fetchRestaurantDetails = useCallback(
+    async (restaurantUuids: string[]) => {
+      try {
+        const uniqueUuids = Array.from(new Set(restaurantUuids));
+        const restaurantPromises = uniqueUuids.map((uuid) =>
+          apiService.getRestaurant(uuid).catch(() => null)
+        );
+
+        const restaurantData = await Promise.all(restaurantPromises);
+        const restaurantMap: Record<string, RestaurantType> = {};
+
+        restaurantData.forEach((restaurant, index) => {
+          if (restaurant) {
+            restaurantMap[uniqueUuids[index]] = restaurant;
+          }
+        });
+
+        setRestaurants((prev) => ({ ...prev, ...restaurantMap }));
+      } catch (error) {
+        console.error("Failed to fetch restaurant details:", error);
+      }
+    },
+    []
+  );
 
   const fetchOrders = useCallback(async () => {
     if (!authState.user || authState.user.role !== "customer") {
@@ -63,12 +95,20 @@ export const CustomerOrdersDashboard = () => {
       });
 
       setOrders(customerOrders);
+
+      // Fetch restaurant details for all orders
+      const restaurantUuids = Array.from(
+        new Set(customerOrders.map((order) => order.restaurant_uuid))
+      );
+      if (restaurantUuids.length > 0) {
+        await fetchRestaurantDetails(restaurantUuids);
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to load orders");
     } finally {
       setLoading(false);
     }
-  }, [authState.user]);
+  }, [authState.user, fetchRestaurantDetails]);
 
   const { refreshNow } = useAutoRefresh(fetchOrders, {
     enabled: autoRefreshEnabled,
@@ -165,7 +205,9 @@ export const CustomerOrdersDashboard = () => {
             </DLSTypography>
             {order.restaurant_uuid && (
               <DLSTypography variant="body2" color="textSecondary">
-                Restaurant: {order.restaurant_uuid.slice(-8)}
+                Restaurant:{" "}
+                {restaurants[order.restaurant_uuid]?.title ||
+                  `ID: ${order.restaurant_uuid.slice(-8)}`}
               </DLSTypography>
             )}
           </Box>

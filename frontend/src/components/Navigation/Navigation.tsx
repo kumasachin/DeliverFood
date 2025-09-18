@@ -41,11 +41,18 @@ export const Navigation = () => {
     ];
 
     if (authState.user?.role === "customer") {
-      baseItems.push({
-        path: "/orders",
-        label: "My Orders",
-        icon: <Receipt />,
-      });
+      baseItems.push(
+        {
+          path: "/orders",
+          label: "My Orders",
+          icon: <Receipt />,
+        },
+        {
+          path: "/coupons",
+          label: "Browse Coupons",
+          icon: <LocalOffer />,
+        }
+      );
     } else if (authState.user?.role === "owner") {
       baseItems.push(
         {
@@ -119,11 +126,13 @@ export const Navigation = () => {
 
           {authState.isAuthenticated && (
             <>
-              <IconButton color="inherit" onClick={() => navigate("/cart")}>
-                <Badge badgeContent={totalItems} color="error">
-                  <ShoppingCart />
-                </Badge>
-              </IconButton>
+              {authState.user?.role === "customer" && (
+                <IconButton color="inherit" onClick={() => navigate("/cart")}>
+                  <Badge badgeContent={totalItems} color="error">
+                    <ShoppingCart />
+                  </Badge>
+                </IconButton>
+              )}
 
               <DLSButton
                 color="inherit"

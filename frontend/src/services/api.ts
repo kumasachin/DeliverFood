@@ -419,9 +419,13 @@ const createApiService = () => {
     restaurantUuid: string,
     coupon: CreateCouponRequest
   ): Promise<Coupon> => {
+    const couponWithRestaurant = {
+      ...coupon,
+      restaurant_uuid: restaurantUuid,
+    };
     const response = await httpClient.post<{ coupon: Coupon }>(
       `/restaurants/${restaurantUuid}/coupons`,
-      coupon
+      couponWithRestaurant
     );
     return response.data.coupon;
   };
@@ -458,6 +462,11 @@ const createApiService = () => {
     await httpClient.post(`/unblock/${userUuid}`);
   };
 
+  const getUser = async (userUuid: string): Promise<any> => {
+    const response = await httpClient.get(`/users/${userUuid}`);
+    return response.data;
+  };
+
   return {
     login,
     register,
@@ -491,6 +500,7 @@ const createApiService = () => {
     getBlockedUsers,
     blockUser,
     unblockUser,
+    getUser,
   };
 };
 

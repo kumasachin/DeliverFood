@@ -252,7 +252,6 @@ export const CustomerManagement: React.FC<CustomerManagementProps> = ({
             </Typography>
           </Box>
 
-          {/* Search Section */}
           <Card variant="outlined" sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>

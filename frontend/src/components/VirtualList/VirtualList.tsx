@@ -24,8 +24,14 @@ export const VirtualList = <T,>({
 
   // Only render items that are currently visible (plus some buffer)
   const visibleItems = useMemo(() => {
-    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
-    const endIndex = Math.min(items.length - 1, startIndex + visibleItemCount + overscan * 2);
+    const startIndex = Math.max(
+      0,
+      Math.floor(scrollTop / itemHeight) - overscan
+    );
+    const endIndex = Math.min(
+      items.length - 1,
+      startIndex + visibleItemCount + overscan * 2
+    );
 
     return items.slice(startIndex, endIndex + 1).map((item, index) => ({
       item,
@@ -43,24 +49,22 @@ export const VirtualList = <T,>({
       sx={{ height: containerHeight, overflow: "auto", position: "relative" }}
       onScroll={handleScroll}
     >
-      {/* Container with full height to maintain scrollbar */}
-      <Box sx={{ height: totalHeight, position: "relative" }}>
-        {/* Render only visible items */}
-        {visibleItems.map(({ item, index, top }) => (
-          <Box
+      <div style={{ height: `${totalHeight}px`, position: "relative" }}>
+        {visibleItems.map(({ item, index }) => (
+          <div
             key={index}
-            sx={{
+            style={{
               position: "absolute",
-              top,
+              top: index * itemHeight,
               left: 0,
               right: 0,
               height: itemHeight,
             }}
           >
             {renderItem(item, index)}
-          </Box>
+          </div>
         ))}
-      </Box>
+      </div>
     </Box>
   );
 };

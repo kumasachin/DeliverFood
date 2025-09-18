@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Fastfood } from "@mui/icons-material";
+import { Fastfood, Star } from "@mui/icons-material";
 import {
   Dialog,
   DialogTitle,
@@ -17,6 +17,7 @@ import { Loading } from "components/Common/Loading";
 import { SearchBar } from "components/Common/SearchBar";
 import { EmptyState } from "components/Common/EmptyState";
 import { useCart } from "contexts/CartContext";
+import { useAuth } from "contexts/AuthContext";
 import { DLSCard } from "dls/molecules/Card";
 import { apiService } from "services/api";
 import { DLSTypography } from "dls/atoms/Typography";
@@ -77,6 +78,7 @@ export const MealList = ({
 }: MealListProps) => {
   const navigate = useNavigate();
   const { addItem, clearCart, state: cartState } = useCart();
+  const { state: authState } = useAuth();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -193,7 +195,15 @@ export const MealList = ({
           {restaurant.description}
         </DLSTypography>
         <Box display="flex" gap={2} sx={{ mt: 1 }}>
-          <Chip label={`⭐ ${restaurant.rating}`} size="small" />
+          <Chip
+            label={
+              <Box display="flex" alignItems="center" gap={0.5}>
+                <Star fontSize="small" />
+                {restaurant.rating}
+              </Box>
+            }
+            size="small"
+          />
           <Chip
             label={restaurant.deliveryTime}
             size="small"
@@ -258,15 +268,17 @@ export const MealList = ({
                   </DLSTypography>
                   <Chip label={meal.category} size="small" variant="outlined" />
                 </Box>
-                <DLSButton
-                  fullWidth
-                  variant="contained"
-                  startIcon={<AddShoppingCartIcon />}
-                  onClick={() => handleAddToCart(meal)}
-                  disabled={!meal.available}
-                >
-                  {meal.available ? "Add to Cart" : "Not Available"}
-                </DLSButton>
+                {authState.user?.role === "customer" && (
+                  <DLSButton
+                    fullWidth
+                    variant="contained"
+                    startIcon={<AddShoppingCartIcon />}
+                    onClick={() => handleAddToCart(meal)}
+                    disabled={!meal.available}
+                  >
+                    {meal.available ? "Add to Cart" : "Not Available"}
+                  </DLSButton>
+                )}
               </Box>
             </DLSCard>
           ))}

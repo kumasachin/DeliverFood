@@ -46,6 +46,21 @@ export const RestaurantOrdersDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [customerNames, setCustomerNames] = useState<{ [key: string]: string }>(
+    {}
+  );
+
+  const fetchCustomerDetails = async (
+    customerUuid: string
+  ): Promise<string> => {
+    try {
+      const customerData = await apiService.getUser(customerUuid);
+      return customerData.name || "Unknown Customer";
+    } catch (error) {
+      console.error("Error fetching customer details:", error);
+      return "Unknown Customer";
+    }
+  };
 
   const fetchOrders = useCallback(async () => {
     if (!authState.user?.id) return;
@@ -72,6 +87,22 @@ export const RestaurantOrdersDashboard = () => {
       }
 
       setOrders(allOrders);
+
+      const customerNamesMap: { [key: string]: string } = {};
+      const uniqueCustomerUuids = Array.from(
+        new Set(allOrders.map((order) => order.customer_uuid).filter(Boolean))
+      );
+
+      await Promise.all(
+        uniqueCustomerUuids.map(async (customerUuid) => {
+          if (customerUuid) {
+            const customerName = await fetchCustomerDetails(customerUuid);
+            customerNamesMap[customerUuid] = customerName;
+          }
+        })
+      );
+
+      setCustomerNames(customerNamesMap);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load orders");
     } finally {
@@ -95,15 +126,27 @@ export const RestaurantOrdersDashboard = () => {
               restaurant.uuid
             );
             allOrders.push(...restaurantOrders);
-          } catch (err: any) {
-            // Skip failed restaurants but continue with others
-          }
+          } catch (err: any) {}
         }
 
         setOrders(allOrders);
-      } catch (err: any) {
-        // Auto-refresh error handling
-      }
+
+        const customerNamesMap: { [key: string]: string } = {};
+        const uniqueCustomerUuids = Array.from(
+          new Set(allOrders.map((order) => order.customer_uuid).filter(Boolean))
+        );
+
+        await Promise.all(
+          uniqueCustomerUuids.map(async (customerUuid) => {
+            if (customerUuid) {
+              const customerName = await fetchCustomerDetails(customerUuid);
+              customerNamesMap[customerUuid] = customerName;
+            }
+          })
+        );
+
+        setCustomerNames(customerNamesMap);
+      } catch (err: any) {}
     },
     {
       enabled: autoRefreshEnabled,
@@ -289,7 +332,8 @@ export const RestaurantOrdersDashboard = () => {
                         </DLSTypography>
                         {order.customer_uuid && (
                           <DLSTypography variant="body2" color="textSecondary">
-                            Customer: {order.customer_uuid.slice(-8)}
+                            Customer:{" "}
+                            {customerNames[order.customer_uuid] || "Loading..."}
                           </DLSTypography>
                         )}
                       </Box>

@@ -64,7 +64,11 @@ describe("EmptyState Component", () => {
   });
 
   it("renders with icon when provided", () => {
-    const testIcon = <div data-testid="test-icon">📦</div>;
+    const testIcon = (
+      <div data-testid="test-icon">
+        <span>test-icon</span>
+      </div>
+    );
 
     render(<EmptyState message="No data" icon={testIcon} />);
 

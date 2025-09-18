@@ -1,1 +1,0 @@
-export { RestaurantManagement } from "./RestaurantManagement";

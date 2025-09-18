@@ -148,7 +148,9 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
               cursor: "pointer",
               textDecoration: "underline",
             }}
-            onClick={onSwitchToSignIn}
+            onClick={() =>
+              onSwitchToSignIn ? onSwitchToSignIn() : navigate("/signin")
+            }
             data-testid="signin-link"
           >
             Sign in

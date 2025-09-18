@@ -8,6 +8,15 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
+import {
+  Assignment,
+  Restaurant,
+  LocalShipping,
+  Inventory,
+  CheckCircle,
+  Cancel,
+  Schedule,
+} from "@mui/icons-material";
 import { OrderStatus } from "../../types/order";
 
 interface OrderHistoryProps {
@@ -18,19 +27,19 @@ interface OrderHistoryProps {
 const getStatusIcon = (status: string) => {
   switch (status) {
     case "placed":
-      return "📝";
+      return <Assignment fontSize="small" />;
     case "processing":
-      return "👨‍🍳";
+      return <Restaurant fontSize="small" />;
     case "in route":
-      return "🚗";
+      return <LocalShipping fontSize="small" />;
     case "delivered":
-      return "📦";
+      return <Inventory fontSize="small" />;
     case "received":
-      return "✅";
+      return <CheckCircle fontSize="small" />;
     case "cancelled":
-      return "❌";
+      return <Cancel fontSize="small" />;
     default:
-      return "⏱️";
+      return <Schedule fontSize="small" />;
   }
 };
 

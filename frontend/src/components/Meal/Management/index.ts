@@ -1,1 +1,0 @@
-export { MealManagement } from "./MealManagement";

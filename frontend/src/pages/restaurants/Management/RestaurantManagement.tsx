@@ -20,6 +20,8 @@ import {
   Card,
   CardContent,
   CardActions,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -27,9 +29,11 @@ import {
   Delete as DeleteIcon,
   Restaurant as RestaurantIcon,
   LocationOn as LocationIcon,
+  LocalOffer as CouponIcon,
 } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
 import { apiService, Restaurant } from "services/api";
+import { CouponManagement } from "components/Coupon/CouponManagement";
 
 interface RestaurantFormData {
   title: string;
@@ -71,6 +75,7 @@ export const RestaurantManagement = () => {
   );
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   const [formData, setFormData] = useState<RestaurantFormData>({
     title: "",
@@ -307,125 +312,158 @@ export const RestaurantManagement = () => {
         </Alert>
       )}
 
-      <Box sx={{ mb: 3 }}>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-          disabled={loading}
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(_, newValue) => setActiveTab(newValue)}
         >
-          Add New Restaurant
-        </Button>
+          <Tab
+            label="Restaurants"
+            icon={<RestaurantIcon />}
+            iconPosition="start"
+          />
+          <Tab label="Coupons" icon={<CouponIcon />} iconPosition="start" />
+        </Tabs>
       </Box>
 
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : restaurants.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: "center" }}>
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            No Restaurants Found
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Create your first restaurant to get started.
-          </Typography>
-        </Paper>
-      ) : (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-          }}
-        >
-          {restaurants.map((restaurant) => (
-            <Card
-              key={restaurant.uuid}
-              sx={{ display: "flex", flexDirection: "column" }}
+      {activeTab === 0 && (
+        <Box>
+          <Box sx={{ mb: 3 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => handleOpenDialog()}
+              disabled={loading}
             >
-              <CardContent sx={{ flex: 1 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    mb: 2,
-                  }}
-                >
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="h5" component="h2" gutterBottom>
-                      {restaurant.title}
-                    </Typography>
-                    <Typography variant="body1" color="textSecondary" paragraph>
-                      {restaurant.description}
-                    </Typography>
+              Add New Restaurant
+            </Button>
+          </Box>
 
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : restaurants.length === 0 ? (
+            <Paper sx={{ p: 4, textAlign: "center" }}>
+              <Typography variant="h6" color="textSecondary" gutterBottom>
+                No Restaurants Found
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Create your first restaurant to get started.
+              </Typography>
+            </Paper>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
+            >
+              {restaurants.map((restaurant) => (
+                <Card
+                  key={restaurant.uuid}
+                  sx={{ display: "flex", flexDirection: "column" }}
+                >
+                  <CardContent sx={{ flex: 1 }}>
                     <Box
                       sx={{
                         display: "flex",
-                        flexWrap: "wrap",
-                        gap: 2,
-                        alignItems: "center",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 2,
                       }}
                     >
-                      <Chip
-                        label={
-                          CUISINE_DISPLAY_NAMES[
-                            restaurant.cuisine as keyof typeof CUISINE_DISPLAY_NAMES
-                          ] || restaurant.cuisine
-                        }
-                        color="primary"
-                        variant="outlined"
-                      />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="h5" component="h2" gutterBottom>
+                          {restaurant.title}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="textSecondary"
+                          paragraph
+                        >
+                          {restaurant.description}
+                        </Typography>
 
-                      {restaurant.coordinates && (
                         <Box
                           sx={{
                             display: "flex",
+                            flexWrap: "wrap",
+                            gap: 2,
                             alignItems: "center",
-                            gap: 0.5,
                           }}
                         >
-                          <LocationIcon fontSize="small" color="action" />
+                          <Chip
+                            label={
+                              CUISINE_DISPLAY_NAMES[
+                                restaurant.cuisine as keyof typeof CUISINE_DISPLAY_NAMES
+                              ] || restaurant.cuisine
+                            }
+                            color="primary"
+                            variant="outlined"
+                          />
+
+                          {restaurant.coordinates && (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 0.5,
+                              }}
+                            >
+                              <LocationIcon fontSize="small" color="action" />
+                              <Typography variant="body2" color="textSecondary">
+                                {restaurant.coordinates.lat},{" "}
+                                {restaurant.coordinates.lng}
+                              </Typography>
+                            </Box>
+                          )}
+
                           <Typography variant="body2" color="textSecondary">
-                            {restaurant.coordinates.lat},{" "}
-                            {restaurant.coordinates.lng}
+                            Created:{" "}
+                            {new Date(
+                              restaurant.created_at
+                            ).toLocaleDateString()}
                           </Typography>
                         </Box>
-                      )}
-
-                      <Typography variant="body2" color="textSecondary">
-                        Created:{" "}
-                        {new Date(restaurant.created_at).toLocaleDateString()}
-                      </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </Box>
-              </CardContent>
+                  </CardContent>
 
-              <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
-                <Button
-                  size="small"
-                  startIcon={<EditIcon />}
-                  onClick={() => handleOpenDialog(restaurant)}
-                  disabled={loading}
-                >
-                  Edit
-                </Button>
-                <Button
-                  size="small"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => handleDelete(restaurant)}
-                  disabled={loading}
-                  color="error"
-                >
-                  Delete
-                </Button>
-              </CardActions>
-            </Card>
-          ))}
+                  <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
+                    <Button
+                      size="small"
+                      startIcon={<EditIcon />}
+                      onClick={() => handleOpenDialog(restaurant)}
+                      disabled={loading}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<DeleteIcon />}
+                      onClick={() => handleDelete(restaurant)}
+                      disabled={loading}
+                      color="error"
+                    >
+                      Delete
+                    </Button>
+                  </CardActions>
+                </Card>
+              ))}
+            </Box>
+          )}
         </Box>
+      )}
+
+      {activeTab === 1 && (
+        <CouponManagement
+          onCouponChange={() => {
+            // Optionally refresh data or show success message
+            setSuccess("Coupon updated successfully!");
+          }}
+        />
       )}
 
       <Dialog

@@ -17,6 +17,13 @@ import {
   Switch,
   FormControlLabel,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import {
   AdminPanelSettings,
@@ -24,9 +31,10 @@ import {
   Search,
   FilterList,
   AutorenewRounded,
+  LocalOffer,
 } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
-import { apiService, OrderResponse } from "services/api";
+import { apiService, OrderResponse, Restaurant, Coupon } from "services/api";
 import { OrderStatus } from "types/order";
 import { OrderStatusManager } from "../../components/Order/OrderStatusManager";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
@@ -37,12 +45,76 @@ import { DLSCard } from "dls/molecules/Card";
 export const AdminOrdersDashboard = () => {
   const { state: authState } = useAuth();
   const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [restaurants, setRestaurants] = useState<Record<string, Restaurant>>(
+    {}
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+
+  // Coupon management state
+  const [couponDialogOpen, setCouponDialogOpen] = useState(false);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [couponLoading, setCouponLoading] = useState(false);
+
+  // Fetch all coupons from all restaurants
+  const fetchAllCoupons = useCallback(async () => {
+    try {
+      setCouponLoading(true);
+      const allCoupons: Coupon[] = [];
+
+      // Get coupons from all restaurants
+      const restaurantIds = Object.keys(restaurants);
+      for (const restaurantId of restaurantIds) {
+        try {
+          const restaurantCoupons = await apiService.getRestaurantCoupons(
+            restaurantId
+          );
+          allCoupons.push(...restaurantCoupons);
+        } catch (error) {
+          console.log(`No coupons found for restaurant ${restaurantId}`);
+        }
+      }
+
+      setCoupons(allCoupons);
+    } catch (error) {
+      console.error("Failed to fetch coupons:", error);
+    } finally {
+      setCouponLoading(false);
+    }
+  }, [restaurants]);
+
+  const handleOpenCouponDialog = () => {
+    setCouponDialogOpen(true);
+    fetchAllCoupons();
+  };
+  const fetchRestaurantDetails = useCallback(
+    async (restaurantUuids: string[]) => {
+      try {
+        const uniqueUuids = Array.from(new Set(restaurantUuids));
+        const restaurantPromises = uniqueUuids.map((uuid) =>
+          apiService.getRestaurant(uuid).catch(() => null)
+        );
+
+        const restaurantData = await Promise.all(restaurantPromises);
+        const restaurantMap: Record<string, Restaurant> = {};
+
+        restaurantData.forEach((restaurant, index) => {
+          if (restaurant) {
+            restaurantMap[uniqueUuids[index]] = restaurant;
+          }
+        });
+
+        setRestaurants((prev) => ({ ...prev, ...restaurantMap }));
+      } catch (error) {
+        console.error("Failed to fetch restaurant details:", error);
+      }
+    },
+    []
+  );
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -51,12 +123,21 @@ export const AdminOrdersDashboard = () => {
 
       const ordersData = await apiService.getOrders();
       setOrders(ordersData);
+
+      // Fetch restaurant details for orders
+      const restaurantUuids = ordersData
+        .map((order) => order.restaurant_uuid)
+        .filter((uuid) => uuid && !restaurants[uuid]);
+
+      if (restaurantUuids.length > 0) {
+        await fetchRestaurantDetails(restaurantUuids);
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to load orders");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchRestaurantDetails, restaurants]);
 
   useAutoRefresh(
     async () => {
@@ -86,7 +167,11 @@ export const AdminOrdersDashboard = () => {
             .includes(searchTerm.toLowerCase()) ||
           order.restaurant_uuid
             ?.toLowerCase()
-            .includes(searchTerm.toLowerCase())
+            .includes(searchTerm.toLowerCase()) ||
+          restaurants[order.restaurant_uuid]?.title
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          order.coupon_code?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -95,7 +180,7 @@ export const AdminOrdersDashboard = () => {
     }
 
     return result;
-  }, [orders, searchTerm, statusFilter]);
+  }, [orders, searchTerm, statusFilter, restaurants]);
 
   if (!authState.isAuthenticated || authState.user?.role !== "admin") {
     return (
@@ -151,14 +236,24 @@ export const AdminOrdersDashboard = () => {
           <AdminPanelSettings sx={{ mr: 1, verticalAlign: "middle" }} />
           Admin Orders Dashboard
         </DLSTypography>
-        <DLSButton
-          variant="outlined"
-          startIcon={loading ? <CircularProgress size={16} /> : <Refresh />}
-          onClick={fetchOrders}
-          disabled={loading}
-        >
-          Refresh
-        </DLSButton>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <DLSButton
+            variant="outlined"
+            startIcon={<LocalOffer />}
+            onClick={handleOpenCouponDialog}
+            color="secondary"
+          >
+            Manage Coupons
+          </DLSButton>
+          <DLSButton
+            variant="outlined"
+            startIcon={loading ? <CircularProgress size={16} /> : <Refresh />}
+            onClick={fetchOrders}
+            disabled={loading}
+          >
+            Refresh
+          </DLSButton>
+        </Box>
       </Box>
 
       <DLSCard sx={{ p: 3, mb: 3 }}>
@@ -190,7 +285,7 @@ export const AdminOrdersDashboard = () => {
                   <Search sx={{ mr: 1, color: "text.secondary" }} />
                 ),
               }}
-              placeholder="Search by order ID, customer ID, or coupon..."
+              placeholder="Search by order ID, customer, restaurant name, or coupon..."
               sx={{ minWidth: 300 }}
             />
             <FormControl size="small" sx={{ minWidth: 150 }}>
@@ -310,11 +405,13 @@ export const AdminOrdersDashboard = () => {
                       Created: {formatDate(order.created_at)}
                     </DLSTypography>
                     <DLSTypography variant="body2" color="textSecondary">
-                      Customer: {order.customer_uuid.slice(-8)}
+                      Customer ID: {order.customer_uuid.slice(0, 8)}...
                     </DLSTypography>
                     {order.restaurant_uuid && (
                       <DLSTypography variant="body2" color="textSecondary">
-                        Restaurant: {order.restaurant_uuid.slice(-8)}
+                        Restaurant:{" "}
+                        {restaurants[order.restaurant_uuid]?.title ||
+                          `ID: ${order.restaurant_uuid.slice(-8)}`}
                       </DLSTypography>
                     )}
                   </Box>
@@ -324,10 +421,15 @@ export const AdminOrdersDashboard = () => {
                     </DLSTypography>
                     {order.coupon_code && (
                       <Chip
-                        label={`Coupon: ${order.coupon_code}`}
+                        label={`${order.coupon_code}${
+                          order.discount_percentage
+                            ? ` (${order.discount_percentage}% off)`
+                            : ""
+                        }`}
                         size="small"
                         color="success"
                         sx={{ mt: 0.5 }}
+                        title={`Coupon applied: ${order.coupon_code}`}
                       />
                     )}
                   </Box>
@@ -352,6 +454,79 @@ export const AdminOrdersDashboard = () => {
           ))}
         </Box>
       )}
+
+      <Dialog
+        open={couponDialogOpen}
+        onClose={() => setCouponDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <LocalOffer />
+            Coupon Management
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {couponLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : coupons.length === 0 ? (
+            <Alert severity="info">
+              No coupons found across all restaurants.
+            </Alert>
+          ) : (
+            <List>
+              {coupons.map((coupon) => (
+                <ListItem key={coupon.uuid} divider>
+                  <ListItemText
+                    primary={
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                      >
+                        <Chip
+                          label={coupon.coupon_code}
+                          color="primary"
+                          size="small"
+                        />
+                        <Chip
+                          label={`${coupon.percentage}% off`}
+                          color="success"
+                          size="small"
+                        />
+                        <Chip
+                          label={coupon.status}
+                          color={
+                            coupon.status === "active" ? "success" : "default"
+                          }
+                          size="small"
+                        />
+                      </Box>
+                    }
+                    secondary={
+                      <Box sx={{ mt: 1 }}>
+                        <DLSTypography variant="body2" color="textSecondary">
+                          Restaurant:{" "}
+                          {restaurants[coupon.restaurant_uuid]?.title ||
+                            "Unknown"}
+                        </DLSTypography>
+                        <DLSTypography variant="caption" color="textSecondary">
+                          Created:{" "}
+                          {new Date(coupon.created_at).toLocaleDateString()}
+                        </DLSTypography>
+                      </Box>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCouponDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
