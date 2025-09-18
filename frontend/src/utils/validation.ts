@@ -11,7 +11,6 @@ export interface ValidationErrors {
   [fieldName: string]: string;
 }
 
-// Core validation functions
 export const validators = {
   required: (message = "This field is required"): ValidationRule => ({
     validate: (value: any) => {
@@ -105,7 +104,6 @@ export const validators = {
   }),
 };
 
-// Validation utility functions
 export const validateField = (
   value: any,
   rules: ValidationRule[]

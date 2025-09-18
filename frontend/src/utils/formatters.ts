@@ -1,4 +1,3 @@
-// Form formatting utilities
 export const formatPhoneNumber = (phone: string): string => {
   const cleaned = phone.replace(/\D/g, "");
 

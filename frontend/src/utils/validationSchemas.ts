@@ -1,6 +1,5 @@
 import { validators, ValidationSchema } from "utils/validation";
 
-// Common validation schemas for different forms
 export const validationSchemas = {
   checkout: {
     address: [

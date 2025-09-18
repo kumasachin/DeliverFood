@@ -43,7 +43,6 @@ export const Checkout = () => {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [tipAmount, setTipAmount] = useState(0);
 
-  // Use the new validation system
   const { formData, handleFieldChange, handleFieldBlur, validateForm, errors } =
     useFormValidation(validationSchemas.checkout, {
       address: "",
@@ -57,7 +56,6 @@ export const Checkout = () => {
   const tax = subtotal * 0.08;
   const total = subtotal + deliveryFee + tax + tipAmount;
 
-  // Handle phone number formatting
   const handlePhoneChange = (value: string) => {
     const formattedPhone = formatPhoneNumber(value);
     handleFieldChange("phone", formattedPhone);
@@ -69,7 +67,6 @@ export const Checkout = () => {
       return;
     }
 
-    // Validate the form using the new validation system
     if (!validateForm()) {
       setError("Please correct the errors above and try again.");
       return;
@@ -99,7 +96,6 @@ export const Checkout = () => {
       const errorMessage =
         err.response?.data?.error || "Failed to place order. Please try again.";
 
-      // Enhanced error handling for blocked users
       if (
         errorMessage.includes("not active") ||
         errorMessage.includes("blocked")
@@ -314,7 +310,6 @@ export const Checkout = () => {
               )}
             </FormControl>
 
-            {/* Tip Section */}
             <Typography
               variant="h6"
               gutterBottom

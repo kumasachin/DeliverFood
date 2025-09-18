@@ -71,7 +71,6 @@ export const MealManagement = () => {
     category: "",
   });
 
-  // Load owner's restaurants
   useEffect(() => {
     const loadRestaurants = async () => {
       if (authState.user?.role !== "owner") return;
@@ -95,7 +94,6 @@ export const MealManagement = () => {
     loadRestaurants();
   }, [authState.user]);
 
-  // Load meals for selected restaurant
   useEffect(() => {
     const loadMeals = async () => {
       if (!selectedRestaurant) {
@@ -253,7 +251,6 @@ export const MealManagement = () => {
         </Typography>
       </Box>
 
-      {/* Success/Error Messages */}
       {success && (
         <Alert
           severity="success"
@@ -269,7 +266,6 @@ export const MealManagement = () => {
         </Alert>
       )}
 
-      {/* Restaurant Selection */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Select Restaurant
@@ -296,7 +292,6 @@ export const MealManagement = () => {
         )}
       </Paper>
 
-      {/* Add Meal Button */}
       {selectedRestaurant && (
         <Box sx={{ mb: 3 }}>
           <Button
@@ -310,7 +305,6 @@ export const MealManagement = () => {
         </Box>
       )}
 
-      {/* Meals Table */}
       {selectedRestaurant && (
         <TableContainer component={Paper}>
           <Table>
@@ -396,7 +390,6 @@ export const MealManagement = () => {
         </TableContainer>
       )}
 
-      {/* Add/Edit Meal Dialog */}
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}

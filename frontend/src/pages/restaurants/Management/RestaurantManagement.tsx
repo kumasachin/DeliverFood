@@ -82,7 +82,6 @@ export const RestaurantManagement = () => {
     },
   });
 
-  // Load owner's restaurants
   useEffect(() => {
     const loadRestaurants = async () => {
       if (authState.user?.role !== "owner") return;
@@ -293,7 +292,6 @@ export const RestaurantManagement = () => {
         </Typography>
       </Box>
 
-      {/* Success/Error Messages */}
       {success && (
         <Alert
           severity="success"
@@ -309,7 +307,6 @@ export const RestaurantManagement = () => {
         </Alert>
       )}
 
-      {/* Add Restaurant Button */}
       <Box sx={{ mb: 3 }}>
         <Button
           variant="contained"
@@ -321,7 +318,6 @@ export const RestaurantManagement = () => {
         </Button>
       </Box>
 
-      {/* Restaurants Display using Box layout */}
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
           <CircularProgress />
@@ -432,7 +428,6 @@ export const RestaurantManagement = () => {
         </Box>
       )}
 
-      {/* Add/Edit Restaurant Dialog */}
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}

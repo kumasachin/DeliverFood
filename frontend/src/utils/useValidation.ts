@@ -113,7 +113,6 @@ export const useValidation = ({
   };
 };
 
-// Higher-order component for form validation
 export interface FormFieldProps {
   name: string;
   value: any;
@@ -137,7 +136,6 @@ export const useFormValidation = (
         [fieldName]: value,
       }));
 
-      // Clear error when user starts typing
       if (validation.hasFieldError(fieldName)) {
         validation.clearError(fieldName);
       }
