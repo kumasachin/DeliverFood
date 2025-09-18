@@ -1,6 +1,10 @@
-# Getting Started with Create React App
+# Food Delivery Frontend App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Requirements
+
+**Node.js Version:** This project requires Node.js version 20+
 
 ## Available Scripts
 
