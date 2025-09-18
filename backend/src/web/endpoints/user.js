@@ -117,6 +117,32 @@ function registerUserEndpoints(app, models) {
       res.status(204).end();
     }
   );
+
+  // Get user by UUID (for getting customer names in orders)
+  app.get(
+    "/users/:uuid",
+    authentication(models),
+    checkPermissions(MODERATORS, models),
+    async (req, res) => {
+      try {
+        const user = await models.users().get(req.params.uuid);
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json({
+          uuid: user.uuid,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          status: user.status,
+          created_at: user.created_at.toISOString(),
+        });
+      } catch (error) {
+        res.status(500).json({ error: "Failed to fetch user" });
+      }
+    }
+  );
 }
 
 module.exports = registerUserEndpoints;
