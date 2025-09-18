@@ -22,7 +22,7 @@ import {
 import { useAuth } from "contexts/AuthContext";
 import { apiService, OrderResponse } from "services/api";
 import { OrderStatus } from "types/order";
-import { OrderStatusManager } from "./OrderStatusManager";
+import { OrderStatusManager } from "../../components/Order/OrderStatusManager";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
@@ -70,14 +70,11 @@ export const CustomerOrdersDashboard = () => {
     }
   }, [authState.user]);
 
-  const { refreshNow } = useAutoRefresh(
-    fetchOrders,
-    {
-      enabled: autoRefreshEnabled,
-      interval: 30000,
-      immediate: false,
-    }
-  );
+  const { refreshNow } = useAutoRefresh(fetchOrders, {
+    enabled: autoRefreshEnabled,
+    interval: 30000,
+    immediate: false,
+  });
 
   useEffect(() => {
     fetchOrders();
@@ -191,6 +188,7 @@ export const CustomerOrdersDashboard = () => {
           orderUuid={order.uuid}
           initialStatus={order.status as OrderStatus}
           showHistory={false}
+          onStatusChange={fetchOrders}
         />
       </Box>
     </DLSCard>
@@ -258,11 +256,24 @@ export const CustomerOrdersDashboard = () => {
             allowScrollButtonsMobile
           >
             <Tab label={getTabLabel(OrderStatus.PLACED, activeOrders.length)} />
-            <Tab label={getTabLabel(OrderStatus.PROCESSING, processingOrders.length)} />
-            <Tab label={getTabLabel(OrderStatus.IN_ROUTE, inRouteOrders.length)} />
-            <Tab label={getTabLabel(OrderStatus.DELIVERED, deliveredOrders.length)} />
-            <Tab label={getTabLabel(OrderStatus.RECEIVED, completedOrders.length)} />
-            <Tab label={getTabLabel(OrderStatus.CANCELLED, cancelledOrders.length)} />
+            <Tab
+              label={getTabLabel(
+                OrderStatus.PROCESSING,
+                processingOrders.length
+              )}
+            />
+            <Tab
+              label={getTabLabel(OrderStatus.IN_ROUTE, inRouteOrders.length)}
+            />
+            <Tab
+              label={getTabLabel(OrderStatus.DELIVERED, deliveredOrders.length)}
+            />
+            <Tab
+              label={getTabLabel(OrderStatus.RECEIVED, completedOrders.length)}
+            />
+            <Tab
+              label={getTabLabel(OrderStatus.CANCELLED, cancelledOrders.length)}
+            />
           </Tabs>
         </Box>
 

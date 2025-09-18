@@ -28,7 +28,7 @@ import {
 import { useAuth } from "contexts/AuthContext";
 import { apiService, OrderResponse } from "services/api";
 import { OrderStatus } from "types/order";
-import { OrderStatusManager } from "./OrderStatusManager";
+import { OrderStatusManager } from "../../components/Order/OrderStatusManager";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
@@ -337,6 +337,7 @@ export const AdminOrdersDashboard = () => {
                   orderUuid={order.uuid}
                   initialStatus={order.status as OrderStatus}
                   showHistory={false}
+                  onStatusChange={fetchOrders}
                 />
 
                 <Box

@@ -10,12 +10,14 @@ interface OrderStatusManagerProps {
   orderUuid: string;
   initialStatus?: OrderStatus;
   showHistory?: boolean;
+  onStatusChange?: () => void;
 }
 
 export const OrderStatusManager = ({
   orderUuid,
   initialStatus,
   showHistory = false,
+  onStatusChange,
 }: OrderStatusManagerProps) => {
   const { state: authState } = useAuth();
   const {
@@ -25,33 +27,42 @@ export const OrderStatusManager = ({
     getAvailableTransitions,
     updateStatus,
     refreshStatus,
+    setStatus,
     history,
     loadHistory,
   } = useOrderStatus();
 
+  const handleStatusUpdate = async (
+    newStatus: OrderStatus
+  ): Promise<boolean> => {
+    if (!authState.user) return false;
+
+    const success = await updateStatus(
+      orderUuid,
+      newStatus,
+      authState.user.role
+    );
+
+    if (success && onStatusChange) {
+      onStatusChange();
+    }
+
+    return success;
+  };
+
   useEffect(() => {
     if (initialStatus) {
-      // If we have initial status, use it (from order list)
-      return;
+      setStatus(initialStatus);
+    } else {
+      refreshStatus(orderUuid);
     }
-    // Otherwise fetch current status
-    refreshStatus(orderUuid);
-  }, [orderUuid, initialStatus, refreshStatus]);
+  }, [orderUuid, initialStatus, refreshStatus, setStatus]);
 
   useEffect(() => {
     if (showHistory) {
       loadHistory(orderUuid);
     }
   }, [orderUuid, showHistory, loadHistory]);
-
-  const handleStatusUpdate = async (
-    newStatus: OrderStatus
-  ): Promise<boolean> => {
-    if (!authState.user) {
-      return false;
-    }
-    return await updateStatus(orderUuid, newStatus, authState.user.role);
-  };
 
   if (!authState.user) {
     return (

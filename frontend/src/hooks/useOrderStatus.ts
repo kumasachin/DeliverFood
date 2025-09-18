@@ -19,6 +19,7 @@ export interface UseOrderStatusResult {
     userRole: Role
   ) => Promise<boolean>;
   refreshStatus: (orderUuid: string) => Promise<void>;
+  setStatus: (status: OrderStatus) => void;
   history: Array<{ status: string; changed_at: string }>;
   loadHistory: (orderUuid: string) => Promise<void>;
 }
@@ -120,6 +121,7 @@ export const useOrderStatus = (): UseOrderStatusResult => {
     getAvailableTransitions,
     updateStatus,
     refreshStatus,
+    setStatus,
     history,
     loadHistory,
   };
