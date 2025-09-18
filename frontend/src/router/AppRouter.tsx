@@ -8,7 +8,13 @@ import { RestaurantList } from "../components/Restaurant/RestaurantList";
 import { MealList } from "../components/Meal/MealList";
 import { Cart } from "../components/Cart/Cart";
 import { Checkout } from "../components/Checkout/Checkout";
-import { OrderList, SingleOrder } from "../components/Order";
+import { Dashboard } from "../components/Dashboard";
+import {
+  OrderList,
+  SingleOrder,
+  RestaurantOrdersDashboard,
+  AdminOrdersDashboard,
+} from "../components/Order";
 import { Navigation } from "../components/Navigation/Navigation";
 import { Restaurant } from "../types/restaurant";
 import { useAuth } from "../contexts/AuthContext";
@@ -82,6 +88,15 @@ export const AppRouter = () => {
           />
 
           <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/restaurants"
             element={
               <ProtectedRoute>
@@ -113,6 +128,24 @@ export const AppRouter = () => {
             element={
               <ProtectedRoute>
                 <OrderList />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/restaurant-orders"
+            element={
+              <ProtectedRoute>
+                <RestaurantOrdersDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin-orders"
+            element={
+              <ProtectedRoute>
+                <AdminOrdersDashboard />
               </ProtectedRoute>
             }
           />

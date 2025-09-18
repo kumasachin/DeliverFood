@@ -186,6 +186,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = (): void => {
     apiService.clearAuthToken();
     dispatch({ type: "LOGOUT" });
+    window.location.href = "/";
   };
 
   const clearError = (): void => {

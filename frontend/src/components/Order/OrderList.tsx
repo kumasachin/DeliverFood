@@ -1,148 +1,187 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Box,
-  Chip,
   Alert,
+  CardContent,
+  Chip,
+  CircularProgress,
 } from "@mui/material";
-import { Receipt, Visibility } from "@mui/icons-material";
+import { Receipt, Visibility, Refresh } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "contexts/AuthContext";
-import { useLocalStorage } from "hooks";
+import { apiService, OrderResponse } from "services/api";
+import { OrderStatus } from "types/order";
+import { OrderStatusManager } from "./OrderStatusManager";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
 
-interface Order {
-  id: string;
-  items: any[];
-  total: number;
-  address: string;
-  phone: string;
-  paymentMethod: string;
-  status: string;
-  createdAt: string;
-  restaurantId?: string | null;
-}
-
 export const OrderList = () => {
   const navigate = useNavigate();
   const { state: authState } = useAuth();
-  const [orders] = useLocalStorage<Order[]>("orders", []);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchOrders = useCallback(async () => {
+    if (!authState.user) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      let ordersData: OrderResponse[];
+      if (authState.user.role === "customer") {
+        ordersData = await apiService.getOrders({
+          customer_uuid: authState.user.id,
+        });
+      } else {
+        ordersData = await apiService.getOrders();
+      }
+
+      setOrders(ordersData);
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  }, [authState.user]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   if (!authState.isAuthenticated) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="warning">Please sign in to view your orders.</Alert>
       </Container>
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "placed":
-        return "primary";
-      case "processing":
-        return "warning";
-      case "in route":
-        return "info";
-      case "delivered":
-        return "success";
-      case "received":
-        return "default";
+  const formatPrice = (price: number): string => {
+    return `$${price.toFixed(2)}`;
+  };
+
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const getRoleTitle = (): string => {
+    switch (authState.user?.role) {
+      case "customer":
+        return "My Orders";
+      case "owner":
+        return "Restaurant Orders";
+      case "admin":
+        return "All Orders";
       default:
-        return "default";
+        return "Orders";
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  if (orders.length === 0) {
-    return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
-          <Receipt sx={{ mr: 2, fontSize: 32 }} />
-          <DLSTypography variant="h4" component="h1">
-            Your Orders
-          </DLSTypography>
-        </Box>
-
-        <Alert severity="info" sx={{ mb: 3 }}>
-          You haven't placed any orders yet.
-        </Alert>
-
-        <DLSButton variant="contained" onClick={() => navigate("/restaurants")}>
-          Start Shopping
-        </DLSButton>
-      </Container>
-    );
-  }
-
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box display="flex" alignItems="center" sx={{ mb: 3 }}>
-        <Receipt sx={{ mr: 2, fontSize: 32 }} />
-        <DLSTypography variant="h4" component="h1">
-          Your Orders
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <DLSTypography variant="h4" component="h1" gutterBottom sx={{ mb: 0 }}>
+          <Receipt sx={{ mr: 1, verticalAlign: "middle" }} />
+          {getRoleTitle()}
         </DLSTypography>
+        <DLSButton
+          variant="outlined"
+          startIcon={loading ? <CircularProgress size={16} /> : <Refresh />}
+          onClick={fetchOrders}
+          disabled={loading}
+        >
+          Refresh
+        </DLSButton>
       </Box>
 
-      <Box sx={{ mb: 3 }}>
-        {orders.map((order) => (
-          <DLSCard key={order.id} sx={{ mb: 2 }}>
-            <Box sx={{ p: 2 }}>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="flex-start"
-                sx={{ mb: 2 }}
-              >
-                <Box>
-                  <DLSTypography variant="h6" gutterBottom>
-                    Order #{order.id.slice(-8)}
-                  </DLSTypography>
-                  <DLSTypography variant="body2" color="textSecondary">
-                    {formatDate(order.createdAt)}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {loading && orders.length === 0 ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : orders.length === 0 ? (
+        <DLSCard sx={{ textAlign: "center", py: 6 }}>
+          <DLSTypography variant="h6" color="textSecondary">
+            No orders found
+          </DLSTypography>
+          <DLSTypography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+            {authState.user?.role === "customer"
+              ? "You haven't placed any orders yet"
+              : "No orders to manage"}
+          </DLSTypography>
+        </DLSCard>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {orders.map((order) => (
+            <DLSCard key={order.uuid}>
+              <CardContent>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    mb: 2,
+                  }}
+                >
+                  <Box>
+                    <DLSTypography variant="h6" component="h3">
+                      Order #{order.uuid.slice(-8)}
+                    </DLSTypography>
+                    <DLSTypography variant="body2" color="textSecondary">
+                      {formatDate(order.created_at)}
+                    </DLSTypography>
+                  </Box>
+                  <DLSTypography variant="h6" color="primary">
+                    {formatPrice(order.total_price)}
                   </DLSTypography>
                 </Box>
-                <Chip
-                  label={order.status.toUpperCase()}
-                  color={getStatusColor(order.status) as any}
-                  size="small"
+
+                <OrderStatusManager
+                  orderUuid={order.uuid}
+                  initialStatus={order.status as OrderStatus}
+                  showHistory={false}
                 />
-              </Box>
 
-              <Box sx={{ mb: 2 }}>
-                <DLSTypography variant="body2" color="textSecondary" gutterBottom>
-                  Items: {order.items.length} • Total: ${order.total.toFixed(2)}
-                </DLSTypography>
-                <DLSTypography variant="body2" color="textSecondary">
-                  Delivery Address: {order.address}
-                </DLSTypography>
-              </Box>
+                {order.coupon_code && (
+                  <Chip
+                    label={`Coupon: ${order.coupon_code}`}
+                    size="small"
+                    color="success"
+                    sx={{ mt: 2 }}
+                  />
+                )}
 
-              <Box display="flex" gap={2}>
-                <DLSButton
-                  variant="outlined"
-                  size="small"
-                  startIcon={<Visibility />}
-                  onClick={() => navigate(`/orders/${order.id}`)}
-                >
-                  View Details
-                </DLSButton>
-              </Box>
-            </Box>
-          </DLSCard>
-        ))}
-      </Box>
+                <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                  <DLSButton
+                    variant="outlined"
+                    size="small"
+                    startIcon={<Visibility />}
+                    onClick={() => navigate(`/orders/${order.uuid}`)}
+                  >
+                    View Details
+                  </DLSButton>
+                </Box>
+              </CardContent>
+            </DLSCard>
+          ))}
+        </Box>
+      )}
     </Container>
   );
 };

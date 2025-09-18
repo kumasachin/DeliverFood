@@ -49,6 +49,38 @@ export interface Meal {
   created_at: string;
 }
 
+export interface OrderStatusResponse {
+  status: string;
+  updated_at: string;
+}
+
+export interface OrderHistoryResponse {
+  status: string;
+  changed_at: string;
+}
+
+export interface UpdateOrderStatusRequest {
+  status: string;
+}
+
+export interface OrderResponse {
+  uuid: string;
+  customer_uuid: string;
+  restaurant_uuid: string;
+  status: string;
+  total_price: number;
+  tip_amount?: number;
+  discount_percentage?: number;
+  coupon_code?: string;
+  created_at: string;
+}
+
+export interface GetOrdersParams {
+  page?: number;
+  limit?: number;
+  customer_uuid?: string;
+}
+
 class ApiService {
   private api: AxiosInstance;
 
@@ -190,6 +222,64 @@ class ApiService {
 
   async deleteMeal(uuid: string): Promise<void> {
     await this.api.delete(`/meals/${uuid}`);
+  }
+
+  async getOrderStatus(orderUuid: string): Promise<OrderStatusResponse> {
+    const response: AxiosResponse<OrderStatusResponse> = await this.api.get(
+      `/orders/${orderUuid}/status`
+    );
+    return response.data;
+  }
+
+  async getOrderHistory(orderUuid: string): Promise<OrderHistoryResponse[]> {
+    const response: AxiosResponse<OrderHistoryResponse[]> = await this.api.get(
+      `/orders/${orderUuid}/history`
+    );
+    return response.data;
+  }
+
+  async updateOrderStatus(orderUuid: string, status: string): Promise<void> {
+    await this.api.patch(`/orders/${orderUuid}`, { status });
+  }
+
+  async getOrders(params: GetOrdersParams = {}): Promise<OrderResponse[]> {
+    const searchParams = new URLSearchParams();
+    if (params.page !== undefined)
+      searchParams.append("page", params.page.toString());
+    if (params.limit !== undefined)
+      searchParams.append("limit", params.limit.toString());
+    if (params.customer_uuid)
+      searchParams.append("customer_uuid", params.customer_uuid);
+
+    const response: AxiosResponse<OrderResponse[]> = await this.api.get(
+      `/orders${searchParams.toString() ? "?" + searchParams.toString() : ""}`
+    );
+    return response.data;
+  }
+
+  async getOrder(orderUuid: string): Promise<OrderResponse> {
+    const response: AxiosResponse<OrderResponse> = await this.api.get(
+      `/orders/${orderUuid}`
+    );
+    return response.data;
+  }
+
+  async getRestaurantOrders(
+    restaurantUuid: string,
+    params: GetOrdersParams = {}
+  ): Promise<OrderResponse[]> {
+    const searchParams = new URLSearchParams();
+    if (params.page !== undefined)
+      searchParams.append("page", params.page.toString());
+    if (params.limit !== undefined)
+      searchParams.append("limit", params.limit.toString());
+
+    const response: AxiosResponse<OrderResponse[]> = await this.api.get(
+      `/restaurants/${restaurantUuid}/orders${
+        searchParams.toString() ? "?" + searchParams.toString() : ""
+      }`
+    );
+    return response.data;
   }
 
   setAuthToken(token: string): void {

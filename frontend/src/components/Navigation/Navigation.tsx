@@ -1,13 +1,14 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Restaurant,
-  Storefront,
   Login,
   PersonAdd,
   ShoppingCart,
   Logout,
   Receipt,
+  Store,
+  AdminPanelSettings,
 } from "@mui/icons-material";
 import { useAuth } from "contexts/AuthContext";
 import { useCart } from "contexts/CartContext";
@@ -17,6 +18,7 @@ import { AppBar, Toolbar, Box, IconButton, Badge } from "dls/atoms";
 
 export const Navigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { state: authState, logout } = useAuth();
   const { state: cartState } = useCart();
 
@@ -30,14 +32,36 @@ export const Navigation = () => {
     { path: "/signup", label: "Sign Up", icon: <PersonAdd /> },
   ];
 
-  const authenticatedNavItems = [
-    { path: "/restaurants", label: "Restaurants", icon: <Restaurant /> },
-    { path: "/meals", label: "Meals", icon: <Storefront /> },
-    { path: "/orders", label: "Orders", icon: <Receipt /> },
-  ];
+  const getAuthenticatedNavItems = () => {
+    const baseItems = [
+      { path: "/restaurants", label: "Restaurants", icon: <Restaurant /> },
+    ];
+
+    if (authState.user?.role === "customer") {
+      baseItems.push({
+        path: "/orders",
+        label: "My Orders",
+        icon: <Receipt />,
+      });
+    } else if (authState.user?.role === "owner") {
+      baseItems.push({
+        path: "/restaurant-orders",
+        label: "Restaurant Orders",
+        icon: <Store />,
+      });
+    } else if (authState.user?.role === "admin") {
+      baseItems.push({
+        path: "/admin-orders",
+        label: "Admin Dashboard",
+        icon: <AdminPanelSettings />,
+      });
+    }
+
+    return baseItems;
+  };
 
   const navItems = authState.isAuthenticated
-    ? authenticatedNavItems
+    ? getAuthenticatedNavItems()
     : guestNavItems;
 
   return (
@@ -59,7 +83,7 @@ export const Navigation = () => {
                   location.pathname === item.path ? "#FFFFFF1A" : "transparent",
               }}
               onClick={() => {
-                window.location.href = item.path;
+                navigate(item.path);
               }}
             >
               {item.label}
@@ -68,10 +92,7 @@ export const Navigation = () => {
 
           {authState.isAuthenticated && (
             <>
-              <IconButton
-                color="inherit"
-                onClick={() => (window.location.href = "/cart")}
-              >
+              <IconButton color="inherit" onClick={() => navigate("/cart")}>
                 <Badge badgeContent={totalItems} color="error">
                   <ShoppingCart />
                 </Badge>

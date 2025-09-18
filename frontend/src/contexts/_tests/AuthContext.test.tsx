@@ -25,13 +25,15 @@ Object.defineProperty(window, "localStorage", {
 
 // Test component to access auth context
 const TestComponent: React.FC = () => {
-  const { user, loading, error, signIn, signUp, logOut } = useAuth();
+  const { state, signIn, signUp, logout } = useAuth();
 
   return (
     <div>
-      <div data-testid="user">{user ? JSON.stringify(user) : "null"}</div>
-      <div data-testid="loading">{loading.toString()}</div>
-      <div data-testid="error">{error || "null"}</div>
+      <div data-testid="user">
+        {state.user ? JSON.stringify(state.user) : "null"}
+      </div>
+      <div data-testid="loading">{state.isLoading.toString()}</div>
+      <div data-testid="error">{state.error || "null"}</div>
       <button onClick={() => signIn("test@example.com", "password")}>
         Sign In
       </button>
@@ -40,7 +42,7 @@ const TestComponent: React.FC = () => {
       >
         Sign Up
       </button>
-      <button onClick={logOut}>Log Out</button>
+      <button onClick={logout}>Log Out</button>
     </div>
   );
 };

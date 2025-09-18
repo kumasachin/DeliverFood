@@ -76,6 +76,27 @@ export const Checkout = () => {
     );
   }
 
+  const restaurantIds = Array.from(
+    new Set(cartState.items.map((item) => item.restaurantId))
+  );
+  if (restaurantIds.length > 1) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Alert severity="error">
+          Your cart contains items from multiple restaurants. Please ensure all
+          items are from the same restaurant.
+        </Alert>
+        <Button
+          variant="contained"
+          onClick={() => navigate("/cart")}
+          sx={{ mt: 2 }}
+        >
+          Review Cart
+        </Button>
+      </Container>
+    );
+  }
+
   const handlePlaceOrder = async () => {
     if (!validateRequired(["address", "phone"])) {
       return;

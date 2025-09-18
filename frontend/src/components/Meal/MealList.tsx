@@ -4,6 +4,13 @@ import styled from "styled-components";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Fastfood } from "@mui/icons-material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import { Meal } from "types/meal";
 import { Restaurant } from "types/restaurant";
 import { Loading } from "../Common/Loading";
@@ -68,11 +75,13 @@ export const MealList = ({
   onBackToRestaurants,
 }: MealListProps) => {
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { addItem, clearCart, state: cartState } = useCart();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [addToCartError, setAddToCartError] = useState<string | null>(null);
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [pendingMeal, setPendingMeal] = useState<Meal | null>(null);
 
   useEffect(() => {
     const loadMeals = () => {
@@ -94,6 +103,15 @@ export const MealList = ({
   );
 
   const handleAddToCart = async (meal: Meal) => {
+    if (
+      cartState.restaurantId &&
+      cartState.restaurantId !== meal.restaurantId
+    ) {
+      setPendingMeal(meal);
+      setShowConflictDialog(true);
+      return;
+    }
+
     try {
       const success = await addItem(meal, meal.restaurantId, restaurant.name);
       if (success) {
@@ -106,6 +124,21 @@ export const MealList = ({
     } catch (err) {
       setAddToCartError("Failed to add item to cart");
     }
+  };
+
+  const handleConfirmNewRestaurant = async () => {
+    if (pendingMeal) {
+      clearCart();
+      await addItem(pendingMeal, pendingMeal.restaurantId, restaurant.name);
+      setShowConflictDialog(false);
+      setPendingMeal(null);
+      setAddToCartError(null);
+    }
+  };
+
+  const handleCancelNewRestaurant = () => {
+    setShowConflictDialog(false);
+    setPendingMeal(null);
   };
 
   const handleBackToRestaurants = () => {
@@ -228,6 +261,32 @@ export const MealList = ({
           ))}
         </MealsGrid>
       )}
+
+      <Dialog
+        open={showConflictDialog}
+        onClose={handleCancelNewRestaurant}
+        aria-labelledby="conflict-dialog-title"
+      >
+        <DialogTitle id="conflict-dialog-title">Switch Restaurant?</DialogTitle>
+        <DialogContent>
+          <DLSTypography>
+            Your cart contains items from a different restaurant. Would you like
+            to clear your cart and start ordering from {restaurant.name}?
+          </DLSTypography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelNewRestaurant} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmNewRestaurant}
+            color="primary"
+            variant="contained"
+          >
+            Clear Cart & Continue
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
