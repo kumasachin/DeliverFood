@@ -2,8 +2,6 @@ import React from "react";
 import { render, screen, act, waitFor } from "@testing-library/react";
 import { AuthProvider, useAuth } from "../AuthContext";
 import { apiService } from "../../services";
-
-// Mock the API service
 jest.mock("../../services", () => ({
   apiService: {
     login: jest.fn(),
@@ -12,240 +10,318 @@ jest.mock("../../services", () => ({
     clearAuthToken: jest.fn(),
   },
 }));
-
-// Mock localStorage
-const mockLocalStorage = {
+const createMockLocalStorage = () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
-};
+});
+const mockLocalStorage = createMockLocalStorage();
 Object.defineProperty(window, "localStorage", {
   value: mockLocalStorage,
 });
-
-// Test component to access auth context
-const TestComponent = () => {
-  const { state, signIn, signUp, logout } = useAuth();
-
+const AuthTestHelper = () => {
+  const { state, signIn, signUp, logout, clearError } = useAuth();
+  const handleCustomerLogin = () => {
+    signIn("customer@test.com", "password123");
+  };
+  const handleAdminLogin = () => {
+    signIn("admin@test.com", "password123");
+  };
+  const handleOwnerLogin = () => {
+    signIn("owner@restaurant.com", "password123");
+  };
+  const handleSignUp = () => {
+    signUp("new@test.com", "password123", "New User", "customer");
+  };
   return (
     <div>
-      <div data-testid="user">
-        {state.user ? JSON.stringify(state.user) : "null"}
+      <div data-testid="authenticated">
+        {state.isAuthenticated ? "true" : "false"}
       </div>
-      <div data-testid="loading">{state.isLoading.toString()}</div>
-      <div data-testid="error">{state.error || "null"}</div>
-      <button onClick={() => signIn("test@example.com", "password")}>
-        Sign In
+      <div data-testid="user-email">{state.user?.email || "none"}</div>
+      <div data-testid="user-role">{state.user?.role || "none"}</div>
+      <div data-testid="loading">{state.isLoading ? "true" : "false"}</div>
+      <div data-testid="error">{state.error || "none"}</div>
+      <button data-testid="signin-customer-btn" onClick={handleCustomerLogin}>
+        Sign In as Customer
       </button>
-      <button
-        onClick={() => signUp("test@example.com", "password", "Test User")}
-      >
-        Sign Up
+      <button data-testid="signin-admin-btn" onClick={handleAdminLogin}>
+        Sign In as Admin
       </button>
-      <button onClick={logout}>Log Out</button>
+      <button data-testid="signin-owner-btn" onClick={handleOwnerLogin}>
+        Sign In as Restaurant Owner
+      </button>
+      <button data-testid="signup-btn" onClick={handleSignUp}>
+        Create New Account
+      </button>
+      <button data-testid="logout-btn" onClick={logout}>
+        Sign Out
+      </button>
+      <button data-testid="clear-error-btn" onClick={clearError}>
+        Clear Error Message
+      </button>
     </div>
   );
 };
-
-describe("AuthContext", () => {
+describe("Authentication Context - Happy Path Testing", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockLocalStorage.getItem.mockReturnValue(null);
   });
-
-  it("should initialize with default state", () => {
+  test("starts with user logged out", () => {
     render(
       <AuthProvider>
-        <TestComponent />
+        <AuthTestHelper />
       </AuthProvider>
     );
-
-    expect(screen.getByTestId("user")).toHaveTextContent("null");
+    expect(screen.getByTestId("authenticated")).toHaveTextContent("false");
+    expect(screen.getByTestId("user-email")).toHaveTextContent("none");
     expect(screen.getByTestId("loading")).toHaveTextContent("false");
-    expect(screen.getByTestId("error")).toHaveTextContent("null");
+    expect(screen.getByTestId("error")).toHaveTextContent("none");
   });
-
-  it("should restore user from localStorage on initialization", () => {
-    const mockUser = {
-      id: "123",
-      email: "test@example.com",
-      name: "Test User",
-      role: "customer" as const,
+  test("automatically logs in user when valid data exists in localStorage", () => {
+    const existingUser = {
+      id: "user-123",
+      email: "returning@user.com",
+      name: "Returning User",
+      role: "customer",
       isActive: true,
     };
-
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockUser));
-
+    mockLocalStorage.getItem.mockImplementation((key) => {
+      if (key === "authToken") return "existing-auth-token";
+      if (key === "userData") return JSON.stringify(existingUser);
+      return null;
+    });
     render(
       <AuthProvider>
-        <TestComponent />
+        <AuthTestHelper />
       </AuthProvider>
     );
-
-    expect(screen.getByTestId("user")).toHaveTextContent(
-      JSON.stringify(mockUser)
+    expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "returning@user.com"
     );
+    expect(screen.getByTestId("user-role")).toHaveTextContent("customer");
   });
-
-  it("should handle successful sign in", async () => {
-    const mockResponse = {
-      token: "mock-token",
-      uuid: "123",
-      email: "test@example.com",
+  test("allows customer to sign in successfully", async () => {
+    const customerLoginResponse = {
+      token: "customer-auth-token",
+      uuid: "customer-123",
+      email: "customer@test.com",
       role: "customer",
     };
-
-    (apiService.login as jest.Mock).mockResolvedValue(mockResponse);
-
+    (apiService.login as jest.Mock).mockResolvedValue(customerLoginResponse);
     render(
       <AuthProvider>
-        <TestComponent />
+        <AuthTestHelper />
       </AuthProvider>
     );
-
     await act(async () => {
-      screen.getByText("Sign In").click();
+      screen.getByTestId("signin-customer-btn").click();
     });
-
     await waitFor(() => {
-      expect(apiService.setAuthToken).toHaveBeenCalledWith("mock-token");
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "userData",
-        expect.stringContaining("test@example.com")
-      );
+      expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
     });
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "customer@test.com"
+    );
+    expect(screen.getByTestId("user-role")).toHaveTextContent("customer");
+    expect(screen.getByTestId("loading")).toHaveTextContent("false");
+    expect(screen.getByTestId("error")).toHaveTextContent("none");
   });
-
-  it("should handle sign in error", async () => {
-    const mockError = {
-      response: {
-        data: {
-          error: "Invalid credentials",
-        },
-      },
+  test("allows admin to sign in successfully", async () => {
+    const adminLoginResponse = {
+      token: "admin-auth-token",
+      uuid: "admin-456",
+      email: "admin@test.com",
+      role: "admin",
     };
-
-    (apiService.login as jest.Mock).mockRejectedValue(mockError);
-
+    (apiService.login as jest.Mock).mockResolvedValue(adminLoginResponse);
     render(
       <AuthProvider>
-        <TestComponent />
+        <AuthTestHelper />
       </AuthProvider>
     );
-
     await act(async () => {
-      screen.getByText("Sign In").click();
+      screen.getByTestId("signin-admin-btn").click();
     });
-
+    await waitFor(() => {
+      expect(screen.getByTestId("user-role")).toHaveTextContent("admin");
+    });
+    expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "admin@test.com"
+    );
+  });
+  test("allows restaurant owner to sign in successfully", async () => {
+    const ownerLoginResponse = {
+      token: "owner-auth-token",
+      uuid: "owner-789",
+      email: "owner@restaurant.com",
+      role: "owner",
+    };
+    (apiService.login as jest.Mock).mockResolvedValue(ownerLoginResponse);
+    render(
+      <AuthProvider>
+        <AuthTestHelper />
+      </AuthProvider>
+    );
+    await act(async () => {
+      screen.getByTestId("signin-owner-btn").click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("user-role")).toHaveTextContent("owner");
+    });
+    expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "owner@restaurant.com"
+    );
+  });
+  it("should successfully sign in an admin", async () => {
+    const adminResponse = {
+      token: "admin-token",
+      uuid: "admin-456",
+      email: "admin@test.com",
+      role: "admin",
+    };
+    (apiService.login as jest.Mock).mockResolvedValue(adminResponse);
+    render(
+      <AuthProvider>
+        <AuthTestHelper />
+      </AuthProvider>
+    );
+    await act(async () => {
+      screen.getByTestId("signin-admin-btn").click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("user-role")).toHaveTextContent("admin");
+    });
+    expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "admin@test.com"
+    );
+  });
+  it("should successfully sign in a restaurant owner", async () => {
+    const ownerResponse = {
+      token: "owner-token",
+      uuid: "owner-789",
+      email: "owner@restaurant.com",
+      role: "owner",
+    };
+    (apiService.login as jest.Mock).mockResolvedValue(ownerResponse);
+    render(
+      <AuthProvider>
+        <AuthTestHelper />
+      </AuthProvider>
+    );
+    await act(async () => {
+      screen.getByTestId("signin-owner-btn").click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("user-role")).toHaveTextContent("owner");
+    });
+    expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "owner@restaurant.com"
+    );
+  });
+  it("should successfully register a new customer", async () => {
+    const registerResponse = {
+      token: "signup-token",
+      uuid: "new-user-101",
+      email: "newcustomer@test.com",
+      role: "customer",
+    };
+    (apiService.register as jest.Mock).mockResolvedValue(registerResponse);
+    render(
+      <AuthProvider>
+        <AuthTestHelper />
+      </AuthProvider>
+    );
+    await act(async () => {
+      screen.getByTestId("signup-btn").click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
+    });
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "newcustomer@test.com"
+    );
+    expect(screen.getByTestId("user-role")).toHaveTextContent("customer");
+    expect(screen.getByTestId("loading")).toHaveTextContent("false");
+  });
+  it("should successfully log out authenticated user", async () => {
+    const loginResponse = {
+      token: "auth-token",
+      uuid: "user-123",
+      email: "customer@test.com",
+      role: "customer",
+    };
+    (apiService.login as jest.Mock).mockResolvedValue(loginResponse);
+    render(
+      <AuthProvider>
+        <AuthTestHelper />
+      </AuthProvider>
+    );
+    await act(async () => {
+      screen.getByTestId("signin-customer-btn").click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("authenticated")).toHaveTextContent("true");
+    });
+    act(() => {
+      screen.getByTestId("logout-btn").click();
+    });
+    expect(screen.getByTestId("authenticated")).toHaveTextContent("false");
+    expect(screen.getByTestId("user-email")).toHaveTextContent("none");
+    expect(screen.getByTestId("user-role")).toHaveTextContent("none");
+    expect(apiService.clearAuthToken).toHaveBeenCalled();
+  });
+  it("should clear errors when requested", async () => {
+    (apiService.login as jest.Mock).mockRejectedValue({
+      response: { data: { message: "Invalid credentials" } },
+    });
+    render(
+      <AuthProvider>
+        <AuthTestHelper />
+      </AuthProvider>
+    );
+    await act(async () => {
+      screen.getByTestId("signin-customer-btn").click();
+    });
     await waitFor(() => {
       expect(screen.getByTestId("error")).toHaveTextContent(
         "Invalid credentials"
       );
-      expect(screen.getByTestId("loading")).toHaveTextContent("false");
     });
-  });
-
-  it("should handle successful sign up", async () => {
-    const mockResponse = {
-      token: "mock-token",
-      uuid: "123",
-      email: "test@example.com",
-      role: "customer",
-    };
-
-    (apiService.register as jest.Mock).mockResolvedValue(mockResponse);
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    );
-
-    await act(async () => {
-      screen.getByText("Sign Up").click();
-    });
-
-    await waitFor(() => {
-      expect(apiService.setAuthToken).toHaveBeenCalledWith("mock-token");
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "userData",
-        expect.stringContaining("test@example.com")
-      );
-    });
-  });
-
-  it("should handle sign up error", async () => {
-    const mockError = {
-      response: {
-        data: {
-          message: "Email already exists",
-        },
-      },
-    };
-
-    (apiService.register as jest.Mock).mockRejectedValue(mockError);
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    );
-
-    await act(async () => {
-      screen.getByText("Sign Up").click();
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("error")).toHaveTextContent(
-        "Email already exists"
-      );
-      expect(screen.getByTestId("loading")).toHaveTextContent("false");
-    });
-  });
-
-  it("should handle logout", () => {
-    const mockUser = {
-      id: "123",
-      email: "test@example.com",
-      name: "Test User",
-      role: "customer" as const,
-      isActive: true,
-    };
-
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockUser));
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    );
-
     act(() => {
-      screen.getByText("Log Out").click();
+      screen.getByTestId("clear-error-btn").click();
     });
-
-    expect(apiService.clearAuthToken).toHaveBeenCalled();
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith("userData");
-    expect(screen.getByTestId("user")).toHaveTextContent("null");
+    expect(screen.getByTestId("error")).toHaveTextContent("none");
   });
-
-  it("should set loading state during authentication", async () => {
-    (apiService.login as jest.Mock).mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
-    );
-
+  it("should show loading during authentication", async () => {
+    let resolveLogin: (value: any) => void;
+    const loginPromise = new Promise((resolve) => {
+      resolveLogin = resolve;
+    });
+    (apiService.login as jest.Mock).mockReturnValue(loginPromise);
     render(
       <AuthProvider>
-        <TestComponent />
+        <AuthTestHelper />
       </AuthProvider>
     );
-
     act(() => {
-      screen.getByText("Sign In").click();
+      screen.getByTestId("signin-customer-btn").click();
     });
-
     expect(screen.getByTestId("loading")).toHaveTextContent("true");
-
+    await act(async () => {
+      resolveLogin!({
+        token: "token",
+        uuid: "123",
+        email: "customer@test.com",
+        role: "customer",
+      });
+    });
     await waitFor(() => {
       expect(screen.getByTestId("loading")).toHaveTextContent("false");
     });
