@@ -2,7 +2,7 @@
 
 ### Requirements
 
-This project has been tested with node 18 and node 20
+**Node.js Version:** This project requires Node.js version 18-20 (minimum: Node.js 18.x, maximum: Node.js 20.x)
 
 ### API Docs
 
