@@ -312,7 +312,7 @@ function registerRestaurantsEndpoints(app, models) {
     "/restaurants/:uuid/coupons",
     authentication(models),
     validation(couponsQuerySchema),
-    checkPermissions(MODERATORS, models),
+    checkPermissions(ALL_ACCESS, models),
     async (req, res) => {
       const paginationParams = getPaginationParams(req);
       if (!paginationParams.isValid) {

@@ -38,20 +38,14 @@ import { apiService } from "services/api";
 import { Meal } from "types/meal";
 import { Restaurant } from "services/api";
 
-interface MealFormData {
+interface MealForm {
   name: string;
   description: string;
   price: number;
   category: string;
 }
 
-const MEAL_CATEGORIES = [
-  "breakfast",
-  "lunch",
-  "dinner",
-  "appetizers",
-  "dessert",
-];
+const CATEGORIES = ["breakfast", "lunch", "dinner", "appetizers", "dessert"];
 
 export const MealManagement = () => {
   const { state: authState } = useAuth();
@@ -63,8 +57,7 @@ export const MealManagement = () => {
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  const [formData, setFormData] = useState<MealFormData>({
+  const [formData, setFormData] = useState<MealForm>({
     name: "",
     description: "",
     price: 0,
@@ -72,13 +65,13 @@ export const MealManagement = () => {
   });
 
   useEffect(() => {
-    const loadRestaurants = async () => {
-      if (authState.user?.role !== "owner") return;
+    if (authState.user?.role !== "owner") return;
 
+    const loadRestaurants = async () => {
       try {
         setLoading(true);
         const response = await apiService.getRestaurants({
-          owner_uuid: authState.user.uuid,
+          owner_uuid: authState.user!.uuid,
         });
         setRestaurants(response);
 
@@ -91,16 +84,17 @@ export const MealManagement = () => {
         setLoading(false);
       }
     };
+
     loadRestaurants();
   }, [authState.user]);
 
   useEffect(() => {
-    const loadMeals = async () => {
-      if (!selectedRestaurant) {
-        setMeals([]);
-        return;
-      }
+    if (!selectedRestaurant) {
+      setMeals([]);
+      return;
+    }
 
+    const loadMeals = async () => {
       try {
         setLoading(true);
         const response = await apiService.getRestaurantMeals(
@@ -113,10 +107,11 @@ export const MealManagement = () => {
         setLoading(false);
       }
     };
+
     loadMeals();
   }, [selectedRestaurant]);
 
-  const handleOpenDialog = (meal?: Meal) => {
+  const openDialog = (meal?: Meal) => {
     if (meal) {
       setEditingMeal(meal);
       setFormData({
@@ -127,32 +122,24 @@ export const MealManagement = () => {
       });
     } else {
       setEditingMeal(null);
-      setFormData({
-        name: "",
-        description: "",
-        price: 0,
-        category: "",
-      });
+      setFormData({ name: "", description: "", price: 0, category: "" });
     }
     setDialogOpen(true);
     setError(null);
     setSuccess(null);
   };
 
-  const handleCloseDialog = () => {
+  const closeDialog = () => {
     setDialogOpen(false);
     setEditingMeal(null);
     setError(null);
   };
 
-  const handleInputChange = (
-    field: keyof MealFormData,
-    value: string | number
-  ) => {
+  const updateForm = (field: keyof MealForm, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async () => {
+  const saveMeal = async () => {
     if (!selectedRestaurant) {
       setError("Please select a restaurant first");
       return;
@@ -202,7 +189,7 @@ export const MealManagement = () => {
         setSuccess("Meal created successfully!");
       }
 
-      handleCloseDialog();
+      closeDialog();
     } catch (err: any) {
       setError(
         err.response?.data?.error ||
@@ -213,7 +200,7 @@ export const MealManagement = () => {
     }
   };
 
-  const handleDelete = async (meal: Meal) => {
+  const deleteMeal = async (meal: Meal) => {
     if (!window.confirm(`Are you sure you want to delete "${meal.name}"?`)) {
       return;
     }
@@ -297,7 +284,7 @@ export const MealManagement = () => {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
+            onClick={() => openDialog()}
             disabled={loading}
           >
             Add New Meal
@@ -368,14 +355,14 @@ export const MealManagement = () => {
                     <TableCell align="center">
                       <IconButton
                         size="small"
-                        onClick={() => handleOpenDialog(meal)}
+                        onClick={() => openDialog(meal)}
                         disabled={loading}
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         size="small"
-                        onClick={() => handleDelete(meal)}
+                        onClick={() => deleteMeal(meal)}
                         disabled={loading}
                         color="error"
                       >
@@ -390,12 +377,7 @@ export const MealManagement = () => {
         </TableContainer>
       )}
 
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-      >
+      <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
         <DialogTitle>{editingMeal ? "Edit Meal" : "Add New Meal"}</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
@@ -403,7 +385,7 @@ export const MealManagement = () => {
               fullWidth
               label="Meal Name"
               value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
+              onChange={(e) => updateForm("name", e.target.value)}
               margin="normal"
               required
             />
@@ -412,7 +394,7 @@ export const MealManagement = () => {
               fullWidth
               label="Description"
               value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
+              onChange={(e) => updateForm("description", e.target.value)}
               margin="normal"
               multiline
               rows={3}
@@ -425,7 +407,7 @@ export const MealManagement = () => {
               type="number"
               value={formData.price}
               onChange={(e) =>
-                handleInputChange("price", parseFloat(e.target.value) || 0)
+                updateForm("price", parseFloat(e.target.value) || 0)
               }
               margin="normal"
               required
@@ -444,9 +426,9 @@ export const MealManagement = () => {
               <Select
                 value={formData.category}
                 label="Category"
-                onChange={(e) => handleInputChange("category", e.target.value)}
+                onChange={(e) => updateForm("category", e.target.value)}
               >
-                {MEAL_CATEGORIES.map((category) => (
+                {CATEGORIES.map((category) => (
                   <MenuItem key={category} value={category}>
                     {category}
                   </MenuItem>
@@ -456,11 +438,11 @@ export const MealManagement = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={loading}>
+          <Button onClick={closeDialog} disabled={loading}>
             Cancel
           </Button>
           <Button
-            onClick={handleSubmit}
+            onClick={saveMeal}
             variant="contained"
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}

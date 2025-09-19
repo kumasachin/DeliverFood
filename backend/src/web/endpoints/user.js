@@ -19,6 +19,25 @@ function generateUserJSON(user) {
  * @param {ModelsRegistry} models
  */
 function registerUserEndpoints(app, models) {
+  // Get all users with pagination
+  app.get(
+    "/users",
+    authentication(models),
+    checkPermissions(MODERATORS, models),
+    async (req, res) => {
+      try {
+        const limit = parseInt(req.query.limit) || 100;
+        const offset = parseInt(req.query.offset) || 0;
+
+        const users = await models.users().getAll(limit, offset);
+        const renderedUsers = users.map((user) => generateUserJSON(user));
+        res.json(renderedUsers);
+      } catch (error) {
+        res.status(500).json({ error: "Failed to fetch users" });
+      }
+    }
+  );
+
   // Get user by email (for blocking purposes)
   app.get(
     "/users/search",

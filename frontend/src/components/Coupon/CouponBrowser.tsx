@@ -47,7 +47,6 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch coupons
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
@@ -55,13 +54,11 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
         setError(null);
 
         if (restaurantUuid) {
-          // Fetch coupons for specific restaurant
           const restaurantCoupons = await apiService.getRestaurantCoupons(
             restaurantUuid
           );
           setCoupons(restaurantCoupons.filter((c) => c.status === "active"));
         } else {
-          // Fetch all restaurants and their coupons
           const allRestaurants = await apiService.getRestaurants();
           const restaurantMap: Record<string, Restaurant> = {};
           const allCoupons: Coupon[] = [];
@@ -76,7 +73,6 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
                 ...restaurantCoupons.filter((c) => c.status === "active")
               );
             } catch (error) {
-              // Restaurant might not have coupons, continue
               console.log(`No coupons for restaurant ${restaurant.title}`);
             }
           }
@@ -216,7 +212,6 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
                     </Box>
                   )}
 
-                  {/* Coupon Code */}
                   <Box sx={{ textAlign: "center", mb: 3 }}>
                     <Typography
                       variant="h4"
@@ -235,7 +230,6 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
                     </Typography>
                   </Box>
 
-                  {/* Discount */}
                   <Box sx={{ textAlign: "center", mb: 3 }}>
                     <Typography
                       variant="h2"
@@ -249,7 +243,6 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
                     </Typography>
                   </Box>
 
-                  {/* Valid Date */}
                   <Box
                     sx={{
                       display: "flex",
@@ -268,7 +261,6 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
                     </Typography>
                   </Box>
 
-                  {/* Action Buttons */}
                   <Box
                     sx={{ display: "flex", gap: 1, justifyContent: "center" }}
                   >
@@ -306,7 +298,6 @@ const CouponBrowser: React.FC<CouponBrowserProps> = ({
         </Box>
       )}
 
-      {/* Coupon Details Dialog */}
       <Dialog
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}

@@ -147,6 +147,14 @@ class UserModel {
     return res.map(castSchema.deserialize);
   }
 
+  async getAll(limit = 100, offset = 0) {
+    const stmt = this.db.prepare(
+      `SELECT ${exposedFields} FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?`
+    );
+    const res = stmt.all(limit, offset);
+    return res.map(castSchema.deserialize);
+  }
+
   async getByEmail(email) {
     const stmt = this.db.prepare(
       `SELECT uuid, password_hash, role, status FROM users WHERE email = ?`

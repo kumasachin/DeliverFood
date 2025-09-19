@@ -454,6 +454,16 @@ const createApiService = () => {
     return response.data;
   };
 
+  const getAllUsers = async (
+    limit: number = 100,
+    offset: number = 0
+  ): Promise<BlockedUser[]> => {
+    const response = await httpClient.get<BlockedUser[]>("/users", {
+      params: { limit, offset },
+    });
+    return response.data;
+  };
+
   const blockUser = async (userUuid: string): Promise<void> => {
     await httpClient.post(`/block/${userUuid}`);
   };
@@ -498,6 +508,7 @@ const createApiService = () => {
     deleteCoupon,
     searchUserByEmail,
     getBlockedUsers,
+    getAllUsers,
     blockUser,
     unblockUser,
     getUser,

@@ -35,7 +35,7 @@ import { useAuth } from "contexts/AuthContext";
 import { apiService, Restaurant } from "services/api";
 import { CouponManagement } from "components/Coupon/CouponManagement";
 
-interface RestaurantFormData {
+interface RestaurantForm {
   title: string;
   description: string;
   cuisine: string;
@@ -55,7 +55,7 @@ const CUISINES = [
   "greek",
 ];
 
-const CUISINE_DISPLAY_NAMES = {
+const CUISINE_NAMES = {
   italian: "Italian",
   french: "French",
   chinese: "Chinese",
@@ -77,7 +77,7 @@ export const RestaurantManagement = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
 
-  const [formData, setFormData] = useState<RestaurantFormData>({
+  const [formData, setFormData] = useState<RestaurantForm>({
     title: "",
     description: "",
     cuisine: "",
@@ -142,15 +142,12 @@ export const RestaurantManagement = () => {
     setError(null);
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const updateForm = (field: string, value: string) => {
     if (field.startsWith("coordinates.")) {
       const coordField = field.split(".")[1];
       setFormData((prev) => ({
         ...prev,
-        coordinates: {
-          ...prev.coordinates,
-          [coordField]: value,
-        },
+        coordinates: { ...prev.coordinates, [coordField]: value },
       }));
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
@@ -396,8 +393,8 @@ export const RestaurantManagement = () => {
                         >
                           <Chip
                             label={
-                              CUISINE_DISPLAY_NAMES[
-                                restaurant.cuisine as keyof typeof CUISINE_DISPLAY_NAMES
+                              CUISINE_NAMES[
+                                restaurant.cuisine as keyof typeof CUISINE_NAMES
                               ] || restaurant.cuisine
                             }
                             color="primary"
@@ -460,7 +457,6 @@ export const RestaurantManagement = () => {
       {activeTab === 1 && (
         <CouponManagement
           onCouponChange={() => {
-            // Optionally refresh data or show success message
             setSuccess("Coupon updated successfully!");
           }}
         />
@@ -481,7 +477,7 @@ export const RestaurantManagement = () => {
               fullWidth
               label="Restaurant Name"
               value={formData.title}
-              onChange={(e) => handleInputChange("title", e.target.value)}
+              onChange={(e) => updateForm("title", e.target.value)}
               required
               inputProps={{ maxLength: 30 }}
               helperText={`${formData.title.length}/30 characters`}
@@ -492,7 +488,7 @@ export const RestaurantManagement = () => {
               fullWidth
               label="Description"
               value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
+              onChange={(e) => updateForm("description", e.target.value)}
               multiline
               rows={3}
               required
@@ -506,16 +502,12 @@ export const RestaurantManagement = () => {
               <Select
                 value={formData.cuisine}
                 label="Cuisine Type"
-                onChange={(e) => handleInputChange("cuisine", e.target.value)}
+                onChange={(e) => updateForm("cuisine", e.target.value)}
                 required
               >
                 {CUISINES.map((cuisine) => (
                   <MenuItem key={cuisine} value={cuisine}>
-                    {
-                      CUISINE_DISPLAY_NAMES[
-                        cuisine as keyof typeof CUISINE_DISPLAY_NAMES
-                      ]
-                    }
+                    {CUISINE_NAMES[cuisine as keyof typeof CUISINE_NAMES]}
                   </MenuItem>
                 ))}
               </Select>
@@ -542,9 +534,7 @@ export const RestaurantManagement = () => {
               <TextField
                 label="Latitude"
                 value={formData.coordinates.lat}
-                onChange={(e) =>
-                  handleInputChange("coordinates.lat", e.target.value)
-                }
+                onChange={(e) => updateForm("coordinates.lat", e.target.value)}
                 required
                 type="number"
                 inputProps={{ step: "any" }}
@@ -555,9 +545,7 @@ export const RestaurantManagement = () => {
               <TextField
                 label="Longitude"
                 value={formData.coordinates.lng}
-                onChange={(e) =>
-                  handleInputChange("coordinates.lng", e.target.value)
-                }
+                onChange={(e) => updateForm("coordinates.lng", e.target.value)}
                 required
                 type="number"
                 inputProps={{ step: "any" }}

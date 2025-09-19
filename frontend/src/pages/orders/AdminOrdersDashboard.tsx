@@ -54,20 +54,16 @@ export const AdminOrdersDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
-
-  // Coupon management state
   const [couponDialogOpen, setCouponDialogOpen] = useState(false);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [couponLoading, setCouponLoading] = useState(false);
 
-  // Fetch all coupons from all restaurants
   const fetchAllCoupons = useCallback(async () => {
     try {
       setCouponLoading(true);
       const allCoupons: Coupon[] = [];
-
-      // Get coupons from all restaurants
       const restaurantIds = Object.keys(restaurants);
+
       for (const restaurantId of restaurantIds) {
         try {
           const restaurantCoupons = await apiService.getRestaurantCoupons(
@@ -124,7 +120,6 @@ export const AdminOrdersDashboard = () => {
       const ordersData = await apiService.getOrders();
       setOrders(ordersData);
 
-      // Fetch restaurant details for orders
       const restaurantUuids = ordersData
         .map((order) => order.restaurant_uuid)
         .filter((uuid) => uuid && !restaurants[uuid]);

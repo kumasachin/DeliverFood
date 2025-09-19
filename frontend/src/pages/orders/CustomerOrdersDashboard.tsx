@@ -96,7 +96,6 @@ export const CustomerOrdersDashboard = () => {
 
       setOrders(customerOrders);
 
-      // Fetch restaurant details for all orders
       const restaurantUuids = Array.from(
         new Set(customerOrders.map((order) => order.restaurant_uuid))
       );

@@ -18,11 +18,9 @@ export const VirtualList = <T,>({
 }: VirtualListProps<T>) => {
   const [scrollTop, setScrollTop] = useState(0);
 
-  // Calculate how many items can be visible at once
   const visibleItemCount = Math.ceil(containerHeight / itemHeight);
   const totalHeight = items.length * itemHeight;
 
-  // Only render items that are currently visible (plus some buffer)
   const visibleItems = useMemo(() => {
     const startIndex = Math.max(
       0,

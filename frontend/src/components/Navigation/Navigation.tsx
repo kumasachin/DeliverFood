@@ -8,7 +8,6 @@ import {
   Logout,
   Receipt,
   Store,
-  AdminPanelSettings,
   LocalOffer,
   RestaurantMenu,
   ManageAccounts,
@@ -42,53 +41,22 @@ export const Navigation = () => {
 
     if (authState.user?.role === "customer") {
       baseItems.push(
-        {
-          path: "/orders",
-          label: "My Orders",
-          icon: <Receipt />,
-        },
-        {
-          path: "/coupons",
-          label: "Browse Coupons",
-          icon: <LocalOffer />,
-        }
+        { path: "/orders", label: "My Orders", icon: <Receipt /> },
+        { path: "/coupons", label: "Browse Coupons", icon: <LocalOffer /> }
       );
     } else if (authState.user?.role === "owner") {
       baseItems.push(
-        {
-          path: "/restaurant-orders",
-          label: "Restaurant Orders",
-          icon: <Store />,
-        },
-        {
-          path: "/restaurant-management",
-          label: "Manage Restaurants",
-          icon: <Restaurant />,
-        },
-        {
-          path: "/meal-management",
-          label: "Manage Meals",
-          icon: <RestaurantMenu />,
-        },
-        {
-          path: "/coupons",
-          label: "Manage Coupons",
-          icon: <LocalOffer />,
-        }
+        { path: "/restaurant-orders", label: "Restaurant Orders", icon: <Store /> },
+        { path: "/restaurant-management", label: "Manage Restaurants", icon: <Restaurant /> },
+        { path: "/meal-management", label: "Manage Meals", icon: <RestaurantMenu /> },
+        { path: "/coupons", label: "Manage Coupons", icon: <LocalOffer /> }
       );
     } else if (authState.user?.role === "admin") {
-      baseItems.push(
-        {
-          path: "/admin-orders",
-          label: "Admin Dashboard",
-          icon: <AdminPanelSettings />,
-        },
-        {
-          path: "/customer-management",
-          label: "Manage Customers",
-          icon: <ManageAccounts />,
-        }
-      );
+      baseItems.push({
+        path: "/customer-management",
+        label: "Manage Customers",
+        icon: <ManageAccounts />,
+      });
     }
 
     return baseItems;
@@ -101,11 +69,21 @@ export const Navigation = () => {
   return (
     <AppBar position="static" sx={{ mb: 3 }}>
       <Toolbar>
-        <DLSTypography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <DLSTypography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1 }}
+          role="banner"
+        >
           Food Delivery App
         </DLSTypography>
 
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+        <Box
+          sx={{ display: "flex", gap: 1, alignItems: "center" }}
+          component="nav"
+          role="navigation"
+          aria-label="Main navigation"
+        >
           {navItems.map((item) => (
             <DLSButton
               key={item.path}
@@ -119,6 +97,10 @@ export const Navigation = () => {
               onClick={() => {
                 navigate(item.path);
               }}
+              aria-current={
+                location.pathname === item.path ? "page" : undefined
+              }
+              aria-label={"Navigate to " + item.label}
             >
               {item.label}
             </DLSButton>
@@ -127,7 +109,11 @@ export const Navigation = () => {
           {authState.isAuthenticated && (
             <>
               {authState.user?.role === "customer" && (
-                <IconButton color="inherit" onClick={() => navigate("/cart")}>
+                <IconButton
+                  color="inherit"
+                  onClick={() => navigate("/cart")}
+                  aria-label={"Shopping cart with " + totalItems + " items"}
+                >
                   <Badge badgeContent={totalItems} color="error">
                     <ShoppingCart />
                   </Badge>
@@ -139,6 +125,7 @@ export const Navigation = () => {
                 startIcon={<Logout />}
                 onClick={logout}
                 sx={{ ml: 1 }}
+                aria-label="Sign out of your account"
               >
                 Logout
               </DLSButton>

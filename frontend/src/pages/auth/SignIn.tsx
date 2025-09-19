@@ -59,11 +59,16 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
         </Box>
 
         {state.error && (
-          <Alert severity="error" sx={{ mb: 2 }} data-testid="signin-error">
+          <Alert
+            severity="error"
+            sx={{ mb: 2 }}
+            data-testid="signin-error"
+            id="signin-error"
+          >
             {state.error}
           </Alert>
         )}
-        <form onSubmit={handleLogin} data-testid="signin-form">
+        <form onSubmit={handleLogin} data-testid="signin-form" noValidate>
           <DLSInput
             label="Email"
             type="email"
@@ -72,7 +77,11 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             fullWidth
             margin="normal"
             required
-            inputProps={{ "data-testid": "email-input" }}
+            aria-describedby={state.error ? "signin-error" : undefined}
+            inputProps={{
+              "data-testid": "email-input",
+              "aria-label": "Email address",
+            }}
           />
           <DLSInput
             label="Password"
@@ -82,7 +91,11 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             fullWidth
             margin="normal"
             required
-            inputProps={{ "data-testid": "password-input" }}
+            aria-describedby={state.error ? "signin-error" : undefined}
+            inputProps={{
+              "data-testid": "password-input",
+              "aria-label": "Password",
+            }}
           />
           <DLSButton
             type="submit"
@@ -91,25 +104,30 @@ export const SignIn = ({ onSwitchToSignUp }: SignInProps) => {
             sx={{ mt: 3, mb: 2 }}
             disabled={state.isLoading}
             data-testid="signin-submit-button"
+            aria-describedby={state.error ? "signin-error" : undefined}
           >
             {state.isLoading ? "Signing In..." : "Sign In"}
           </DLSButton>
         </form>
         <DLSTypography align="center">
           Don't have an account?{" "}
-          <span
-            style={{
+          <DLSButton
+            variant="text"
+            sx={{
               color: "#1976d2",
-              cursor: "pointer",
               textDecoration: "underline",
+              textTransform: "none",
+              p: 0,
+              minWidth: "auto",
             }}
             onClick={() =>
               onSwitchToSignUp ? onSwitchToSignUp() : navigate("/signup")
             }
             data-testid="signup-link"
+            aria-label="Go to sign up page"
           >
             Sign up
-          </span>
+          </DLSButton>
         </DLSTypography>
       </Paper>
     </Box>

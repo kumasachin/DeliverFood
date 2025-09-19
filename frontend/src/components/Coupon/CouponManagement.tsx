@@ -71,7 +71,6 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showInactiveCoupons, setShowInactiveCoupons] = useState(false);
 
-  // Fetch owner's restaurants
   const fetchRestaurants = useCallback(async () => {
     try {
       if (authState.user?.role === "owner") {
@@ -80,7 +79,6 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
         });
         setRestaurants(restaurantList);
 
-        // Set default restaurant if not provided
         if (!restaurantUuid && restaurantList.length > 0) {
           setSelectedRestaurant(restaurantList[0].uuid);
         }
@@ -91,7 +89,6 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
     }
   }, [authState.user, restaurantUuid]);
 
-  // Fetch coupons for selected restaurant
   const fetchCoupons = useCallback(async () => {
     if (!selectedRestaurant) return;
 
@@ -170,12 +167,10 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
       setActionLoading("saving");
 
       if (editingCoupon) {
-        // Update existing coupon
         await apiService.updateCoupon(editingCoupon.uuid, {
           percentage: formData.percentage,
         });
       } else {
-        // Create new coupon
         await apiService.createCoupon(selectedRestaurant, formData);
       }
 
@@ -241,7 +236,6 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
         </DLSButton>
       </Box>
 
-      {/* Restaurant Selection for owners with multiple restaurants */}
       {!restaurantUuid && restaurants.length > 1 && (
         <Box sx={{ mb: 3 }}>
           <FormControl fullWidth>
@@ -261,7 +255,6 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
         </Box>
       )}
 
-      {/* Toggle for inactive coupons */}
       <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
         <Typography variant="body2">Show inactive coupons:</Typography>
         <IconButton
@@ -278,7 +271,6 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
         </Alert>
       )}
 
-      {/* Coupons List */}
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
           <CircularProgress />
@@ -390,7 +382,6 @@ export const CouponManagement: React.FC<CouponManagementProps> = ({
         </Box>
       )}
 
-      {/* Create/Edit Coupon Dialog */}
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}

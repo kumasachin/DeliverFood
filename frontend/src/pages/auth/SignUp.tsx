@@ -73,12 +73,17 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
         </Box>
 
         {state.error && (
-          <Alert severity="error" sx={{ mb: 2 }} data-testid="signup-error">
+          <Alert
+            severity="error"
+            sx={{ mb: 2 }}
+            data-testid="signup-error"
+            id="signup-error"
+          >
             {state.error}
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} data-testid="signup-form">
+        <form onSubmit={handleSubmit} data-testid="signup-form" noValidate>
           <DLSInput
             label="Name"
             type="text"
@@ -87,7 +92,11 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             fullWidth
             margin="normal"
             required
-            inputProps={{ "data-testid": "name-input" }}
+            aria-describedby={state.error ? "signup-error" : undefined}
+            inputProps={{
+              "data-testid": "name-input",
+              "aria-label": "Full name",
+            }}
           />
 
           <DLSInput
@@ -98,7 +107,11 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             fullWidth
             margin="normal"
             required
-            inputProps={{ "data-testid": "email-input" }}
+            aria-describedby={state.error ? "signup-error" : undefined}
+            inputProps={{
+              "data-testid": "email-input",
+              "aria-label": "Email address",
+            }}
           />
 
           <DLSInput
@@ -109,14 +122,20 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             fullWidth
             margin="normal"
             required
-            inputProps={{ "data-testid": "password-input" }}
+            aria-describedby={state.error ? "signup-error" : undefined}
+            inputProps={{
+              "data-testid": "password-input",
+              "aria-label": "Password",
+            }}
           />
 
           <FormControl fullWidth margin="normal">
-            <InputLabel>Role</InputLabel>
+            <InputLabel id="role-select-label">Role</InputLabel>
             <Select
               value={values.role}
               label="Role"
+              labelId="role-select-label"
+              aria-describedby={state.error ? "signup-error" : undefined}
               onChange={(e) =>
                 handleInputChange("role", e.target.value as Role)
               }
@@ -135,6 +154,7 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             sx={{ mt: 3, mb: 2 }}
             disabled={state.isLoading}
             data-testid="signup-submit-button"
+            aria-describedby={state.error ? "signup-error" : undefined}
           >
             {state.isLoading ? "Creating Account..." : "Sign Up"}
           </DLSButton>
@@ -142,19 +162,23 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
 
         <DLSTypography align="center">
           Already have an account?{" "}
-          <span
-            style={{
+          <DLSButton
+            variant="text"
+            sx={{
               color: "#1976d2",
-              cursor: "pointer",
               textDecoration: "underline",
+              textTransform: "none",
+              p: 0,
+              minWidth: "auto",
             }}
             onClick={() =>
               onSwitchToSignIn ? onSwitchToSignIn() : navigate("/signin")
             }
             data-testid="signin-link"
+            aria-label="Go to sign in page"
           >
             Sign in
-          </span>
+          </DLSButton>
         </DLSTypography>
       </Paper>
     </Box>
