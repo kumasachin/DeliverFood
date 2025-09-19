@@ -41,6 +41,7 @@ import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { DLSTypography } from "dls/atoms/Typography";
 import { DLSButton } from "dls/atoms/Button";
 import { DLSCard } from "dls/molecules/Card";
+import { APP_CONFIG } from "../../config/constants";
 
 export const AdminOrdersDashboard = () => {
   const { state: authState } = useAuth();
@@ -141,7 +142,7 @@ export const AdminOrdersDashboard = () => {
     },
     {
       enabled: true,
-      interval: 30000,
+      interval: APP_CONFIG.AUTO_REFRESH.ORDERS_DASHBOARD,
       immediate: false,
     }
   );
