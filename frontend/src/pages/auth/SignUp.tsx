@@ -143,7 +143,6 @@ export const SignUp = ({ onSwitchToSignIn }: SignUpProps) => {
             >
               <MenuItem value="customer">Customer</MenuItem>
               <MenuItem value="owner">Restaurant Owner</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
             </Select>
           </FormControl>
 
