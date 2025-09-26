@@ -1,4 +1,0 @@
-db/*.sqlite
-db/*.sqlite-*
-node_modules/
-.idea/

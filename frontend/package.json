@@ -25,12 +25,28 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "concurrently \"PORT=3001 npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "react-scripts start",
+    "start:backend": "cd backend && npm run start:dev",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "@faker-js/faker": "^10.0.0",
+    "@storybook/addon-docs": "^9.1.6",
+    "@storybook/preset-create-react-app": "^1.2.0",
+    "@storybook/react-webpack5": "^9.1.6",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/user-event": "^14.6.1",
+    "cypress": "^15.2.0",
+    "eslint-plugin-storybook": "^9.1.6",
+    "prop-types": "^15.8.1",
+    "storybook": "^9.1.6",
+    "webpack": "^5.101.3"
   },
   "eslintConfig": {
     "extends": [
@@ -51,18 +67,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@faker-js/faker": "^10.0.0",
-    "@storybook/addon-docs": "^9.1.6",
-    "@storybook/preset-create-react-app": "^1.2.0",
-    "@storybook/react-webpack5": "^9.1.6",
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/user-event": "^14.6.1",
-    "cypress": "^15.2.0",
-    "eslint-plugin-storybook": "^9.1.6",
-    "prop-types": "^15.8.1",
-    "storybook": "^9.1.6",
-    "webpack": "^5.101.3"
   }
 }
