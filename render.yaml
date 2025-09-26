@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: deliverfood-frontend
+    runtime: static
+    buildCommand: npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_BASE_URL
+        value: https://deliverfood-backend.onrender.com
+
+  - type: web
+    name: deliverfood-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000

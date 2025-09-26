@@ -1,23 +1,158 @@
-# Toptal Test Food Delivery
+# DeliverFood - Food Delivery Application
 
-## BACKEND
+A modern food delivery application built with React (frontend) and Node.js/Express (backend) in a monorepo structure.
 
-The backend folder consists on a Restful API backend application buil in Node.js and using SQLite as database.
+## 🏗️ Monorepo Structure
 
-This application serves only as a backend for the candidates to build an frontend application. You're not authorized to share or reuse the contents of this application by Toptal's Screening Procsess agreement
+```
+deliverfood-monorepo/
+├── apps/
+│   ├── frontend/          # React TypeScript application
+│   └── backend/           # Node.js Express API server
+├── package.json           # Root package.json with workspaces
+└── render.yaml            # Render deployment configuration
+```
 
-You can build your project using the technology at your choice.
+## 🚀 Quick Start
 
-You can find the Swagger interactive documentation listed on instructions below, but to serve as purpose for your Technical Project Assignment, the application serves the following content:
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+```bash
+# Install all dependencies
+npm install
+
+# Start development servers
+npm run dev
+```
+
+### Individual Services
+
+```bash
+# Frontend only
+cd apps/frontend && npm start
+
+# Backend only
+cd apps/backend && npm run start:dev
+```
+
+## 📦 Apps
+
+### Frontend (`apps/frontend`)
+- **Framework:** React 19 with TypeScript
+- **UI Library:** Material-UI (MUI)
+- **State Management:** React Context
+- **Routing:** React Router
+- **HTTP Client:** Axios
+- **Development Server:** http://localhost:3001
+
+### Backend (`apps/backend`)
+- **Framework:** Node.js with Express
+- **Database:** SQLite (development) / PostgreSQL (production)
+- **Authentication:** JWT tokens
+- **API Documentation:** RESTful endpoints
+- **Development Server:** http://localhost:3000
+
+## 🔧 Available Scripts
+
+### Root Level
+```bash
+npm run dev      # Start all services in development
+npm run build    # Build all services
+npm start        # Start all services in production
+```
+
+### Frontend Scripts
+```bash
+cd apps/frontend
+npm start         # Start development server
+npm run build     # Build for production
+npm test          # Run tests
+npm run storybook # Start Storybook
+```
+
+### Backend Scripts
+```bash
+cd apps/backend
+npm run start:dev # Start with hot reload
+npm start         # Start production server
+```
+
+## 🌐 API Endpoints
 
 ### Authentication
-You're able to authenticate to the backend using email and password, request an JWT Authentication Token, and use it to interact with the endpoints.
-
-### User Account
-You're able to create new users with Costumer or Owner roles.
+- `POST /tokens` - Login
+- `POST /registrations` - Register new user
 
 ### Restaurants
-Owners are able to create, edit or delete Resturants
+- `GET /restaurants` - List all restaurants
+
+### Meals
+- `GET /meals` - List all meals
+
+### Orders
+- `GET /orders` - List user orders
+
+### Coupons
+- `GET /coupons` - List available coupons
+
+### Users
+- `GET /users` - List users
+
+## 🚀 Deployment
+
+### Vercel (Frontend)
+1. Connect your GitHub repository to Vercel
+2. Deploy the `apps/frontend` folder
+3. Set environment variables:
+   - `REACT_APP_API_BASE_URL` - Your backend API URL
+
+### Render (Full Stack)
+1. Use the `render.yaml` configuration file
+2. Deploy both services separately
+3. Frontend will automatically connect to backend
+
+### Manual Deployment
+```bash
+# Build frontend
+cd apps/frontend && npm run build
+
+# Start backend
+cd apps/backend && npm start
+```
+
+## 🔒 Environment Variables
+
+### Frontend (.env)
+```
+REACT_APP_API_BASE_URL=http://localhost:3000
+PORT=3001
+```
+
+### Backend
+```
+PORT=3000
+NODE_ENV=development
+```
+
+## 📝 Development Notes
+
+- Frontend runs on port 3001, backend on port 3000
+- CORS is enabled for cross-origin requests
+- JWT tokens are used for authentication
+- Mock data is provided for development
+- SQLite database for development (can be upgraded to PostgreSQL for production)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 Customers are able to see the list of Restaurants
 
 ### Meals 
