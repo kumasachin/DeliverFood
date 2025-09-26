@@ -4,33 +4,38 @@ A full-featured food delivery application built with modern web technologies. Fe
 
 ## 🌐 Live Demo
 
-🚀 **[View Live Application](https://deliver-food-frontend-9nowp4zgt-sachin-kumars-projects-1cd28c0d.vercel.app/signin)**
+🚀 **[View Live Application](https://deliver-food-frontend.vercel.app/)**
 
 **Test Accounts:**
+
 - **Customer:** Login with any email/password (mock authentication)
 - **Owner:** Login with email containing "owner" (e.g., owner@test.com)
 
 ## ✨ Features
 
 ### 👥 User Management
+
 - **Role-based Authentication**: Customer and Owner roles with different permissions
 - **JWT Authentication**: Secure token-based authentication system
 - **User Registration & Login**: Complete authentication flow
 - **Profile Management**: User account management
 
 ### 🏪 Restaurant Management (Owners Only)
+
 - **Restaurant CRUD**: Create, read, update, delete restaurants
 - **Multi-restaurant Support**: Owners can manage multiple restaurants
 - **Location Integration**: Restaurant coordinates for delivery calculations
 - **Restaurant Dashboard**: Comprehensive management interface
 
 ### 🍽️ Meal Management (Owners Only)
+
 - **Meal CRUD**: Full menu management per restaurant
 - **Pricing**: Dynamic pricing system
 - **Categorization**: Organize meals by restaurant
 - **Menu Display**: Customer-facing menu browsing
 
 ### 🛒 Order Management
+
 - **Order Creation**: Seamless ordering process for customers
 - **Order Tracking**: Real-time order status updates
 - **Order History**: Complete order history for users
@@ -38,18 +43,21 @@ A full-featured food delivery application built with modern web technologies. Fe
 - **Order Details**: Comprehensive order information
 
 ### 🎫 Coupon System
+
 - **Coupon Creation**: Restaurant owners can create discount coupons
 - **Coupon Management**: Full CRUD operations for coupons
 - **Discount Application**: Automatic discount calculation
 - **Restaurant-specific**: Coupons tied to specific restaurants
 
 ### 📊 Dashboard & Analytics
+
 - **Owner Dashboard**: Restaurant performance metrics
 - **Customer Dashboard**: Order history and preferences
 - **Order Analytics**: Sales and order statistics
 - **Real-time Updates**: Live order status tracking
 
 ### 🎨 Modern UI/UX
+
 - **Material-UI Design**: Professional, responsive design
 - **Mobile-First**: Optimized for all devices
 - **Intuitive Navigation**: Easy-to-use interface
@@ -59,6 +67,7 @@ A full-featured food delivery application built with modern web technologies. Fe
 ## 🏗️ Architecture
 
 ### Monorepo Structure
+
 ```
 deliverfood-monorepo/
 ├── apps/
@@ -86,6 +95,7 @@ deliverfood-monorepo/
 ## �️ Tech Stack
 
 ### Frontend
+
 - **React 19** - Modern React with concurrent features
 - **TypeScript** - Type-safe JavaScript
 - **Material-UI (MUI)** - Component library and design system
@@ -97,6 +107,7 @@ deliverfood-monorepo/
 - **Cypress** - End-to-end testing
 
 ### Backend
+
 - **Node.js** - JavaScript runtime
 - **Express.js** - Web framework
 - **JWT** - Authentication tokens
@@ -105,6 +116,7 @@ deliverfood-monorepo/
 - **PostgreSQL** - Production database (configurable)
 
 ### DevOps & Deployment
+
 - **Vercel** - Frontend deployment
 - **Render** - Backend deployment
 - **npm workspaces** - Monorepo management
@@ -114,6 +126,7 @@ deliverfood-monorepo/
 ## � Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 - Git
@@ -139,6 +152,7 @@ npm run dev
 ### Environment Configuration
 
 Create `.env` file in `apps/frontend/`:
+
 ```bash
 REACT_APP_API_BASE_URL=http://localhost:3000
 PORT=3001
@@ -147,6 +161,7 @@ PORT=3001
 ## 📱 User Roles & Permissions
 
 ### 👤 Customer Role
+
 - Browse restaurants and menus
 - Place orders
 - Track order status
@@ -155,6 +170,7 @@ PORT=3001
 - Manage profile
 
 ### 👨‍🍳 Owner Role
+
 - All customer permissions plus:
 - Create/manage restaurants
 - Add/edit/delete meals
@@ -166,12 +182,14 @@ PORT=3001
 ## 🌐 API Documentation
 
 ### Authentication Endpoints
+
 ```http
 POST /tokens              # User login
 POST /registrations       # User registration
 ```
 
 ### Restaurant Endpoints
+
 ```http
 GET  /restaurants         # List all restaurants
 POST /restaurants         # Create restaurant (owners only)
@@ -180,6 +198,7 @@ DELETE /restaurants/:id   # Delete restaurant (owners only)
 ```
 
 ### Meal Endpoints
+
 ```http
 GET  /meals               # List all meals
 POST /meals               # Create meal (owners only)
@@ -188,6 +207,7 @@ DELETE /meals/:id         # Delete meal (owners only)
 ```
 
 ### Order Endpoints
+
 ```http
 GET  /orders              # List user orders
 POST /orders              # Create new order
@@ -196,6 +216,7 @@ PUT  /orders/:id/status   # Update order status
 ```
 
 ### Coupon Endpoints
+
 ```http
 GET  /coupons             # List available coupons
 POST /coupons             # Create coupon (owners only)
@@ -204,6 +225,7 @@ DELETE /coupons/:id       # Delete coupon (owners only)
 ```
 
 ### User Management
+
 ```http
 GET  /users               # List users (admin only)
 PUT  /users/:id/block     # Block/unblock user (owners only)
@@ -212,35 +234,41 @@ PUT  /users/:id/block     # Block/unblock user (owners only)
 ## 🚀 Production Deployment
 
 ### Vercel (Frontend)
+
 1. Connect `kumasachin/DeliverFood` repository
 2. Set root directory: `apps/frontend`
 3. Add environment variable: `REACT_APP_API_BASE_URL=https://your-backend-url.onrender.com`
 4. Deploy automatically
 
 ### Render (Backend)
+
 1. Use Blueprint deployment with `render.yaml`
 2. Both services deploy automatically
 3. Frontend connects to backend via environment variables
 
 ### Production URLs
-- **Frontend**: `https://deliver-food-frontend-9nowp4zgt-sachin-kumars-projects-1cd28c0d.vercel.app`
+
+- **Frontend**: `https://deliver-food-frontend.vercel.app`
 - **Backend**: `https://deliverfood-backend.onrender.com` (deploy with Render)
 
 ## 🧪 Testing
 
 ### Unit Tests
+
 ```bash
 cd apps/frontend
 npm test
 ```
 
 ### E2E Tests
+
 ```bash
 cd apps/frontend
 npm run cypress
 ```
 
 ### Component Stories
+
 ```bash
 cd apps/frontend
 npm run storybook
@@ -249,6 +277,7 @@ npm run storybook
 ## 📊 Database Schema
 
 ### Users
+
 - `uuid`: Primary key
 - `email`: Unique email address
 - `password`: Hashed password
@@ -256,6 +285,7 @@ npm run storybook
 - `created_at`: Timestamp
 
 ### Restaurants
+
 - `uuid`: Primary key
 - `title`: Restaurant name
 - `description`: Restaurant description
@@ -265,6 +295,7 @@ npm run storybook
 - `created_at`: Timestamp
 
 ### Meals
+
 - `uuid`: Primary key
 - `title`: Meal name
 - `description`: Meal description
@@ -273,6 +304,7 @@ npm run storybook
 - `created_at`: Timestamp
 
 ### Orders
+
 - `uuid`: Primary key
 - `user_uuid`: Foreign key to users
 - `restaurant_uuid`: Foreign key to restaurants
@@ -281,6 +313,7 @@ npm run storybook
 - `created_at`: Timestamp
 
 ### Order Items
+
 - `uuid`: Primary key
 - `order_uuid`: Foreign key to orders
 - `meal_uuid`: Foreign key to meals
@@ -288,6 +321,7 @@ npm run storybook
 - `price`: Item price
 
 ### Coupons
+
 - `uuid`: Primary key
 - `code`: Coupon code
 - `discount`: Discount percentage
@@ -321,6 +355,7 @@ npm run storybook
 5. Open Pull Request
 
 ### Development Guidelines
+
 - Follow TypeScript best practices
 - Write comprehensive tests
 - Use conventional commits
