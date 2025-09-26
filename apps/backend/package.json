@@ -4,6 +4,7 @@
   "main": "src/commands/serve.js",
   "private": true,
   "scripts": {
+    "build": "echo 'Building backend...'",
     "start:dev": "node --watch src/commands/serve.js",
     "start": "node src/commands/serve.js"
   },
