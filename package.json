@@ -9,5 +9,8 @@
     "dev": "npm run dev --workspaces",
     "build": "npm run build --workspaces",
     "start": "npm start --workspaces"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.5.0"
   }
 }
